@@ -1,0 +1,1782 @@
+<title>創作ラボ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
+<style>
+  :root{
+    --bg:#F1F2F7;
+    --surface:#F1F2F7;
+    --surface-2:#E7E9F1;
+    --ink:#211B3D;
+    --ink-soft:#726D93;
+    --ink-faint:#A6A1C4;
+    --line:#E9E7F4;
+    --line-strong:#D3CFEA;
+    --accent:#3E586F;
+    --accent-deep:#3E586F;
+    --accent-ink:#FFFFFF;
+    --teal:#0FA394;
+    --yellow:#E0A63C;
+    --purple:#7C5CFC;
+    --red:#E24E6B;
+    --green:#1FA070;
+    --gray:#9C97AE;
+    --neu-light: rgba(255,255,255,.9);
+    --neu-dark: rgba(163,173,199,.55);
+    --shadow: 7px 7px 14px var(--neu-dark), -7px -7px 14px var(--neu-light);
+    --shadow-sm: 4px 4px 9px var(--neu-dark), -4px -4px 9px var(--neu-light);
+    --shadow-inset: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light);
+    --shadow-inset-sm: inset 2px 2px 5px var(--neu-dark), inset -2px -2px 5px var(--neu-light);
+    --ring: 0 0 0 1.5px rgba(62,88,111,.28);
+    --ring-hover: 0 0 0 1.5px rgba(62,88,111,.46);
+    --radius-lg: 22px;
+    --radius-md: 16px;
+    --radius-sm: 10px;
+    --font-display:'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+    --font-body:'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+  }
+  *,*::before,*::after{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:15px;
+    line-height:1.7;
+  }
+  h1,h2,h3,h4,button,input,select,textarea{ font-family:var(--font-display); }
+  h1,h2,h3,h4{ margin:0; text-wrap:balance; color:var(--ink); }
+  p{ margin:0; }
+  a{ color:var(--accent-deep); }
+  ::selection{ background:var(--yellow); color:var(--ink); }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+  }
+
+  .fade-in{ animation:fadeInUp .5s cubic-bezier(.2,.8,.25,1) both; }
+  @keyframes fadeInUp{ from{ opacity:0; transform:translateY(10px) scale(.99);} to{ opacity:1; transform:translateY(0) scale(1);} }
+  @keyframes popIn{ from{ opacity:0; transform:scale(.9);} to{ opacity:1; transform:scale(1);} }
+
+  button{ cursor:pointer; border:none; font-weight:700; }
+  .btn{
+    display:inline-flex; align-items:center; gap:6px; justify-content:center;
+    background:var(--bg); color:var(--ink); border:none;
+    padding:9px 18px; border-radius:999px; font-size:14px; box-shadow:var(--shadow-sm), var(--ring);
+    transition:box-shadow .15s ease;
+  }
+  .btn:hover{ box-shadow:var(--shadow), var(--ring-hover); }
+  .btn:active{ box-shadow:var(--shadow-inset-sm), var(--ring-hover); }
+  .btn:focus-visible{ outline:3px solid var(--purple); outline-offset:2px; }
+  .btn-primary{ background:var(--accent); color:var(--accent-ink); box-shadow:5px 5px 10px var(--neu-dark), -5px -5px 10px var(--neu-light); }
+  .btn-primary:hover{ box-shadow:7px 7px 14px var(--neu-dark), -7px -7px 14px var(--neu-light); }
+  .btn-primary:active{ box-shadow:inset 3px 3px 6px var(--neu-dark), inset -3px -3px 6px var(--neu-light); }
+  .btn-ghost{ background:transparent; box-shadow:var(--ring); color:var(--ink-soft); }
+  .btn-ghost:hover{ color:var(--ink); background:var(--surface-2); box-shadow:var(--shadow-inset-sm), var(--ring-hover); }
+  .btn-danger{ background:#FFF0EE; color:var(--red); box-shadow:2px 2px 5px var(--neu-dark), -2px -2px 5px var(--neu-light), 0 0 0 1.5px rgba(226,78,106,.25); }
+  .btn-danger:hover{ box-shadow:3px 3px 7px var(--neu-dark), -3px -3px 7px var(--neu-light), 0 0 0 1.5px rgba(226,78,106,.4); }
+  .btn-danger:active{ box-shadow:inset 2px 2px 5px var(--neu-dark), inset -2px -2px 5px var(--neu-light), 0 0 0 1.5px rgba(226,78,106,.4); }
+  .btn-sm{ padding:6px 12px; font-size:12.5px; box-shadow:2.5px 2.5px 6px var(--neu-dark), -2.5px -2.5px 6px var(--neu-light), var(--ring); }
+  .btn-sm:hover{ box-shadow:3.5px 3.5px 8px var(--neu-dark), -3.5px -3.5px 8px var(--neu-light), var(--ring-hover); }
+  .btn-sm:active{ box-shadow:inset 2px 2px 5px var(--neu-dark), inset -2px -2px 5px var(--neu-light), var(--ring-hover); }
+  .btn:disabled{ opacity:.5; cursor:not-allowed; box-shadow:none; }
+
+  input[type=text],input[type=number],input[type=date],textarea,select{
+    width:100%; border:none; border-radius:var(--radius-sm);
+    padding:10px 12px; font-size:14px; font-family:var(--font-body); background:var(--bg); color:var(--ink);
+    box-shadow:var(--shadow-inset-sm), var(--ring);
+  }
+  input:focus,textarea:focus,select:focus{ outline:none; box-shadow:var(--shadow-inset-sm), 0 0 0 3px rgba(62,88,111,.36); }
+  textarea{ resize:vertical; min-height:70px; }
+  label.field{ display:block; margin-bottom:12px; }
+  label.field > span{ display:block; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin-bottom:5px; letter-spacing:.02em; }
+  .hint{ font-size:12px; color:var(--ink-faint); margin-top:4px; }
+
+  input[type=color]{ -webkit-appearance:none; width:38px; height:38px; border:none; border-radius:10px; padding:2px; background:var(--bg); box-shadow:var(--shadow-inset-sm), 0 0 0 2px var(--bg), 0 0 0 4px var(--ink); flex:none; }
+  input[type=color]::-webkit-color-swatch{ border-radius:6px; border:none; }
+  .color-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .swatches{ display:flex; gap:6px; flex-wrap:wrap; }
+  .swatch{ width:24px; height:24px; border-radius:50%; border:2px solid rgba(0,0,0,.08); cursor:pointer; transition:transform .1s; }
+  .swatch:hover{ transform:scale(1.15); }
+  .swatch.active{ box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--ink); }
+  input.hexcode-input{ width:84px; font-family:monospace; font-size:12px; color:var(--ink-soft); background:var(--surface-2); padding:6px 8px; border-radius:8px; box-shadow:var(--shadow-inset-sm); text-transform:uppercase; }
+  input.hexcode-input:focus{ color:var(--ink); box-shadow:var(--shadow-inset-sm), 0 0 0 3px rgba(62,88,111,.36); }
+  .image-field-row{ display:flex; align-items:center; gap:12px; }
+  .image-preview{ width:72px; height:72px; border-radius:16px; overflow:hidden; background:var(--surface-2); box-shadow:var(--shadow-inset-sm); flex:none; display:flex; align-items:center; justify-content:center; }
+  .image-preview img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .image-preview-empty{ font-size:10.5px; color:var(--ink-faint); text-align:center; padding:0 6px; }
+  .image-field-controls{ display:flex; flex-direction:column; gap:6px; align-items:flex-start; }
+  .image-field-controls input[type=file]{ font-size:12px; padding:0; border:none; }
+  .image-field-controls .btn{ padding:4px 10px; font-size:11px; }
+
+  /* App shell */
+  #app{ min-height:100vh; display:flex; }
+  .hidden{ display:none !important; }
+
+  /* Gate: project picker */
+  #gate{ width:100%; max-width:900px; margin:0 auto; padding:48px 20px 60px; }
+  .gate-hero{ text-align:center; margin-bottom:36px; }
+  .gate-hero h1{ font-size:clamp(26px,5vw,34px); font-weight:800; margin-top:8px; }
+  .gate-hero p{ color:var(--ink-soft); margin-top:8px; font-size:14.5px; }
+  .project-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:16px; margin-top:24px; }
+  .project-card{
+    background:var(--bg); border:none; border-radius:var(--radius-lg);
+    padding:20px; box-shadow:var(--shadow), var(--ring); cursor:pointer; text-align:left; position:relative; overflow:hidden;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .project-card:hover{ transform:translateY(-3px); box-shadow:9px 9px 18px var(--neu-dark), -9px -9px 18px var(--neu-light), var(--ring-hover); }
+  .project-card::before{ content:''; position:absolute; top:0; left:0; right:0; height:8px; background:var(--pc,var(--accent)); }
+  .project-card .pname{ font-weight:800; font-size:17px; margin-top:6px; }
+  .project-card .pdesc{ color:var(--ink-soft); font-size:12.5px; margin-top:6px; min-height:34px; }
+  .project-card .pmeta{ display:flex; justify-content:flex-end; gap:8px; margin-top:14px; }
+  .pmeta-btn{ font-family:var(--font-body); font-size:11.5px; font-weight:700; color:var(--ink-soft); background:var(--bg); border:none; border-radius:999px; padding:4px 12px; box-shadow:2.5px 2.5px 6px var(--neu-dark), -2.5px -2.5px 6px var(--neu-light), var(--ring); }
+  .pmeta-btn:hover{ color:var(--ink); box-shadow:3.5px 3.5px 8px var(--neu-dark), -3.5px -3.5px 8px var(--neu-light), var(--ring-hover); }
+  .pmeta-btn:active{ box-shadow:inset 2px 2px 5px var(--neu-dark), inset -2px -2px 5px var(--neu-light), var(--ring-hover); }
+  .project-new{
+    border:none; border-radius:var(--radius-lg); background:var(--bg); box-shadow:var(--shadow), var(--ring);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; min-height:130px;
+    color:var(--ink-soft); font-size:14px; font-weight:700; cursor:pointer; transition:box-shadow .15s ease;
+  }
+  .project-new:hover{ color:var(--accent-deep); box-shadow:9px 9px 18px var(--neu-dark), -9px -9px 18px var(--neu-light), var(--ring-hover); }
+  .project-new:active{ box-shadow:var(--shadow-inset), var(--ring-hover); }
+  .project-new .plus{ font-size:26px; }
+
+  /* Sidebar */
+  .sidebar{
+    width:230px; flex:none; background:var(--bg); border-right:none;
+    display:flex; flex-direction:column; padding:18px 14px; gap:18px; position:sticky; top:0; height:100vh; overflow-y:auto;
+    box-shadow:6px 0 16px var(--neu-dark);
+  }
+  .brand{ display:flex; align-items:center; gap:8px; font-weight:800; font-size:16px; padding:0 4px; }
+  .current-project{
+    background:var(--bg); border-radius:var(--radius-md); padding:12px; box-shadow:var(--shadow-inset-sm);
+  }
+  .current-project .cp-top{ display:flex; align-items:center; gap:8px; }
+  .cp-dot{ width:14px; height:14px; border-radius:50%; flex:none; background:var(--pc,var(--accent)); box-shadow:0 0 0 3px rgba(0,0,0,.05); }
+  .current-project .cp-name{ font-weight:800; font-size:14.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .cp-switch{ margin-top:8px; width:100%; }
+
+  nav.tabs{ display:flex; flex-direction:column; gap:4px; }
+  .tab-btn{
+    display:flex; align-items:center; gap:10px; text-align:left; background:transparent; border:none;
+    padding:10px 12px; border-radius:var(--radius-sm); color:var(--ink-soft); font-weight:700; font-size:14px;
+    position:relative; transition:box-shadow .15s ease, color .15s ease;
+  }
+  .tab-btn:hover{ color:var(--ink); box-shadow:var(--shadow-sm); }
+  .tab-btn.active{ background:var(--bg); color:var(--accent-deep); box-shadow:var(--shadow); font-weight:800; }
+  .tab-badge{ margin-left:auto; background:var(--red); color:#fff; font-size:10.5px; font-weight:800; border-radius:999px; padding:1px 7px; }
+
+  .sidebar-foot{ margin-top:auto; display:flex; flex-direction:column; gap:8px; }
+  .nickname-box label.field{ margin-bottom:0; }
+  .sync-pill{ font-size:11px; color:var(--ink-faint); display:flex; align-items:center; gap:6px; padding:2px 4px; }
+  .sync-dot{ width:7px; height:7px; border-radius:50%; background:var(--green); }
+  .sync-dot.local{ background:var(--yellow); }
+
+  /* Mobile nav */
+  .mobile-topbar{ display:none; }
+  nav.tabs.mobile-tabs{ display:none; }
+
+  /* Main */
+  main{ flex:1; min-width:0; padding:28px 34px 80px; }
+  .content-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:16px; margin-bottom:28px; flex-wrap:wrap; }
+  .content-head h2{ font-size:22px; font-weight:800; }
+  .content-head .sub{ color:var(--ink-soft); font-size:13px; margin-top:4px; }
+
+  .empty-state{
+    border:none; border-radius:var(--radius-lg); padding:40px 20px; text-align:center; color:var(--ink-soft);
+    background:var(--bg); box-shadow:var(--shadow-inset);
+  }
+
+  /* Character cards */
+  .card-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:16px; }
+  .char-card{
+    background:var(--bg); border:none; border-radius:var(--radius-md); padding:16px 16px 16px 20px;
+    box-shadow:var(--shadow-sm), inset 6px 0 0 var(--cc,var(--accent)); display:flex; flex-direction:column; gap:8px;
+  }
+  .char-card .ch-top{ display:flex; align-items:center; gap:10px; }
+  .ch-avatar{ width:38px; height:38px; border-radius:50%; background:var(--cc,var(--accent)); flex:none; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:15px; }
+  .ch-avatar-img{ width:38px; height:38px; border-radius:50%; object-fit:cover; flex:none; box-shadow:0 0 0 2px var(--cc,var(--accent)); }
+  .rel-avatar{ width:22px; height:22px; border-radius:50%; object-fit:cover; flex:none; vertical-align:middle; box-shadow:0 0 0 2px var(--cc, rgba(0,0,0,.08)); }
+  .rel-avatar-fallback{ width:22px; height:22px; border-radius:50%; flex:none; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:10.5px; vertical-align:middle; box-shadow:0 0 0 2px var(--cc, rgba(0,0,0,.12)); }
+  .rel-pair{ display:inline-flex; align-items:center; gap:5px; }
+  .ch-name{ font-weight:800; font-size:15.5px; }
+  .ch-reading{ font-size:11px; color:var(--ink-faint); }
+  .ch-role{ font-size:11.5px; color:var(--ink-soft); background:var(--surface-2); display:inline-block; padding:2px 9px; border-radius:999px; margin-top:2px; }
+  .ch-line{ font-size:12.5px; color:var(--ink-soft); }
+  .ch-line b{ color:var(--ink); font-weight:700; }
+  .ch-desc{ font-size:12.5px; color:var(--ink-soft); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .card-actions{ display:flex; justify-content:flex-end; gap:6px; margin-top:auto; padding-top:6px; }
+  .updated-by{ font-size:10.5px; color:var(--ink-faint); margin-top:2px; }
+
+  .char-view-toggle{ display:flex; gap:2px; background:var(--bg); border-radius:999px; padding:4px; flex:none; box-shadow:var(--shadow-inset-sm); }
+  .char-view-toggle button{ font-family:var(--font-body); font-size:12.5px; font-weight:700; padding:6px 14px; border-radius:999px; background:transparent; color:var(--ink-soft); }
+  .char-view-toggle button.active{ background:var(--bg); color:var(--accent-deep); box-shadow:var(--shadow-sm); }
+
+  .toolbar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:6px 0 24px; }
+  .toolbar .search-input{ flex:1; min-width:160px; max-width:280px; width:auto; }
+  .toolbar select{ width:auto; }
+
+  [draggable=true]{ cursor:grab; }
+  .dragging{ opacity:.4; }
+  .drag-over{ outline:2px dashed var(--accent); outline-offset:2px; }
+
+  .gallery-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:14px; }
+  .gallery-tile{ position:relative; border-radius:var(--radius-md); overflow:hidden; aspect-ratio:3/4; cursor:pointer; background:var(--surface-2); box-shadow:var(--shadow-sm), 0 0 0 3px var(--gc,var(--line-strong)), var(--ring); transition:transform .12s ease, box-shadow .12s ease; }
+  .gallery-tile:hover{ transform:translateY(-3px); box-shadow:var(--shadow), 0 0 0 3px var(--gc,var(--line-strong)), var(--ring-hover); }
+  .gallery-tile img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .gallery-tile .gt-noimg{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:34px; font-weight:800; }
+  .gallery-tile .gt-label{ position:absolute; left:0; right:0; bottom:0; padding:9px 10px 8px; background:linear-gradient(transparent, rgba(15,10,35,.72)); color:#fff; }
+  .gallery-tile .gt-label .gt-name{ font-size:12.5px; font-weight:800; }
+  .gallery-tile .gt-label .gt-role{ font-size:10px; opacity:.85; font-weight:500; margin-top:1px; }
+
+  /* Generic list rows (world / relationships) */
+  .row-list{ display:flex; flex-direction:column; gap:12px; }
+  .item-row{
+    background:var(--bg); border:none; border-radius:var(--radius-md); padding:14px 16px;
+    box-shadow:var(--shadow-sm); display:flex; gap:12px; align-items:flex-start;
+  }
+  .item-row .ir-main{ flex:1; min-width:0; }
+  .ir-title{ font-weight:800; font-size:14.5px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .tag{ font-size:11px; font-weight:700; padding:2px 10px; border-radius:999px; background:var(--surface-2); color:var(--ink-soft); }
+  .tag.cat{ background:#EFEBFF; color:var(--purple); }
+  .tag-overdue{ background:#FDEDEB; color:var(--red); }
+  .tag-soon{ background:#FFF3DE; color:#B8790C; }
+  .schedule-overdue{ padding-left:20px; box-shadow:var(--shadow-sm), inset 6px 0 0 var(--red); }
+  .ir-desc{ font-size:12.5px; color:var(--ink-soft); margin-top:5px; white-space:pre-wrap; }
+  .ir-actions{ display:flex; gap:6px; flex:none; }
+
+  .favor-positive{ color:var(--green); }
+  .favor-negative{ color:var(--red); }
+  .favor-neutral{ color:var(--gray); }
+  .favor-complex{ color:var(--purple); }
+  .favor-chip{ font-size:11px; font-weight:800; padding:2px 10px; border-radius:999px; }
+  .favor-chip.favor-positive{ background:#E8F8F1; }
+  .favor-chip.favor-negative{ background:#FDEDEB; }
+  .favor-chip.favor-neutral{ background:#F1F0F5; }
+  .favor-chip.favor-complex{ background:#F1EDFF; }
+
+  /* Diagram */
+  .diagram-wrap{ background:var(--bg); border:none; border-radius:var(--radius-lg); padding:16px; box-shadow:var(--shadow); margin-bottom:22px; }
+  .diagram-wrap svg{ width:100%; height:auto; display:block; }
+  .legend{ display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:11.5px; color:var(--ink-soft); }
+  .legend span{ display:inline-flex; align-items:center; gap:5px; }
+  .legend i{ width:14px; height:3px; border-radius:2px; display:inline-block; }
+
+  /* Timeline */
+  .timeline{ position:relative; padding-left:26px; }
+  .timeline::before{ content:''; position:absolute; left:8px; top:6px; bottom:6px; width:3px; background:linear-gradient(var(--line-strong),var(--line-strong)); border-radius:3px; }
+  .tl-item{ position:relative; margin-bottom:16px; }
+  .tl-item::before{ content:''; position:absolute; left:-26px; top:6px; width:14px; height:14px; border-radius:50%; background:var(--accent-deep); border:3px solid var(--bg); box-shadow:0 0 0 2px var(--line-strong); }
+  .tl-item.flash::before{ background:var(--purple); }
+  .tl-card{ background:var(--bg); border:none; border-radius:var(--radius-md); padding:12px 16px; box-shadow:var(--shadow-sm); }
+  .tl-date{ font-size:11.5px; font-weight:800; color:var(--accent-deep); }
+  .tl-item.flash .tl-date{ color:var(--purple); }
+  .tl-title{ font-weight:800; font-size:15px; margin-top:2px; }
+  .tl-chars{ display:flex; gap:5px; flex-wrap:wrap; margin-top:6px; }
+  .char-chip{ font-size:11px; font-weight:700; padding:2px 9px; border-radius:999px; color:#fff; }
+
+  /* Plot */
+  .plot-list{ display:flex; flex-direction:column; gap:12px; }
+  .plot-card{ background:var(--bg); border:none; border-radius:var(--radius-md); padding:14px 16px; box-shadow:var(--shadow-sm); display:flex; gap:12px; }
+  .plot-order{ flex:none; display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .plot-num{ width:30px; height:30px; border-radius:50%; background:var(--ink); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:13px; box-shadow:2px 2px 5px var(--neu-dark); }
+  .order-btns{ display:flex; flex-direction:column; }
+  .order-btns button{ background:none; border:none; color:var(--ink-faint); font-size:11px; padding:1px 4px; }
+  .order-btns button:hover{ color:var(--ink); }
+  .plot-status{ font-size:11px; font-weight:800; padding:2px 10px; border-radius:999px; }
+  .st-draft{ background:#F1F0F5; color:var(--gray); }
+  .st-writing{ background:#FFF3DE; color:var(--yellow); }
+  .st-done{ background:#E8F8F1; color:var(--green); }
+
+  /* Checks */
+  .check-summary{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+  .check-pill{ background:var(--bg); border:none; border-radius:var(--radius-md); padding:14px 18px; box-shadow:var(--shadow-sm); min-width:120px; max-width:280px; }
+  .check-pill .num{ font-size:24px; font-weight:800; }
+  .check-pill .lbl{ font-size:12px; color:var(--ink-soft); font-weight:700; }
+  .check-pill .lbl-detail{ font-size:11px; color:var(--ink-faint); margin-top:4px; line-height:1.5; }
+  .issue{ background:var(--bg); border:none; border-radius:var(--radius-md); padding:12px 16px 12px 20px; margin-bottom:10px; box-shadow:var(--shadow-sm), inset 6px 0 0 var(--gray); }
+  .issue.error{ box-shadow:var(--shadow-sm), inset 6px 0 0 var(--red); }
+  .issue.warning{ box-shadow:var(--shadow-sm), inset 6px 0 0 var(--yellow); }
+  .issue .isv{ font-size:10.5px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; }
+  .issue.error .isv{ color:var(--red); }
+  .issue.warning .isv{ color:#B8790C; }
+  .issue .ismsg{ font-size:13.5px; margin-top:3px; font-weight:700; }
+  .issue .isdetail{ font-size:12px; color:var(--ink-soft); margin-top:3px; }
+  .all-clear{ text-align:center; padding:40px 20px; color:var(--teal); font-weight:700; }
+
+  /* Modal */
+  .modal-back{ position:fixed; inset:0; background:rgba(42,33,69,.45); display:flex; align-items:flex-start; justify-content:center; padding:5vh 16px; overflow-y:auto; z-index:100; }
+  .modal{
+    background:var(--bg); border-radius:var(--radius-lg); padding:24px; width:100%; max-width:520px;
+    box-shadow:0 20px 50px rgba(20,16,40,.28); animation:popIn .22s cubic-bezier(.2,.8,.25,1) both;
+  }
+  .modal h3{ font-size:18px; font-weight:800; margin-bottom:16px; }
+  .modal-foot{ display:flex; justify-content:flex-end; gap:8px; margin-top:18px; }
+  .multiselect-box{ display:flex; flex-wrap:wrap; gap:6px; border:none; border-radius:var(--radius-sm); padding:8px; max-height:130px; overflow-y:auto; background:var(--bg); box-shadow:var(--shadow-inset-sm); }
+  .ms-chip{ font-size:12px; padding:4px 10px; border-radius:999px; border:none; background:var(--bg); font-weight:700; color:var(--ink-soft); box-shadow:var(--shadow-inset-sm), var(--ring); cursor:pointer; }
+  .ms-chip:hover{ box-shadow:var(--shadow-inset-sm), var(--ring-hover); }
+  .ms-chip.on{ background:var(--accent-deep); color:#fff; box-shadow:var(--shadow-sm); }
+  .suggest-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .suggest-chip{ font-family:var(--font-body); font-size:12px; padding:4px 12px; border-radius:999px; border:none; background:var(--bg); font-weight:700; color:var(--ink-soft); box-shadow:var(--shadow-inset-sm), var(--ring); cursor:pointer; }
+  .suggest-chip:hover{ color:var(--accent-deep); box-shadow:var(--shadow-inset-sm), var(--ring-hover); }
+
+  .toast-wrap{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:200; display:flex; flex-direction:column; gap:8px; align-items:center; }
+
+  .particle-host{ position:fixed; left:50%; top:30%; width:0; height:0; z-index:500; pointer-events:none; }
+  .particle{ position:absolute; left:0; top:0; animation:particleBurst .6s cubic-bezier(.15,.85,.3,1) forwards; }
+  .particle-square{ border-radius:2px; }
+  .particle-triangle{ width:0 !important; height:0 !important; background:transparent !important; border-width:0; border-style:solid; border-left-color:transparent !important; border-right-color:transparent !important; border-top-color:transparent !important; }
+  @keyframes particleBurst{ from{ transform:translate(0,0) rotate(0deg) scale(1); opacity:1; } to{ transform:translate(var(--dx),var(--dy)) rotate(var(--rot)) scale(.4); opacity:0; } }
+  .toast{ background:var(--ink); color:#fff; padding:10px 20px; border-radius:999px; font-size:13px; font-weight:700; box-shadow:0 8px 20px rgba(0,0,0,.25); animation:popIn .2s ease both; }
+
+  @media (max-width:860px){
+    .sidebar{ display:none; }
+    .mobile-topbar{
+      display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:20;
+      background:var(--bg); border-bottom:none; padding:12px 14px; box-shadow:0 4px 12px var(--neu-dark);
+    }
+    .mobile-topbar .brand{ font-size:15px; }
+    #app{ flex-direction:column; }
+    main{ padding:18px 16px 90px; }
+    .content-head{ margin-bottom:20px; }
+    nav.tabs.mobile-tabs{
+      display:flex; position:fixed; bottom:0; left:0; right:0; background:var(--bg); border-top:none;
+      flex-direction:row; justify-content:space-around; padding:6px 4px; z-index:30; gap:0;
+      box-shadow:0 -4px 12px var(--neu-dark);
+    }
+    nav.tabs.mobile-tabs .tab-btn{ flex-direction:column; gap:2px; font-size:9.5px; padding:6px 4px; border-radius:10px; flex:1; align-items:center; }
+    nav.tabs.mobile-tabs .tab-badge{ position:absolute; top:0; right:8px; margin-left:0; }
+    .project-grid{ grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); }
+  }
+</style>
+
+<div id="app">
+  <!-- GATE: project picker -->
+  <div id="gate" class="hidden">
+    <div class="gate-hero fade-in">
+      <h1>創作ラボ</h1>
+      <p>キャラクター・関係性・年表・世界観をひとつの場所で育てる、共同創作メモ</p>
+    </div>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;">
+      <h2 style="font-size:15px; color:var(--ink-soft);">作品一覧</h2>
+      <div class="sync-pill" id="syncPillGate"><span class="sync-dot"></span>接続確認中…</div>
+    </div>
+    <div id="projectGrid" class="project-grid"></div>
+  </div>
+
+  <!-- Mobile topbar -->
+  <div class="mobile-topbar hidden" id="mobileTopbar">
+    <div class="brand"><span id="mobileProjectName">創作ラボ</span></div>
+    <button class="btn btn-sm" id="mobileBackBtn">作品一覧</button>
+  </div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar hidden" id="sidebar">
+    <div class="brand">創作ラボ</div>
+    <div class="current-project">
+      <div class="cp-top">
+        <div class="cp-dot" id="cpDot"></div>
+        <div class="cp-name" id="cpName">-</div>
+      </div>
+      <button class="btn btn-sm cp-switch" id="switchProjectBtn">← 作品一覧へ</button>
+    </div>
+    <nav class="tabs" id="tabsNav">
+      <button class="tab-btn" data-tab="characters">キャラクター</button>
+      <button class="tab-btn" data-tab="relationships">関係性</button>
+      <button class="tab-btn" data-tab="timeline">年表</button>
+      <button class="tab-btn" data-tab="world">世界観</button>
+      <button class="tab-btn" data-tab="plot">プロット</button>
+      <button class="tab-btn" data-tab="schedule">スケジュール</button>
+      <button class="tab-btn" data-tab="checks">矛盾チェック<span class="tab-badge hidden" id="issueBadge">0</span></button>
+    </nav>
+    <div class="sidebar-foot">
+      <div class="nickname-box">
+        <label class="field"><span>あなたの名前（共同編集用）</span>
+          <input type="text" id="nicknameInput" placeholder="例: たろう" maxlength="20">
+        </label>
+      </div>
+      <div class="sync-pill" id="syncPill"><span class="sync-dot"></span>-</div>
+    </div>
+  </aside>
+
+  <!-- MOBILE TABS -->
+  <nav class="tabs mobile-tabs hidden" id="tabsNavMobile">
+    <button class="tab-btn" data-tab="characters">キャラ</button>
+    <button class="tab-btn" data-tab="relationships">関係</button>
+    <button class="tab-btn" data-tab="timeline">年表</button>
+    <button class="tab-btn" data-tab="world">世界</button>
+    <button class="tab-btn" data-tab="plot">プロット</button>
+    <button class="tab-btn" data-tab="schedule">予定</button>
+    <button class="tab-btn" data-tab="checks">チェック<span class="tab-badge hidden" id="issueBadgeMobile">0</span></button>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="hidden" id="main">
+    <section id="view-characters" class="view"></section>
+    <section id="view-relationships" class="view hidden"></section>
+    <section id="view-timeline" class="view hidden"></section>
+    <section id="view-world" class="view hidden"></section>
+    <section id="view-plot" class="view hidden"></section>
+    <section id="view-schedule" class="view hidden"></section>
+    <section id="view-checks" class="view hidden"></section>
+  </main>
+</div>
+
+<div id="modalRoot"></div>
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================= STORAGE LAYER ============================= */
+const LS_KEY = 'hakoniwa_v1';
+function lsLoad(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch(e){ return {}; } }
+function lsSave(d){ try{ localStorage.setItem(LS_KEY, JSON.stringify(d)); }catch(e){} }
+function uid(prefix){ return prefix+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+
+const Store = {
+  mode:'local', db:null,
+  _listeners:{}, // key -> Set(fn)
+  async init(){
+    try{
+      if (window.claude && typeof window.claude.use === 'function'){
+        const db = await window.claude.use('db');
+        if (db){ this.db = db; this.mode = 'db'; return; }
+      }
+    }catch(e){ /* fall through to local */ }
+    this.mode = 'local';
+  },
+  _on(key, fn){ (this._listeners[key] = this._listeners[key] || new Set()).add(fn); },
+  _off(key, fn){ if(this._listeners[key]) this._listeners[key].delete(fn); },
+  _emit(key){ if(this._listeners[key]) this._listeners[key].forEach(fn=>fn()); },
+
+  localAll(){ const d = lsLoad(); d.projects = d.projects||{}; d.sub = d.sub||{}; return d; },
+  localProjectsList(){
+    const d = this.localAll();
+    return Object.keys(d.projects).map(id=>({id, ...d.projects[id]})).sort((a,b)=>(a.order||0)-(b.order||0));
+  },
+  localSubList(pid, sub){
+    const d = this.localAll();
+    const bucket = (d.sub[pid] && d.sub[pid][sub]) || {};
+    return Object.keys(bucket).map(id=>({id, ...bucket[id]}));
+  },
+
+  watchProjects(cb){
+    if (this.mode==='db'){
+      return this.db.collection('projects').onSnapshot(
+        snap=>{ const list = snap.docs.map(d=>({id:d.id, ...d.data()})); list.sort((a,b)=>(a.order||0)-(b.order||0)); cb(list); },
+        err=>{ console.error('watchProjects', err); cb([]); }
+      );
+    } else {
+      const fn = ()=> cb(this.localProjectsList());
+      this._on('projects', fn); fn();
+      return ()=> this._off('projects', fn);
+    }
+  },
+  watchSub(pid, sub, cb){
+    if (this.mode==='db'){
+      return this.db.collection(`projects/${pid}/${sub}`).onSnapshot(
+        snap=> cb(snap.docs.map(d=>({id:d.id, ...d.data()}))),
+        err=>{ console.error('watchSub', sub, err); cb([]); }
+      );
+    } else {
+      const key = 'sub:'+pid+':'+sub;
+      const fn = ()=> cb(this.localSubList(pid, sub));
+      this._on(key, fn); fn();
+      return ()=> this._off(key, fn);
+    }
+  },
+
+  async addProject(data){
+    if (this.mode==='db'){ const ref = await this.db.collection('projects').add(data); return ref.id; }
+    const id = uid('p'); const d = this.localAll(); d.projects[id] = data; lsSave(d); this._emit('projects'); return id;
+  },
+  async updateProject(id, patch){
+    if (this.mode==='db'){ return this.db.doc(`projects/${id}`).update(patch); }
+    const d = this.localAll(); d.projects[id] = {...(d.projects[id]||{}), ...patch}; lsSave(d); this._emit('projects');
+  },
+  async deleteProject(id){
+    if (this.mode==='db'){
+      const subs = ['characters','relationships','timeline','world','plot','schedule'];
+      for (const s of subs){
+        const col = this.db.collection(`projects/${id}/${s}`);
+        const snap = await col.get();
+        for (const doc of snap.docs){ await col.doc(doc.id).delete(); }
+      }
+      return this.db.doc(`projects/${id}`).delete();
+    }
+    const d = this.localAll(); delete d.projects[id]; delete d.sub[id]; lsSave(d); this._emit('projects');
+  },
+  async addDoc(pid, sub, data){
+    if (this.mode==='db'){ const ref = await this.db.collection(`projects/${pid}/${sub}`).add(data); return ref.id; }
+    const id = uid(sub[0]); const d = this.localAll();
+    d.sub[pid] = d.sub[pid]||{}; d.sub[pid][sub] = d.sub[pid][sub]||{};
+    d.sub[pid][sub][id] = data; lsSave(d); this._emit('sub:'+pid+':'+sub); return id;
+  },
+  async updateDoc(pid, sub, id, patch){
+    if (this.mode==='db'){ return this.db.doc(`projects/${pid}/${sub}/${id}`).update(patch); }
+    const d = this.localAll();
+    if (!d.sub[pid] || !d.sub[pid][sub] || !d.sub[pid][sub][id]) return;
+    d.sub[pid][sub][id] = {...d.sub[pid][sub][id], ...patch}; lsSave(d); this._emit('sub:'+pid+':'+sub);
+  },
+  async deleteDoc(pid, sub, id){
+    if (this.mode==='db'){
+      // db.doc().delete() directly (avoids needing a fetched ref)
+      return this.db.doc(`projects/${pid}/${sub}/${id}`).delete();
+    }
+    const d = this.localAll();
+    if (d.sub[pid] && d.sub[pid][sub]) delete d.sub[pid][sub][id];
+    lsSave(d); this._emit('sub:'+pid+':'+sub);
+  }
+};
+
+/* ============================= APP STATE ============================= */
+const State = {
+  projects: [],
+  currentProjectId: null,
+  activeTab: 'characters',
+  data: { characters:[], relationships:[], timeline:[], world:[], plot:[], schedule:[] },
+  unsubs: [],
+  nickname: localStorage.getItem('hakoniwa_nick') || ''
+};
+
+const PRESET_COLORS = ['#6C4CF0','#E24E6B','#E8843F','#D6A72E','#4CAE50','#0FA394','#3F7FE0','#7C5CFC','#D6588C','#726D93'];
+
+function nick(){ return State.nickname.trim() || 'ゲスト'; }
+function el(tag, attrs, children){
+  const node = document.createElement(tag);
+  attrs = attrs || {};
+  Object.keys(attrs).forEach(k=>{
+    if (k==='class') node.className = attrs[k];
+    else if (k==='html') node.innerHTML = attrs[k];
+    else if (k.startsWith('on') && typeof attrs[k]==='function') node.addEventListener(k.slice(2), attrs[k]);
+    else if (attrs[k] === true) node.setAttribute(k, '');
+    else if (attrs[k] === false || attrs[k] === null || attrs[k] === undefined) { /* omit falsy boolean attrs (e.g. disabled) */ }
+    else node.setAttribute(k, attrs[k]);
+  });
+  (children||[]).forEach(c=>{ if (c) node.appendChild(typeof c==='string' ? document.createTextNode(c) : c); });
+  return node;
+}
+function esc(s){ const d=document.createElement('div'); d.textContent = s==null?'':String(s); return d.innerHTML; }
+function toast(msg){
+  const wrap = document.getElementById('toastWrap');
+  const t = el('div', {class:'toast'}, [msg]);
+  wrap.appendChild(t);
+  setTimeout(()=>{ t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(), 300); }, 2200);
+}
+const PARTICLE_COLORS = ['#6C4CF0','#E24E6B','#E8843F','#D6A72E','#4CAE50','#0FA394','#3F7FE0','#7C5CFC','#D6588C'];
+function spawnParticles(originEl){
+  const host = document.createElement('div');
+  host.className = 'particle-host';
+  if (originEl){
+    const r = originEl.getBoundingClientRect();
+    host.style.left = (r.left + r.width/2) + 'px';
+    host.style.top = (r.top + r.height/2) + 'px';
+  }
+  document.body.appendChild(host);
+  for (let i=0; i<16; i++){
+    const p = document.createElement('span');
+    const isTriangle = Math.random() < 0.5;
+    const color = PARTICLE_COLORS[Math.floor(Math.random()*PARTICLE_COLORS.length)];
+    const size = 14 + Math.random()*16;
+    const angle = Math.random()*Math.PI*2;
+    const dist = 70 + Math.random()*130;
+    p.className = 'particle '+(isTriangle ? 'particle-triangle' : 'particle-square');
+    p.style.setProperty('--dx', (Math.cos(angle)*dist)+'px');
+    p.style.setProperty('--dy', (Math.sin(angle)*dist)+'px');
+    p.style.setProperty('--rot', ((Math.random()*360)|0)+'deg');
+    if (isTriangle){
+      p.style.borderLeftWidth = (size/2)+'px';
+      p.style.borderRightWidth = (size/2)+'px';
+      p.style.borderBottomWidth = size+'px';
+      p.style.borderBottomColor = color;
+    } else {
+      p.style.width = size+'px';
+      p.style.height = size+'px';
+      p.style.background = color;
+    }
+    host.appendChild(p);
+  }
+  setTimeout(()=> host.remove(), 700);
+}
+async function persistCustomOrder(sub, arr){
+  await Promise.all(arr.map((item, idx)=> Store.updateDoc(State.currentProjectId, sub, item.id, {order:(idx+1)*10, updatedBy:nick()})));
+}
+function makeDraggableList(container, sortedItems, sub){
+  let dragId = null;
+  Array.from(container.children).forEach((row, idx)=>{
+    const item = sortedItems[idx];
+    if (!item) return;
+    row.draggable = true;
+    row.addEventListener('dragstart', ()=>{ dragId = item.id; row.classList.add('dragging'); });
+    row.addEventListener('dragend', ()=>{ row.classList.remove('dragging'); });
+    row.addEventListener('dragover', (e)=>{ e.preventDefault(); row.classList.add('drag-over'); });
+    row.addEventListener('dragleave', ()=>{ row.classList.remove('drag-over'); });
+    row.addEventListener('drop', (e)=>{
+      e.preventDefault(); row.classList.remove('drag-over');
+      if (!dragId || dragId === item.id) return;
+      const fromIdx = sortedItems.findIndex(x=>x.id===dragId);
+      const toIdx = sortedItems.findIndex(x=>x.id===item.id);
+      if (fromIdx<0 || toIdx<0) return;
+      const arr = [...sortedItems];
+      const [moved] = arr.splice(fromIdx,1);
+      arr.splice(toIdx,0,moved);
+      persistCustomOrder(sub, arr);
+    });
+  });
+}
+function contrastColor(hex){
+  try{
+    const c = hex.replace('#','');
+    const r = parseInt(c.substr(0,2),16), g = parseInt(c.substr(2,2),16), b = parseInt(c.substr(4,2),16);
+    return ((r*299+g*587+b*114)/1000) > 150 ? '#2A2145' : '#FFFFFF';
+  }catch(e){ return '#FFFFFF'; }
+}
+function resizeImageToDataUrl(file, maxDim, maxBytes){
+  maxDim = maxDim || 420; maxBytes = maxBytes || 120000;
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onerror = ()=> reject(reader.error || new Error('read failed'));
+    reader.onload = ()=>{
+      const img = new Image();
+      img.onerror = ()=> reject(new Error('image load failed'));
+      img.onload = ()=>{
+        let w = img.width, h = img.height;
+        const scale = Math.min(1, maxDim / Math.max(w, h));
+        w = Math.max(1, Math.round(w*scale)); h = Math.max(1, Math.round(h*scale));
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        let quality = 0.82, dataUrl = '';
+        for (let attempt=0; attempt<6; attempt++){
+          canvas.width = w; canvas.height = h;
+          ctx.clearRect(0,0,w,h);
+          ctx.drawImage(img, 0, 0, w, h);
+          dataUrl = canvas.toDataURL('image/jpeg', quality);
+          if (dataUrl.length <= maxBytes*1.37) break;
+          quality = Math.max(0.35, quality-0.15);
+          w = Math.round(w*0.85); h = Math.round(h*0.85);
+        }
+        resolve(dataUrl);
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+/* ============================= MODAL / FORM BUILDER ============================= */
+function closeModal(){ document.getElementById('modalRoot').innerHTML=''; }
+function confirmDialog(message){
+  return new Promise((resolve)=>{
+    const back = el('div', {class:'modal-back', style:'z-index:150;'});
+    const box = el('div', {class:'modal', style:'max-width:360px;'});
+    box.appendChild(el('div', {style:'font-size:14.5px; line-height:1.6; color:var(--ink);'}, [message]));
+    const foot = el('div', {class:'modal-foot'});
+    foot.appendChild(el('button', {class:'btn', onclick:()=>{ back.remove(); resolve(false); }}, ['キャンセル']));
+    foot.appendChild(el('button', {class:'btn btn-danger', onclick:()=>{ back.remove(); resolve(true); }}, ['削除する']));
+    box.appendChild(foot);
+    back.appendChild(box);
+    document.body.appendChild(back);
+  });
+}
+function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, celebrate}){
+  initial = initial || {};
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = '';
+  const back = el('div', {class:'modal-back', onclick:(e)=>{ if(e.target===back) closeModal(); }});
+  const modal = el('div', {class:'modal'});
+  modal.appendChild(el('h3', {}, [title]));
+
+  const fieldRefs = {};
+  fields.forEach(f=>{
+    const wrap = el('label', {class:'field'}, [el('span', {}, [f.label])]);
+    let input;
+    if (f.type==='textarea'){
+      input = el('textarea', {rows: f.rows||3, placeholder: f.placeholder||''});
+      input.value = initial[f.key] || '';
+    } else if (f.type==='select'){
+      input = el('select', {});
+      (f.options||[]).forEach(o=>{
+        const opt = el('option', {value:o.value}, [o.label]);
+        if ((initial[f.key] ?? f.default) === o.value) opt.setAttribute('selected','selected');
+        input.appendChild(opt);
+      });
+    } else if (f.type==='combo'){
+      input = el('input', {type:'text', placeholder: f.placeholder||''});
+      input.value = initial[f.key] ?? (f.default ?? '');
+      wrap.appendChild(input);
+      const chipBox = el('div', {class:'suggest-chips'});
+      (f.options||[]).forEach(o=>{
+        chipBox.appendChild(el('button', {type:'button', class:'suggest-chip', onclick:()=>{ input.value = o.value; input.focus(); }}, [o.value]));
+      });
+      wrap.appendChild(chipBox);
+      if (f.hint) wrap.appendChild(el('div', {class:'hint'}, [f.hint]));
+      fieldRefs[f.key] = input;
+      modal.appendChild(wrap);
+      return;
+    } else if (f.type==='image'){
+      let currentVal = initial[f.key] || '';
+      const preview = el('div', {class:'image-preview'});
+      function renderPreview(){
+        preview.innerHTML = '';
+        if (currentVal) preview.appendChild(el('img', {src:currentVal}));
+        else preview.appendChild(el('span', {class:'image-preview-empty'}, ['画像なし']));
+      }
+      renderPreview();
+      const fileInput = el('input', {type:'file', accept:'image/*'});
+      fileInput.addEventListener('change', async ()=>{
+        const file = fileInput.files && fileInput.files[0];
+        if (!file) return;
+        try{ currentVal = await resizeImageToDataUrl(file); renderPreview(); }
+        catch(e){ toast('画像の読み込みに失敗しました'); }
+      });
+      const clearBtn = el('button', {type:'button', class:'btn btn-sm', onclick:()=>{ currentVal=''; fileInput.value=''; renderPreview(); }}, ['画像を削除']);
+      const rowWrap = el('div', {class:'image-field-row'}, [preview, el('div', {class:'image-field-controls'}, [fileInput, clearBtn])]);
+      wrap.appendChild(rowWrap);
+      if (f.hint) wrap.appendChild(el('div', {class:'hint'}, [f.hint]));
+      fieldRefs[f.key] = { get value(){ return currentVal; } };
+      modal.appendChild(wrap);
+      return;
+    } else if (f.type==='color'){
+      const rowWrap = el('div', {class:'color-row'});
+      const colorInput = el('input', {type:'color'});
+      colorInput.value = initial[f.key] || f.default || '#6C4CF0';
+      const hexInput = el('input', {type:'text', class:'hexcode-input', placeholder:'#RRGGBB', maxlength:7});
+      hexInput.value = colorInput.value.toUpperCase();
+      const swatches = el('div', {class:'swatches'});
+      function syncSwatches(){
+        swatches.querySelectorAll('.swatch').forEach(s=> s.classList.toggle('active', s.title.toLowerCase()===colorInput.value.toLowerCase()));
+      }
+      function setColor(hex){
+        colorInput.value = hex; hexInput.value = hex.toUpperCase(); syncSwatches();
+      }
+      PRESET_COLORS.forEach(c=>{
+        const sw = el('div', {class:'swatch'+(c.toLowerCase()===colorInput.value.toLowerCase()?' active':''), title:c, onclick:()=> setColor(c)});
+        sw.style.background = c;
+        swatches.appendChild(sw);
+      });
+      colorInput.addEventListener('input', ()=>{ hexInput.value = colorInput.value.toUpperCase(); syncSwatches(); });
+      function applyHexInput(){
+        let v = hexInput.value.trim();
+        if (v && !v.startsWith('#')) v = '#'+v;
+        if (/^#[0-9A-Fa-f]{6}$/.test(v)) setColor(v);
+        else hexInput.value = colorInput.value.toUpperCase();
+      }
+      hexInput.addEventListener('change', applyHexInput);
+      hexInput.addEventListener('keydown', (e)=>{ if (e.key==='Enter'){ e.preventDefault(); applyHexInput(); } });
+      rowWrap.appendChild(swatches); rowWrap.appendChild(colorInput); rowWrap.appendChild(hexInput);
+      wrap.appendChild(rowWrap);
+      fieldRefs[f.key] = { get value(){ return colorInput.value; } };
+      modal.appendChild(wrap);
+      return;
+    } else if (f.type==='checkbox'){
+      const rowWrap = el('div', {style:'display:flex;align-items:center;gap:8px;'});
+      input = el('input', {type:'checkbox'});
+      input.style.width = 'auto';
+      input.checked = !!initial[f.key];
+      rowWrap.appendChild(input);
+      wrap.appendChild(rowWrap);
+      fieldRefs[f.key] = input;
+      modal.appendChild(wrap);
+      return;
+    } else if (f.type==='multiselect'){
+      const box = el('div', {class:'multiselect-box'});
+      const selected = new Set(initial[f.key] || []);
+      (f.options||[]).forEach(o=>{
+        const chip = el('div', {class:'ms-chip'+(selected.has(o.value)?' on':''), onclick:()=>{
+          if (selected.has(o.value)){ selected.delete(o.value); chip.classList.remove('on'); }
+          else { selected.add(o.value); chip.classList.add('on'); }
+        }}, [o.label]);
+        box.appendChild(chip);
+      });
+      wrap.appendChild(box);
+      fieldRefs[f.key] = { get value(){ return Array.from(selected); } };
+      modal.appendChild(wrap);
+      if (f.hint) wrap.appendChild(el('div', {class:'hint'}, [f.hint]));
+      return;
+    } else {
+      input = el('input', {type: f.type||'text', placeholder: f.placeholder||''});
+      input.value = initial[f.key] ?? (f.default ?? '');
+    }
+    wrap.appendChild(input);
+    if (f.hint) wrap.appendChild(el('div', {class:'hint'}, [f.hint]));
+    fieldRefs[f.key] = input;
+    modal.appendChild(wrap);
+  });
+
+  fields.forEach(f=>{
+    if (!f.excludeField) return;
+    const selfInput = fieldRefs[f.key], otherInput = fieldRefs[f.excludeField];
+    if (!selfInput || !otherInput || !selfInput.options) return;
+    const refresh = ()=>{
+      const otherVal = otherInput.value;
+      Array.from(selfInput.options).forEach(opt=>{ opt.disabled = opt.value!=='' && opt.value===otherVal; });
+    };
+    otherInput.addEventListener('change', refresh);
+    refresh();
+  });
+
+  const foot = el('div', {class:'modal-foot'});
+  if (onDelete){
+    foot.appendChild(el('button', {class:'btn btn-danger', onclick: async ()=>{
+      if (await confirmDialog('本当に削除しますか？この操作は取り消せません。')){ onDelete(); closeModal(); }
+    }}, ['削除']));
+    foot.appendChild(el('div', {style:'flex:1'}));
+  }
+  foot.appendChild(el('button', {class:'btn', onclick: closeModal}, ['キャンセル']));
+  const submitBtn = el('button', {class:'btn btn-primary', onclick:()=>{
+    const out = {};
+    fields.forEach(f=>{
+      const ref = fieldRefs[f.key];
+      if (f.type==='checkbox') out[f.key] = !!ref.checked;
+      else if (f.type==='number') out[f.key] = ref.value===''? null : Number(ref.value);
+      else out[f.key] = ref.value;
+    });
+    if (celebrate) spawnParticles(submitBtn);
+    Promise.resolve(onSubmit(out)).catch(err=>{
+      console.error(err);
+      toast('保存に失敗しました。画像が大きすぎる可能性があります');
+    });
+    closeModal();
+  }}, [submitLabel || '保存']);
+  foot.appendChild(submitBtn);
+  modal.appendChild(foot);
+  back.appendChild(modal);
+  root.appendChild(back);
+}
+
+/* ============================= GATE (project picker) ============================= */
+function renderGate(){
+  const grid = document.getElementById('projectGrid');
+  grid.innerHTML = '';
+  grid.appendChild(el('div', {class:'project-card project-new fade-in', onclick:()=>openProjectForm(null)}, [
+    el('div', {class:'plus'}, ['＋']),
+    el('div', {}, ['新しい作品を作る'])
+  ]));
+  State.projects.forEach((p, i)=>{
+    const editBtn = el('button', {class:'pmeta-btn', onclick:(e)=>{ e.stopPropagation(); openProjectForm(p); }}, ['編集']);
+    const delBtn = el('button', {class:'pmeta-btn', onclick: async (e)=>{
+      e.stopPropagation();
+      if (await confirmDialog(`「${p.name}」を削除します。中のキャラクターや設定もすべて削除されます。よろしいですか？`)){
+        await Store.deleteProject(p.id);
+        toast('作品を削除しました');
+      }
+    }}, ['削除']);
+    const card = el('div', {class:'project-card fade-in', style:`--pc:${p.color||'#6C4CF0'}; animation-delay:${(i+1)*40}ms`, onclick:()=>enterProject(p.id)}, [
+      el('div', {class:'pname'}, [p.name || '(無題の作品)']),
+      el('div', {class:'pdesc'}, [p.description || '説明はまだありません']),
+      el('div', {class:'pmeta'}, [editBtn, delBtn])
+    ]);
+    grid.appendChild(card);
+  });
+}
+function openProjectForm(existing){
+  openForm({
+    title: existing ? '作品を編集' : '新しい作品',
+    submitLabel: existing ? '保存する' : '作る',
+    celebrate: !existing,
+    initial: existing || { color: PRESET_COLORS[State.projects.length % PRESET_COLORS.length] },
+    fields: [
+      {key:'name', label:'作品名', type:'text', placeholder:'例: わたしの小説プロジェクト'},
+      {key:'description', label:'ひとことメモ', type:'textarea', placeholder:'例: 学園を舞台にした群像劇。全10章予定。', rows:2},
+      {key:'color', label:'テーマカラー', type:'color', default:'#6C4CF0'}
+    ],
+    onDelete: existing ? async ()=>{ await Store.deleteProject(existing.id); toast('作品を削除しました'); } : null,
+    onSubmit: async (vals)=>{
+      if (!vals.name.trim()) vals.name = '(無題の作品)';
+      if (existing){ await Store.updateProject(existing.id, vals); toast('作品を更新しました'); }
+      else { vals.order = Date.now(); vals.createdAt = Date.now(); await Store.addProject(vals); toast('作品を作成しました'); }
+    }
+  });
+}
+
+function showGate(){
+  State.currentProjectId = null;
+  localStorage.removeItem('hakoniwa_last_project');
+  unsubscribeSub();
+  document.getElementById('gate').classList.remove('hidden');
+  document.getElementById('sidebar').classList.add('hidden');
+  document.getElementById('main').classList.add('hidden');
+  document.getElementById('tabsNavMobile').classList.add('hidden');
+  document.getElementById('mobileTopbar').classList.add('hidden');
+  renderGate();
+}
+
+function enterProject(pid){
+  State.currentProjectId = pid;
+  localStorage.setItem('hakoniwa_last_project', pid);
+  document.getElementById('gate').classList.add('hidden');
+  document.getElementById('sidebar').classList.remove('hidden');
+  document.getElementById('main').classList.remove('hidden');
+  document.getElementById('tabsNavMobile').classList.remove('hidden');
+  document.getElementById('mobileTopbar').classList.remove('hidden');
+  const p = State.projects.find(x=>x.id===pid);
+  if (p){
+    document.getElementById('cpName').textContent = p.name;
+    document.getElementById('cpDot').style.background = p.color || '#6C4CF0';
+    document.getElementById('mobileProjectName').textContent = p.name;
+  }
+  subscribeSub(pid);
+  setTab(State.activeTab);
+}
+
+/* ============================= SUB-DATA SUBSCRIPTIONS ============================= */
+function unsubscribeSub(){ State.unsubs.forEach(u=>{ try{u&&u();}catch(e){} }); State.unsubs = []; }
+function subscribeSub(pid){
+  unsubscribeSub();
+  ['characters','relationships','timeline','world','plot','schedule'].forEach(sub=>{
+    const un = Store.watchSub(pid, sub, (list)=>{
+      State.data[sub] = list;
+      renderActiveView();
+      runChecks();
+    });
+    State.unsubs.push(un);
+  });
+}
+
+/* ============================= TABS ============================= */
+function setTab(tab){
+  State.activeTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b=> b.classList.toggle('active', b.dataset.tab===tab));
+  document.querySelectorAll('.view').forEach(v=> v.classList.toggle('hidden', v.id !== 'view-'+tab));
+  renderActiveView();
+}
+function renderActiveView(){
+  if (!State.currentProjectId) return;
+  const map = { characters:renderCharacters, relationships:renderRelationships, timeline:renderTimeline, world:renderWorld, plot:renderPlot, schedule:renderSchedule, checks:renderChecks };
+  const fn = map[State.activeTab];
+  if (fn) fn();
+}
+
+/* ============================= CHARACTERS ============================= */
+const ROLE_OPTIONS = [
+  {value:'主人公'}, {value:'ヒロイン'}, {value:'仲間'}, {value:'敵役'}, {value:'脇役'}, {value:'その他'}
+];
+const CHARACTER_SORTS = [['created','登録順（追加した順）'], ['name','名前順（あいうえお順）'], ['role','役割順'], ['custom','カスタム（ドラッグで並び替え）']];
+function charById(id){ return State.data.characters.find(c=>c.id===id); }
+function charBirthYear(c){ return c.birthYear!=null ? c.birthYear : extractYear(c.birth); }
+function charDeathYear(c){ return c.deathYear!=null ? c.deathYear : extractYear(c.death); }
+function charAge(c){
+  const by = charBirthYear(c), dy = charDeathYear(c);
+  if (by!=null && dy!=null) return dy-by;
+  return c.age!=null ? c.age : null;
+}
+let charViewMode = 'list';
+let charSortKey = 'created';
+let charSearchText = '';
+function sortCharacters(list){
+  const out = [...list];
+  if (charSortKey === 'name') out.sort((a,b)=> (a.name||'').localeCompare(b.name||'', 'ja'));
+  else if (charSortKey === 'role') out.sort((a,b)=> (a.role||'').localeCompare(b.role||'', 'ja'));
+  else if (charSortKey === 'custom') out.sort((a,b)=> (a.order??0)-(b.order??0));
+  return out;
+}
+function filterCharacters(list){
+  const q = charSearchText.trim().toLowerCase();
+  return list.filter(c=>{
+    if (!q) return true;
+    const hay = [c.name, c.reading, c.role, c.affiliation, c.personality, c.background, c.notes].filter(Boolean).join(' ').toLowerCase();
+    return hay.includes(q);
+  });
+}
+function renderCharacters(){
+  const view = document.getElementById('view-characters');
+  view.innerHTML = '';
+  const toggle = el('div', {class:'char-view-toggle'}, [
+    el('button', {type:'button', class: charViewMode==='list' ? 'active' : '', onclick:()=>{ charViewMode='list'; renderCharacters(); }}, ['リスト']),
+    el('button', {type:'button', class: charViewMode==='gallery' ? 'active' : '', onclick:()=>{ charViewMode='gallery'; renderCharacters(); }}, ['ギャラリー'])
+  ]);
+  view.appendChild(el('div', {class:'content-head'}, [
+    el('div', {}, [ el('h2', {}, ['キャラクター']), el('div', {class:'sub'}, [`${State.data.characters.length} 人 登録されています`]) ]),
+    el('div', {style:'display:flex; align-items:center; gap:10px;'}, [
+      toggle,
+      el('button', {class:'btn btn-primary', onclick:()=>openCharacterForm(null)}, ['＋ キャラクターを追加'])
+    ])
+  ]));
+  if (!State.data.characters.length){
+    view.appendChild(el('div', {class:'empty-state'}, ['最初のキャラクターを登録してみましょう。']));
+    return;
+  }
+  const toolbar = el('div', {class:'toolbar'});
+  const searchInput = el('input', {type:'text', class:'search-input', placeholder:'名前・よみがな・所属・性格などで検索'});
+  searchInput.value = charSearchText;
+  searchInput.addEventListener('input', ()=>{ charSearchText = searchInput.value; renderCharactersList(); });
+  toolbar.appendChild(searchInput);
+  const sortSelect = el('select', {});
+  CHARACTER_SORTS.forEach(([v,l])=>{
+    const opt = el('option', {value:v}, [l]);
+    if (v===charSortKey) opt.setAttribute('selected','selected');
+    sortSelect.appendChild(opt);
+  });
+  sortSelect.addEventListener('change', ()=>{ charSortKey = sortSelect.value; renderCharactersList(); });
+  toolbar.appendChild(sortSelect);
+  view.appendChild(toolbar);
+  if (charSortKey === 'custom') view.appendChild(el('div', {class:'hint', style:'margin:-6px 0 10px;'}, ['カードをつかんでドラッグすると順番を変更できます']));
+  const listHost = el('div', {});
+  view.appendChild(listHost);
+  function renderCharactersList(){
+    listHost.innerHTML = '';
+    const filtered = sortCharacters(filterCharacters(State.data.characters));
+    if (!filtered.length){
+      listHost.appendChild(el('div', {class:'empty-state'}, ['検索条件に一致するキャラクターがいません。']));
+      return;
+    }
+    if (charViewMode === 'gallery'){
+      const grid = buildCharacterGallery(filtered);
+      listHost.appendChild(grid);
+      if (charSortKey==='custom') makeDraggableList(grid, filtered, 'characters');
+      return;
+    }
+    const grid = el('div', {class:'card-grid'});
+    filtered.forEach((c,i)=>{
+      const card = el('div', {class:'char-card fade-in', style:`--cc:${c.color||'#6C4CF0'}; animation-delay:${i*30}ms`});
+      const avatar = c.image
+        ? el('img', {class:'ch-avatar-img', src:c.image, style:`--cc:${c.color||'#6C4CF0'}`})
+        : el('div', {class:'ch-avatar', style:`color:${contrastColor(c.color||'#6C4CF0')}`}, [(c.name||'?').charAt(0)]);
+      const top = el('div', {class:'ch-top'}, [
+        avatar,
+        el('div', {}, [
+          el('div', {class:'ch-name'}, [c.name || '(名前未設定)']),
+          c.reading ? el('div', {class:'ch-reading'}, [c.reading]) : null
+        ])
+      ]);
+      card.appendChild(top);
+      if (c.role) card.appendChild(el('div', {class:'ch-role'}, [c.role]));
+      if (c.affiliation) card.appendChild(el('div', {class:'ch-line'}, [el('b',{},['所属: ']), c.affiliation]));
+      const by = charBirthYear(c), dy = charDeathYear(c), ageVal = charAge(c);
+      if (by!=null || dy!=null){
+        const parts = [`生: ${by!=null?by:'?'}`, `没: ${dy!=null?dy:'存命'}`];
+        if (ageVal!=null) parts.push(`享年${ageVal}`);
+        card.appendChild(el('div', {class:'ch-line'}, [el('b',{},['生没: ']), parts.join(' / ')]));
+      }
+      if (c.personality) card.appendChild(el('div', {class:'ch-desc'}, [c.personality]));
+      if (c.updatedBy) card.appendChild(el('div', {class:'updated-by'}, [`最終更新: ${c.updatedBy}`]));
+      card.appendChild(el('div', {class:'card-actions'}, [
+        el('button', {class:'btn btn-sm', onclick:()=>openCharacterForm(c)}, ['編集']),
+      ]));
+      grid.appendChild(card);
+    });
+    listHost.appendChild(grid);
+    if (charSortKey==='custom') makeDraggableList(grid, filtered, 'characters');
+  }
+  renderCharactersList();
+}
+function buildCharacterGallery(list){
+  const grid = el('div', {class:'gallery-grid'});
+  list.forEach((c,i)=>{
+    const color = c.color || '#6C4CF0';
+    const tile = el('div', {class:'gallery-tile fade-in', style:`--gc:${color}; animation-delay:${i*30}ms`, onclick:()=>openCharacterForm(c)});
+    if (c.image) tile.appendChild(el('img', {src:c.image}));
+    else tile.appendChild(el('div', {class:'gt-noimg', style:`background:${color}; color:${contrastColor(color)}`}, [(c.name||'?').charAt(0)]));
+    tile.appendChild(el('div', {class:'gt-label'}, [
+      el('div', {class:'gt-name'}, [c.name || '(名前未設定)']),
+      c.role ? el('div', {class:'gt-role'}, [c.role]) : null
+    ]));
+    grid.appendChild(tile);
+  });
+  return grid;
+}
+function openCharacterForm(existing){
+  const initial = existing ? {
+    ...existing,
+    birthYear: existing.birthYear ?? extractYear(existing.birth),
+    deathYear: existing.deathYear ?? extractYear(existing.death)
+  } : { color: PRESET_COLORS[State.data.characters.length % PRESET_COLORS.length] };
+  openForm({
+    title: existing ? 'キャラクターを編集' : '新しいキャラクター',
+    submitLabel: existing ? '保存する' : '追加する',
+    celebrate: !existing,
+    initial,
+    fields: [
+      {key:'image', label:'画像（任意）', type:'image', hint:'アップロードすると自動で縮小されます。設定しない場合はイメージカラーで表示されます'},
+      {key:'name', label:'名前', type:'text', placeholder:'例: 主人公 太郎'},
+      {key:'reading', label:'よみがな', type:'text', placeholder:'例: しゅじんこう たろう'},
+      {key:'role', label:'役割', type:'combo', options:ROLE_OPTIONS, placeholder:'例: 主人公 / 語り部 など自由に入力できます', hint:'候補から選ぶか、自由に入力してください'},
+      {key:'color', label:'イメージカラー', type:'color', default:'#6C4CF0'},
+      {key:'affiliation', label:'所属', type:'text', placeholder:'例: 〇〇学園'},
+      {key:'birthYear', label:'生年', type:'number', placeholder:'例: 1005'},
+      {key:'deathYear', label:'没年（存命なら空欄）', type:'number', placeholder:'例: 1023'},
+      {key:'age', label:'年齢（任意）', type:'number', placeholder:'例: 18', hint:'生年・没年の両方が分かる場合は自動計算されるため、入力は不要です'},
+      {key:'appearance', label:'外見', type:'textarea', placeholder:'背格好、服装の特徴など', rows:2},
+      {key:'personality', label:'性格', type:'textarea', placeholder:'性格や口癖など', rows:2},
+      {key:'background', label:'背景・経歴', type:'textarea', placeholder:'生い立ちや設定の詳細', rows:3},
+      {key:'notes', label:'メモ', type:'textarea', placeholder:'その他の覚え書き', rows:2}
+    ],
+    onDelete: existing ? async ()=>{
+      await Store.deleteDoc(State.currentProjectId, 'characters', existing.id);
+      toast('キャラクターを削除しました');
+    } : null,
+    onSubmit: async (vals)=>{
+      vals.updatedBy = nick(); vals.updatedAt = Date.now();
+      if (existing) await Store.updateDoc(State.currentProjectId, 'characters', existing.id, vals);
+      else {
+        vals.createdAt = Date.now();
+        vals.order = State.data.characters.length ? Math.max(...State.data.characters.map(c=>c.order||0))+10 : 10;
+        await Store.addDoc(State.currentProjectId, 'characters', vals);
+      }
+      toast('保存しました');
+    }
+  });
+}
+
+/* ============================= RELATIONSHIPS ============================= */
+const FAVOR_OPTIONS = [
+  {value:'positive', label:'好意的 ・ 友好'}, {value:'negative', label:'敵対的 ・ 対立'},
+  {value:'complex', label:'複雑 ・ 両面的'}, {value:'neutral', label:'中立 ・ その他'}
+];
+const FAVOR_COLOR = { positive:'#1FA070', negative:'#E24E6B', complex:'#7C5CFC', neutral:'#9C97AE' };
+const FAVOR_LABEL = { positive:'好意的', negative:'敵対的', complex:'複雑', neutral:'中立' };
+const FAVOR_ORDER = { positive:0, complex:1, neutral:2, negative:3 };
+const RELATIONSHIP_SORTS = [['created','登録順（追加した順）'], ['nameA','キャラクターA名順（あいうえお順）'], ['favor','感情の方向順（好意的→複雑→中立→敵対的）'], ['custom','カスタム（ドラッグで並び替え）']];
+let relSortKey = 'created';
+function sortRelationships(list){
+  const out = [...list];
+  if (relSortKey === 'nameA'){
+    out.sort((a,b)=> (charById(a.fromId)?.name||'').localeCompare(charById(b.fromId)?.name||'', 'ja'));
+  } else if (relSortKey === 'favor'){
+    out.sort((a,b)=> (FAVOR_ORDER[a.favor] ?? 9) - (FAVOR_ORDER[b.favor] ?? 9));
+  } else if (relSortKey === 'custom'){
+    out.sort((a,b)=> (a.order??0) - (b.order??0));
+  }
+  return out;
+}
+async function moveRelationship(sorted, idx, dir){
+  const other = sorted[idx+dir], cur = sorted[idx];
+  if (!other) return;
+  const a = cur.order ?? 0, b = other.order ?? 0;
+  await Store.updateDoc(State.currentProjectId, 'relationships', cur.id, {order:b, updatedBy:nick()});
+  await Store.updateDoc(State.currentProjectId, 'relationships', other.id, {order:a, updatedBy:nick()});
+}
+
+function renderRelationships(){
+  const view = document.getElementById('view-relationships');
+  view.innerHTML = '';
+  view.appendChild(el('div', {class:'content-head'}, [
+    el('div', {}, [ el('h2', {}, ['関係性']), el('div', {class:'sub'}, [`${State.data.relationships.length} 件の関係`]) ]),
+    el('button', {class:'btn btn-primary', onclick:()=>openRelationshipForm(null), disabled: State.data.characters.length<2}, ['＋ 関係を追加'])
+  ]));
+  if (State.data.characters.length < 2){
+    view.appendChild(el('div', {class:'empty-state'}, ['関係性を作るには、まず2人以上のキャラクターを登録してください。']));
+    return;
+  }
+  view.appendChild(buildRelationshipDiagram());
+  if (!State.data.relationships.length){
+    view.appendChild(el('div', {class:'empty-state'}, ['まだ関係が登録されていません。']));
+    return;
+  }
+  const sortRow = el('div', {style:'display:flex; align-items:center; gap:8px; margin:6px 0 20px;'});
+  const sortSelect = el('select', {style:'width:auto;'});
+  RELATIONSHIP_SORTS.forEach(([v,l])=>{
+    const opt = el('option', {value:v}, [l]);
+    if (v===relSortKey) opt.setAttribute('selected','selected');
+    sortSelect.appendChild(opt);
+  });
+  sortSelect.addEventListener('change', ()=>{ relSortKey = sortSelect.value; renderRelationships(); });
+  sortRow.appendChild(sortSelect);
+  view.appendChild(sortRow);
+  if (relSortKey === 'custom') view.appendChild(el('div', {class:'hint', style:'margin:-4px 0 10px;'}, ['行をつかんでドラッグすると順番を変更できます']));
+  const list = el('div', {class:'row-list'});
+  const sorted = sortRelationships(State.data.relationships);
+  function charAvatar(c){
+    if (!c) return el('span', {class:'rel-avatar-fallback', style:'background:var(--gray)'}, ['?']);
+    const color = c.color || '#6C4CF0';
+    return c.image
+      ? el('img', {class:'rel-avatar', src:c.image, style:`--cc:${color}`})
+      : el('span', {class:'rel-avatar-fallback', style:`background:${color}; --cc:${color}`}, [(c.name||'?').charAt(0)]);
+  }
+  sorted.forEach((r,i)=>{
+    const a = charById(r.fromId), b = charById(r.toId);
+    const row = el('div', {class:'item-row fade-in', style:`animation-delay:${i*30}ms`});
+    if (relSortKey === 'custom'){
+      row.appendChild(el('div', {class:'order-btns'}, [
+        el('button', {onclick:()=>moveRelationship(sorted, i, -1), title:'上へ'}, ['▲']),
+        el('button', {onclick:()=>moveRelationship(sorted, i, 1), title:'下へ'}, ['▼'])
+      ]));
+    }
+    row.appendChild(el('div', {class:'ir-main'}, [
+      el('div', {class:'ir-title'}, [
+        el('span', {class:'rel-pair'}, [ charAvatar(a), `${a? a.name : '(削除済み)'}`, ' → ', charAvatar(b), `${b? b.name : '(削除済み)'}` ]),
+        el('span', {class:'favor-chip favor-'+r.favor}, [FAVOR_LABEL[r.favor]||r.favor]),
+        r.mutual ? el('span', {class:'tag'}, ['相互']) : null,
+        r.type ? el('span', {class:'tag cat'}, [r.type]) : null
+      ]),
+      r.description ? el('div', {class:'ir-desc'}, [r.description]) : null
+    ]));
+    row.appendChild(el('div', {class:'ir-actions'}, [ el('button', {class:'btn btn-sm', onclick:()=>openRelationshipForm(r)}, ['編集']) ]));
+    list.appendChild(row);
+  });
+  view.appendChild(list);
+  if (relSortKey === 'custom') makeDraggableList(list, sorted, 'relationships');
+}
+function buildRelationshipDiagram(){
+  const wrap = el('div', {class:'diagram-wrap fade-in'});
+  const chars = State.data.characters;
+  const W = 640, H = 420, cx = W/2, cy = H/2, R = Math.min(W,H)/2 - 70;
+  const pos = {};
+  chars.forEach((c,i)=>{
+    const angle = (i / chars.length) * Math.PI*2 - Math.PI/2;
+    pos[c.id] = { x: cx + R*Math.cos(angle), y: cy + R*Math.sin(angle) };
+  });
+  let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans JP, sans-serif">`;
+  svg += '<defs>';
+  Object.keys(FAVOR_COLOR).forEach(key=>{
+    svg += `<marker id="arrow-${key}" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="${FAVOR_COLOR[key]}" /></marker>`;
+  });
+  svg += '</defs>';
+  const pairGroups = {};
+  State.data.relationships.forEach(r=>{
+    if (!pos[r.fromId] || !pos[r.toId]) return;
+    const key = [r.fromId, r.toId].sort().join('|');
+    (pairGroups[key] = pairGroups[key]||[]).push(r);
+  });
+  const NODE_R = 30;
+  Object.values(pairGroups).forEach(list=>{
+    const n = list.length;
+    list.forEach((r,idx)=>{
+      const a = pos[r.fromId], b = pos[r.toId];
+      const color = FAVOR_COLOR[r.favor] || FAVOR_COLOR.neutral;
+      const markerId = r.favor && FAVOR_COLOR[r.favor] ? r.favor : 'neutral';
+      const markers = r.mutual
+        ? `marker-start="url(#arrow-${markerId})" marker-end="url(#arrow-${markerId})"`
+        : `marker-end="url(#arrow-${markerId})"`;
+      if (n === 1){
+        const dx = b.x-a.x, dy = b.y-a.y, len = Math.sqrt(dx*dx+dy*dy) || 1;
+        const ux = dx/len, uy = dy/len;
+        const sx = a.x+ux*NODE_R, sy = a.y+uy*NODE_R;
+        const ex = b.x-ux*NODE_R, ey = b.y-uy*NODE_R;
+        svg += `<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="${color}" stroke-width="2.5" stroke-linecap="round" ${markers} />`;
+      } else {
+        const mx = (a.x+b.x)/2, my = (a.y+b.y)/2;
+        const dx = b.x-a.x, dy = b.y-a.y;
+        const len = Math.sqrt(dx*dx+dy*dy) || 1;
+        const nx = -dy/len, ny = dx/len;
+        const side = (idx % 2 === 0) ? 1 : -1;
+        const magnitude = 20 * (Math.floor(idx/2) + 1);
+        const cxp = mx + nx*magnitude*side, cyp = my + ny*magnitude*side;
+        const dxs = cxp-a.x, dys = cyp-a.y, lens = Math.sqrt(dxs*dxs+dys*dys) || 1;
+        const sx = a.x + (dxs/lens)*NODE_R, sy = a.y + (dys/lens)*NODE_R;
+        const dxe = b.x-cxp, dye = b.y-cyp, lene = Math.sqrt(dxe*dxe+dye*dye) || 1;
+        const ex = b.x - (dxe/lene)*NODE_R, ey = b.y - (dye/lene)*NODE_R;
+        svg += `<path d="M${sx},${sy} Q${cxp},${cyp} ${ex},${ey}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" ${markers} />`;
+      }
+    });
+  });
+  chars.forEach(c=>{
+    const p = pos[c.id];
+    const color = c.color || '#6C4CF0';
+    const tColor = contrastColor(color);
+    if (c.image){
+      const clipId = 'clip-'+c.id;
+      svg += `<defs><clipPath id="${clipId}"><circle cx="${p.x}" cy="${p.y}" r="23" /></clipPath></defs>`;
+      svg += `<image href="${c.image}" x="${p.x-26}" y="${p.y-26}" width="52" height="52" clip-path="url(#${clipId})" preserveAspectRatio="xMidYMid slice" />`;
+      svg += `<circle cx="${p.x}" cy="${p.y}" r="23" fill="none" stroke="${color}" stroke-width="3.5" />`;
+    } else {
+      svg += `<circle cx="${p.x}" cy="${p.y}" r="26" fill="${color}" stroke="#FFFFFF" stroke-width="3" />`;
+      svg += `<text x="${p.x}" y="${p.y+5}" text-anchor="middle" font-size="16" font-weight="800" fill="${tColor}">${esc((c.name||'?').charAt(0))}</text>`;
+    }
+    const labelY = p.y + (p.y > cy ? 44 : -36);
+    svg += `<text x="${p.x}" y="${labelY}" text-anchor="middle" font-size="12" font-weight="700" fill="#2A2145">${esc(c.name||'')}</text>`;
+  });
+  svg += `</svg>`;
+  wrap.innerHTML = svg;
+  const legend = el('div', {class:'legend'}, [
+    el('span',{},[el('i',{style:'background:#1FA070'}),'好意的']),
+    el('span',{},[el('i',{style:'background:#E24E6B'}),'敵対的']),
+    el('span',{},[el('i',{style:'background:#7C5CFC'}),'複雑']),
+    el('span',{},[el('i',{style:'background:#9C97AE'}),'中立']),
+    el('span',{},['矢印は関係の向き（両端に矢印＝相互）'])
+  ]);
+  wrap.appendChild(legend);
+  return wrap;
+}
+function openRelationshipForm(existing){
+  const charOpts = [{value:'', label:'選択してください'}, ...State.data.characters.map(c=>({value:c.id, label:c.name||'(無名)'}))];
+  openForm({
+    title: existing ? '関係性を編集' : '新しい関係性',
+    submitLabel: existing ? '保存する' : '追加する',
+    celebrate: !existing,
+    initial: existing || {},
+    fields: [
+      {key:'fromId', label:'キャラクターA', type:'select', options:charOpts, excludeField:'toId'},
+      {key:'toId', label:'キャラクターB', type:'select', options:charOpts, excludeField:'fromId'},
+      {key:'type', label:'関係の種類（自由記述）', type:'text', placeholder:'例: 幼なじみ / 師弟 / 家族 など'},
+      {key:'favor', label:'感情の方向', type:'select', options:FAVOR_OPTIONS, default:'neutral'},
+      {key:'mutual', label:'相互関係（両想い・両者敵対など）', type:'checkbox'},
+      {key:'description', label:'説明', type:'textarea', placeholder:'関係の背景や経緯', rows:3}
+    ],
+    onDelete: existing ? async ()=>{ await Store.deleteDoc(State.currentProjectId, 'relationships', existing.id); toast('関係性を削除しました'); } : null,
+    onSubmit: async (vals)=>{
+      if (!vals.fromId || !vals.toId){ toast('キャラクターA・Bを両方選択してください'); return; }
+      if (vals.fromId === vals.toId){ toast('同じキャラクター同士は選べません'); return; }
+      vals.updatedBy = nick(); vals.updatedAt = Date.now();
+      if (existing) await Store.updateDoc(State.currentProjectId, 'relationships', existing.id, vals);
+      else {
+        vals.createdAt = Date.now();
+        vals.order = State.data.relationships.length ? Math.max(...State.data.relationships.map(r=>r.order||0))+10 : 10;
+        await Store.addDoc(State.currentProjectId, 'relationships', vals);
+      }
+      toast('保存しました');
+    }
+  });
+}
+
+/* ============================= TIMELINE ============================= */
+function renderTimeline(){
+  const view = document.getElementById('view-timeline');
+  view.innerHTML = '';
+  view.appendChild(el('div', {class:'content-head'}, [
+    el('div', {}, [ el('h2', {}, ['年表']), el('div', {class:'sub'}, [`${State.data.timeline.length} 件の出来事（並び順で表示）`]) ]),
+    el('button', {class:'btn btn-primary', onclick:()=>openTimelineForm(null)}, ['＋ 出来事を追加'])
+  ]));
+  if (!State.data.timeline.length){
+    view.appendChild(el('div', {class:'empty-state'}, ['まだ出来事が登録されていません。']));
+    return;
+  }
+  const sorted = [...State.data.timeline].sort((a,b)=>(a.order??0)-(b.order??0));
+  const tl = el('div', {class:'timeline'});
+  sorted.forEach((t,i)=>{
+    const item = el('div', {class:'tl-item fade-in'+(t.isFlashback?' flash':''), style:`animation-delay:${i*30}ms`});
+    const card = el('div', {class:'tl-card'});
+    card.appendChild(el('div', {class:'tl-date'}, [(t.dateLabel||'（時期未設定）') + (t.isFlashback?'　回想シーン':'')]));
+    card.appendChild(el('div', {class:'tl-title'}, [t.title || '(無題の出来事)']));
+    if (t.description) card.appendChild(el('div', {class:'ir-desc'}, [t.description]));
+    if (t.charIds && t.charIds.length){
+      const chips = el('div', {class:'tl-chars'});
+      t.charIds.forEach(cid=>{ const c = charById(cid); if (c) chips.appendChild(el('span', {class:'char-chip', style:`background:${c.color||'#6C4CF0'}`}, [c.name])); });
+      card.appendChild(chips);
+    }
+    card.appendChild(el('div', {class:'card-actions'}, [ el('button', {class:'btn btn-sm', onclick:()=>openTimelineForm(t)}, ['編集']) ]));
+    item.appendChild(card);
+    tl.appendChild(item);
+  });
+  view.appendChild(tl);
+}
+function openTimelineForm(existing){
+  const charOpts = State.data.characters.map(c=>({value:c.id, label:c.name||'(無名)'}));
+  openForm({
+    title: existing ? '出来事を編集' : '新しい出来事',
+    submitLabel: existing ? '保存する' : '追加する',
+    celebrate: !existing,
+    initial: existing || { order: (State.data.timeline.length ? Math.max(...State.data.timeline.map(t=>t.order||0))+10 : 10) },
+    fields: [
+      {key:'dateLabel', label:'時期（自由記述）', type:'text', placeholder:'例: 1020年 春 / 第3章 冒頭'},
+      {key:'order', label:'並び順（小さいほど先）', type:'number'},
+      {key:'title', label:'出来事タイトル', type:'text', placeholder:'例: 二人が出会う'},
+      {key:'description', label:'詳細', type:'textarea', rows:3},
+      {key:'charIds', label:'関連キャラクター', type:'multiselect', options:charOpts},
+      {key:'isFlashback', label:'回想シーン（矛盾チェックの対象から外す）', type:'checkbox'}
+    ],
+    onDelete: existing ? async ()=>{ await Store.deleteDoc(State.currentProjectId, 'timeline', existing.id); toast('出来事を削除しました'); } : null,
+    onSubmit: async (vals)=>{
+      vals.updatedBy = nick(); vals.updatedAt = Date.now();
+      if (existing) await Store.updateDoc(State.currentProjectId, 'timeline', existing.id, vals);
+      else { vals.createdAt = Date.now(); await Store.addDoc(State.currentProjectId, 'timeline', vals); }
+      toast('保存しました');
+    }
+  });
+}
+
+/* ============================= WORLD ============================= */
+const WORLD_CATS = [
+  {value:'場所', label:'場所'}, {value:'組織', label:'組織'}, {value:'用語', label:'用語・固有名詞'},
+  {value:'歴史', label:'歴史・出来事'}, {value:'アイテム', label:'アイテム'}, {value:'その他', label:'その他'}
+];
+let worldSearchText = '';
+let worldFilterCategory = '';
+function renderWorld(){
+  const view = document.getElementById('view-world');
+  view.innerHTML = '';
+  view.appendChild(el('div', {class:'content-head'}, [
+    el('div', {}, [ el('h2', {}, ['世界観']), el('div', {class:'sub'}, [`${State.data.world.length} 件の設定`]) ]),
+    el('button', {class:'btn btn-primary', onclick:()=>openWorldForm(null)}, ['＋ 設定を追加'])
+  ]));
+  if (!State.data.world.length){
+    view.appendChild(el('div', {class:'empty-state'}, ['舞台となる場所や組織、用語などを登録しましょう。']));
+    return;
+  }
+  const toolbar = el('div', {class:'toolbar'});
+  const searchInput = el('input', {type:'text', class:'search-input', placeholder:'名称・説明で検索'});
+  searchInput.value = worldSearchText;
+  searchInput.addEventListener('input', ()=>{ worldSearchText = searchInput.value; renderWorldList(); });
+  toolbar.appendChild(searchInput);
+  const catSelect = el('select', {});
+  catSelect.appendChild(el('option', {value:''}, ['すべてのカテゴリ']));
+  WORLD_CATS.forEach(o=>{ const opt = el('option', {value:o.value}, [o.label]); if (o.value===worldFilterCategory) opt.setAttribute('selected','selected'); catSelect.appendChild(opt); });
+  catSelect.addEventListener('change', ()=>{ worldFilterCategory = catSelect.value; renderWorldList(); });
+  toolbar.appendChild(catSelect);
+  view.appendChild(toolbar);
+  const listHost = el('div', {});
+  view.appendChild(listHost);
+  function renderWorldList(){
+    listHost.innerHTML = '';
+    const q = worldSearchText.trim().toLowerCase();
+    const filtered = State.data.world.filter(w=>{
+      if (worldFilterCategory && w.category !== worldFilterCategory) return false;
+      if (!q) return true;
+      return [w.name, w.description].filter(Boolean).join(' ').toLowerCase().includes(q);
+    });
+    if (!filtered.length){
+      listHost.appendChild(el('div', {class:'empty-state'}, ['検索条件に一致する設定がいません。']));
+      return;
+    }
+    const cats = {};
+    filtered.forEach(w=>{ (cats[w.category||'その他'] = cats[w.category||'その他']||[]).push(w); });
+    Object.keys(cats).forEach(cat=>{
+      listHost.appendChild(el('h3', {style:'font-size:13px;color:var(--ink-soft);margin:18px 0 8px;'}, [cat]));
+      const list = el('div', {class:'row-list'});
+      cats[cat].forEach((w,i)=>{
+        const row = el('div', {class:'item-row fade-in', style:`animation-delay:${i*30}ms`});
+        row.appendChild(el('div', {class:'ir-main'}, [
+          el('div', {class:'ir-title'}, [w.name || '(無題)']),
+          w.description ? el('div', {class:'ir-desc'}, [w.description]) : null
+        ]));
+        row.appendChild(el('div', {class:'ir-actions'}, [ el('button', {class:'btn btn-sm', onclick:()=>openWorldForm(w)}, ['編集']) ]));
+        list.appendChild(row);
+      });
+      listHost.appendChild(list);
+    });
+  }
+  renderWorldList();
+}
+function openWorldForm(existing){
+  openForm({
+    title: existing ? '世界観設定を編集' : '新しい世界観設定',
+    submitLabel: existing ? '保存する' : '追加する',
+    celebrate: !existing,
+    initial: existing || {category:'場所'},
+    fields: [
+      {key:'category', label:'カテゴリ', type:'select', options:WORLD_CATS},
+      {key:'name', label:'名称', type:'text', placeholder:'例: 中央図書館'},
+      {key:'description', label:'説明', type:'textarea', placeholder:'特徴、由来、ルールなど', rows:4}
+    ],
+    onDelete: existing ? async ()=>{ await Store.deleteDoc(State.currentProjectId, 'world', existing.id); toast('削除しました'); } : null,
+    onSubmit: async (vals)=>{
+      vals.updatedBy = nick(); vals.updatedAt = Date.now();
+      if (existing) await Store.updateDoc(State.currentProjectId, 'world', existing.id, vals);
+      else { vals.createdAt = Date.now(); await Store.addDoc(State.currentProjectId, 'world', vals); }
+      toast('保存しました');
+    }
+  });
+}
+
+/* ============================= PLOT ============================= */
+const PLOT_STATUS = [ {value:'draft', label:'構想'}, {value:'writing', label:'執筆中'}, {value:'done', label:'完成'} ];
+const PLOT_STATUS_LABEL = {draft:'構想', writing:'執筆中', done:'完成'};
+const PLOT_STATUS_CLASS = {draft:'st-draft', writing:'st-writing', done:'st-done'};
+function renderPlot(){
+  const view = document.getElementById('view-plot');
+  view.innerHTML = '';
+  view.appendChild(el('div', {class:'content-head'}, [
+    el('div', {}, [ el('h2', {}, ['プロット']), el('div', {class:'sub'}, [`${State.data.plot.length} 章`]) ]),
+    el('button', {class:'btn btn-primary', onclick:()=>openPlotForm(null)}, ['＋ 章を追加'])
+  ]));
+  if (!State.data.plot.length){
+    view.appendChild(el('div', {class:'empty-state'}, ['章立てを組んで、物語の構成を練りましょう。']));
+    return;
+  }
+  view.appendChild(el('div', {class:'hint', style:'margin:-6px 0 10px;'}, ['カードをつかんでドラッグ、または▲▼ボタンで並び替えられます']));
+  const sorted = [...State.data.plot].sort((a,b)=>(a.order??0)-(b.order??0));
+  const list = el('div', {class:'plot-list'});
+  sorted.forEach((pl,i)=>{
+    const card = el('div', {class:'plot-card fade-in', style:`animation-delay:${i*30}ms`});
+    card.appendChild(el('div', {class:'plot-order'}, [
+      el('div', {class:'plot-num'}, [String(i+1)]),
+      el('div', {class:'order-btns'}, [
+        el('button', {onclick:()=>movePlot(sorted, i, -1), title:'上へ'}, ['▲']),
+        el('button', {onclick:()=>movePlot(sorted, i, 1), title:'下へ'}, ['▼'])
+      ])
+    ]));
+    const main = el('div', {class:'ir-main'}, [
+      el('div', {class:'ir-title'}, [pl.title || '(無題の章)', el('span', {class:'plot-status '+(PLOT_STATUS_CLASS[pl.status]||'st-draft')}, [PLOT_STATUS_LABEL[pl.status]||'構想'])]),
+      pl.summary ? el('div', {class:'ir-desc'}, [pl.summary]) : null
+    ]);
+    main.appendChild(el('div', {class:'card-actions'}, [ el('button', {class:'btn btn-sm', onclick:()=>openPlotForm(pl)}, ['編集']) ]));
+    card.appendChild(main);
+    list.appendChild(card);
+  });
+  view.appendChild(list);
+  makeDraggableList(list, sorted, 'plot');
+}
+async function movePlot(sorted, idx, dir){
+  const other = sorted[idx+dir];
+  const cur = sorted[idx];
+  if (!other) return;
+  const a = cur.order ?? 0, b = other.order ?? 0;
+  await Store.updateDoc(State.currentProjectId, 'plot', cur.id, {order:b, updatedBy:nick()});
+  await Store.updateDoc(State.currentProjectId, 'plot', other.id, {order:a, updatedBy:nick()});
+}
+function openPlotForm(existing){
+  openForm({
+    title: existing ? '章を編集' : '新しい章',
+    submitLabel: existing ? '保存する' : '追加する',
+    celebrate: !existing,
+    initial: existing || { order: (State.data.plot.length ? Math.max(...State.data.plot.map(p=>p.order||0))+10 : 10), status:'draft' },
+    fields: [
+      {key:'title', label:'章タイトル', type:'text', placeholder:'例: 第1章 出会い'},
+      {key:'status', label:'進行状況', type:'select', options:PLOT_STATUS},
+      {key:'summary', label:'あらすじ・メモ', type:'textarea', placeholder:'この章で起きること、伏線、狙いなど', rows:5}
+    ],
+    onDelete: existing ? async ()=>{ await Store.deleteDoc(State.currentProjectId, 'plot', existing.id); toast('削除しました'); } : null,
+    onSubmit: async (vals)=>{
+      vals.updatedBy = nick(); vals.updatedAt = Date.now();
+      if (existing) await Store.updateDoc(State.currentProjectId, 'plot', existing.id, vals);
+      else { vals.createdAt = Date.now(); await Store.addDoc(State.currentProjectId, 'plot', vals); }
+      toast('保存しました');
+    }
+  });
+}
+
+/* ============================= SCHEDULE (real-world deadlines, not story timeline) ============================= */
+const SCHEDULE_STATUS = [ {value:'todo', label:'未着手'}, {value:'doing', label:'進行中'}, {value:'done', label:'完了'} ];
+const SCHEDULE_STATUS_LABEL = {todo:'未着手', doing:'進行中', done:'完了'};
+const SCHEDULE_STATUS_CLASS = {todo:'st-draft', doing:'st-writing', done:'st-done'};
+function todayStr(){ return new Date().toISOString().slice(0,10); }
+function scheduleUrgency(s){
+  if (s.status === 'done' || !s.dueDate) return 'none';
+  const today = todayStr();
+  if (s.dueDate < today) return 'overdue';
+  const soon = new Date(); soon.setDate(soon.getDate()+3);
+  if (s.dueDate <= soon.toISOString().slice(0,10)) return 'soon';
+  return 'none';
+}
+function renderSchedule(){
+  const view = document.getElementById('view-schedule');
+  view.innerHTML = '';
+  view.appendChild(el('div', {class:'content-head'}, [
+    el('div', {}, [ el('h2', {}, ['スケジュール']), el('div', {class:'sub'}, ['作者・制作チームの締切や進行管理です（作中の年表とは別のものです）']) ]),
+    el('button', {class:'btn btn-primary', onclick:()=>openScheduleForm(null)}, ['＋ 予定を追加'])
+  ]));
+  if (!State.data.schedule.length){
+    view.appendChild(el('div', {class:'empty-state'}, ['締切や作業予定を登録すると、ここで進行管理できます。']));
+    return;
+  }
+  const sorted = [...State.data.schedule].sort((a,b)=>{
+    if (!a.dueDate && !b.dueDate) return 0;
+    if (!a.dueDate) return 1;
+    if (!b.dueDate) return -1;
+    return a.dueDate.localeCompare(b.dueDate);
+  });
+  const overdueCount = sorted.filter(s=>scheduleUrgency(s)==='overdue').length;
+  if (overdueCount){
+    view.appendChild(el('div', {class:'issue error', style:'margin-bottom:14px;'}, [
+      el('div', {class:'isv'}, ['ERROR']),
+      el('div', {class:'ismsg'}, [`期限を過ぎている予定が${overdueCount}件あります`])
+    ]));
+  }
+  const list = el('div', {class:'row-list'});
+  sorted.forEach((s,i)=>{
+    const urgency = scheduleUrgency(s);
+    const row = el('div', {class:'item-row fade-in'+(urgency==='overdue'?' schedule-overdue':''), style:`animation-delay:${i*30}ms`});
+    row.appendChild(el('div', {class:'ir-main'}, [
+      el('div', {class:'ir-title'}, [
+        s.title || '(無題の予定)',
+        el('span', {class:'plot-status '+(SCHEDULE_STATUS_CLASS[s.status]||'st-draft')}, [SCHEDULE_STATUS_LABEL[s.status]||'未着手']),
+        s.dueDate ? el('span', {class:'tag'+(urgency==='overdue'?' tag-overdue':urgency==='soon'?' tag-soon':'')}, [urgency==='overdue' ? `期限超過（${s.dueDate}）` : urgency==='soon' ? `まもなく（${s.dueDate}）` : s.dueDate]) : null,
+        s.assignee ? el('span', {class:'tag cat'}, [s.assignee]) : null
+      ]),
+      s.notes ? el('div', {class:'ir-desc'}, [s.notes]) : null
+    ]));
+    row.appendChild(el('div', {class:'ir-actions'}, [ el('button', {class:'btn btn-sm', onclick:()=>openScheduleForm(s)}, ['編集']) ]));
+    list.appendChild(row);
+  });
+  view.appendChild(list);
+}
+function openScheduleForm(existing){
+  openForm({
+    title: existing ? '予定を編集' : '新しい予定',
+    submitLabel: existing ? '保存する' : '追加する',
+    celebrate: !existing,
+    initial: existing || { status:'todo', dueDate: todayStr() },
+    fields: [
+      {key:'title', label:'タイトル', type:'text', placeholder:'例: 第3章 原稿締切'},
+      {key:'dueDate', label:'締切日', type:'date'},
+      {key:'status', label:'進行状況', type:'select', options:SCHEDULE_STATUS},
+      {key:'assignee', label:'担当（任意）', type:'text', placeholder:'例: たろう'},
+      {key:'notes', label:'メモ', type:'textarea', placeholder:'詳細や注意点など', rows:3}
+    ],
+    onDelete: existing ? async ()=>{ await Store.deleteDoc(State.currentProjectId, 'schedule', existing.id); toast('削除しました'); } : null,
+    onSubmit: async (vals)=>{
+      vals.updatedBy = nick(); vals.updatedAt = Date.now();
+      if (existing) await Store.updateDoc(State.currentProjectId, 'schedule', existing.id, vals);
+      else { vals.createdAt = Date.now(); await Store.addDoc(State.currentProjectId, 'schedule', vals); }
+      toast('保存しました');
+    }
+  });
+}
+
+/* ============================= CONTRADICTION CHECKS ============================= */
+let lastIssues = [];
+function extractYear(str){
+  if (!str) return null;
+  const m = String(str).match(/-?\d{1,6}/);
+  return m ? parseInt(m[0],10) : null;
+}
+function runChecks(){
+  const issues = [];
+  const { characters, relationships, timeline, world, plot } = State.data;
+  const charIds = new Set(characters.map(c=>c.id));
+
+  // 1. duplicate names
+  const nameMap = {};
+  characters.forEach(c=>{
+    const key = (c.name||'').trim().toLowerCase();
+    if (!key) return;
+    (nameMap[key] = nameMap[key]||[]).push(c);
+  });
+  Object.values(nameMap).forEach(list=>{
+    if (list.length > 1) issues.push({ severity:'warning', message:`キャラクター名「${list[0].name}」が${list.length}件重複しています`, detail:'同一人物か、名前を変えるべきか確認してください。', tab:'characters', targetType:'characters', targetId:list[0].id });
+  });
+
+  // 2. orphan relationship references
+  relationships.forEach(r=>{
+    if (!charIds.has(r.fromId) || !charIds.has(r.toId)){
+      issues.push({ severity:'error', message:'削除済みのキャラクターを参照している関係性があります', detail:`関係「${r.type||''}」が存在しないキャラクターを指しています。編集または削除してください。`, tab:'relationships', targetType:'relationships', targetId:r.id });
+    }
+  });
+
+  // 3. birth/death vs timeline
+  characters.forEach(c=>{
+    const birthY = charBirthYear(c), deathY = charDeathYear(c);
+    if (birthY==null && deathY==null) return;
+    if (birthY!=null && deathY!=null && deathY < birthY){
+      issues.push({ severity:'error', message:`「${c.name}」の没年（${deathY}）が生年（${birthY}）より前になっています`, detail:'生年と没年の表記を見直してください。', tab:'characters', targetType:'characters', targetId:c.id });
+    }
+    timeline.forEach(t=>{
+      if (t.isFlashback) return;
+      if (!t.charIds || !t.charIds.includes(c.id)) return;
+      const evY = extractYear(t.dateLabel);
+      if (evY==null) return;
+      if (deathY!=null && evY > deathY){
+        issues.push({ severity:'warning', message:`「${c.name}」の没年（${deathY}）より後の年表に登場しています`, detail:`出来事「${t.title||''}」（${t.dateLabel}）`, tab:'timeline', targetType:'timeline', targetId:t.id });
+      }
+      if (birthY!=null && evY < birthY){
+        issues.push({ severity:'warning', message:`「${c.name}」の生年（${birthY}）より前の年表に登場しています`, detail:`出来事「${t.title||''}」（${t.dateLabel}）`, tab:'timeline', targetType:'timeline', targetId:t.id });
+      }
+    });
+  });
+
+  // 4. conflicting relationships between same pair
+  const pairMap = {};
+  relationships.forEach(r=>{
+    const key = [r.fromId, r.toId].sort().join('|');
+    (pairMap[key] = pairMap[key]||[]).push(r);
+  });
+  Object.values(pairMap).forEach(list=>{
+    if (list.length < 2) return;
+    const favors = new Set(list.map(r=>r.favor));
+    if (favors.has('positive') && favors.has('negative')){
+      const a = charById(list[0].fromId), b = charById(list[0].toId);
+      issues.push({ severity:'warning', message:`「${a?a.name:'?'}」と「${b?b.name:'?'}」の関係が好意的・敵対的の両方で登録されています`, detail:'時期による変化なら関係の説明欄に補足すると分かりやすくなります。', tab:'relationships', targetType:'relationships', targetId:list[0].id });
+    }
+  });
+
+  // 5. duplicate plot order
+  const orderMap = {};
+  plot.forEach(p=>{ const k = String(p.order); (orderMap[k]=orderMap[k]||[]).push(p); });
+  Object.values(orderMap).forEach(list=>{
+    if (list.length > 1) issues.push({ severity:'warning', message:`プロットの並び順が重複しています（${list.map(p=>p.title||'無題').join(' / ')}）`, detail:'順序を調整すると章の流れが分かりやすくなります。', tab:'plot', targetType:'plot', targetId:list[0].id });
+  });
+
+  // 6. duplicate world entry names within category
+  const worldMap = {};
+  world.forEach(w=>{ const k = (w.category||'')+'|'+(w.name||'').trim().toLowerCase(); if(!w.name) return; (worldMap[k]=worldMap[k]||[]).push(w); });
+  Object.values(worldMap).forEach(list=>{
+    if (list.length > 1) issues.push({ severity:'warning', message:`世界観設定「${list[0].name}」（${list[0].category}）が重複しています`, detail:'同じ対象を別々に登録していないか確認してください。', tab:'world', targetType:'world', targetId:list[0].id });
+  });
+
+  lastIssues = issues;
+  const badge1 = document.getElementById('issueBadge'), badge2 = document.getElementById('issueBadgeMobile');
+  [badge1, badge2].forEach(b=>{
+    if (!b) return;
+    if (issues.length){ b.textContent = issues.length; b.classList.remove('hidden'); }
+    else { b.classList.add('hidden'); }
+  });
+  if (State.activeTab === 'checks') renderChecks();
+}
+function renderChecks(){
+  const view = document.getElementById('view-checks');
+  view.innerHTML = '';
+  view.appendChild(el('div', {class:'content-head'}, [
+    el('div', {}, [ el('h2', {}, ['矛盾チェック']), el('div', {class:'sub'}, ['名前の重複、参照切れ、年表と生没年のズレなどを自動で確認します（簡易チェックです）']) ]),
+    el('button', {class:'btn', onclick:()=>{ runChecks(); }}, ['再チェック'])
+  ]));
+  const errCount = lastIssues.filter(i=>i.severity==='error').length;
+  const warnCount = lastIssues.filter(i=>i.severity==='warning').length;
+  view.appendChild(el('div', {class:'check-summary'}, [
+    el('div', {class:'check-pill'}, [el('div', {class:'num', style:'color:var(--red)'}, [String(errCount)]), el('div',{class:'lbl'},['エラー']), el('div',{class:'lbl-detail'},['データとして明らかに壊れている（例: 存在しない相手を参照、没年が生年より前）'])]),
+    el('div', {class:'check-pill'}, [el('div', {class:'num', style:'color:#B8790C'}, [String(warnCount)]), el('div',{class:'lbl'},['注意']), el('div',{class:'lbl-detail'},['意図的な場合もある、念のための指摘（例: 名前の重複、感情が入り混じった関係）'])]),
+  ]));
+  if (!lastIssues.length){
+    view.appendChild(el('div', {class:'all-clear'}, ['矛盾は見つかりませんでした']));
+    return;
+  }
+  lastIssues.forEach((iss,i)=>{
+    const box = el('div', {class:'issue '+iss.severity+' fade-in', style:`animation-delay:${i*30}ms`});
+    box.appendChild(el('div', {class:'isv'}, [iss.severity==='error'?'ERROR':'WARNING']));
+    box.appendChild(el('div', {class:'ismsg'}, [iss.message]));
+    if (iss.detail) box.appendChild(el('div', {class:'isdetail'}, [iss.detail]));
+    if (iss.tab) box.appendChild(el('button', {class:'btn btn-sm', style:'margin-top:8px;', onclick:()=>goToIssue(iss)}, ['該当ページを開く →']));
+    view.appendChild(box);
+  });
+}
+const ISSUE_TARGET_OPENERS = { characters:openCharacterForm, relationships:openRelationshipForm, timeline:openTimelineForm, world:openWorldForm, plot:openPlotForm };
+function goToIssue(iss){
+  if (!iss.tab) return;
+  setTab(iss.tab);
+  if (iss.targetType && iss.targetId){
+    const item = (State.data[iss.targetType]||[]).find(x=>x.id===iss.targetId);
+    const opener = ISSUE_TARGET_OPENERS[iss.targetType];
+    if (item && opener) setTimeout(()=>opener(item), 30);
+  }
+}
+
+/* ============================= WIRE UP ============================= */
+function wireNav(){
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    b.addEventListener('click', ()=> setTab(b.dataset.tab));
+  });
+  document.getElementById('switchProjectBtn').addEventListener('click', showGate);
+  document.getElementById('mobileBackBtn').addEventListener('click', showGate);
+  const nickInput = document.getElementById('nicknameInput');
+  nickInput.value = State.nickname;
+  nickInput.addEventListener('input', ()=>{
+    State.nickname = nickInput.value;
+    localStorage.setItem('hakoniwa_nick', nickInput.value);
+  });
+}
+function updateSyncPill(){
+  const label = Store.mode==='db' ? 'この端末以外とも同期して共同編集できます' : 'この端末だけに保存されています（共同編集はできません）';
+  ['syncPill','syncPillGate'].forEach(id=>{
+    const p = document.getElementById(id);
+    if (!p) return;
+    p.innerHTML = `<span class="sync-dot${Store.mode!=='db'?' local':''}"></span>${label}`;
+  });
+}
+
+async function boot(){
+  wireNav();
+  await Store.init();
+  updateSyncPill();
+  document.getElementById('gate').classList.remove('hidden');
+  Store.watchProjects((list)=>{
+    State.projects = list;
+    if (!State.currentProjectId){
+      renderGate();
+      const last = localStorage.getItem('hakoniwa_last_project');
+      if (last && list.some(p=>p.id===last)) enterProject(last);
+    } else {
+      const p = list.find(x=>x.id===State.currentProjectId);
+      if (p){
+        document.getElementById('cpName').textContent = p.name;
+        document.getElementById('cpDot').style.background = p.color || '#6C4CF0';
+        document.getElementById('mobileProjectName').textContent = p.name;
+      } else {
+        showGate();
+      }
+    }
+  });
+}
+boot();
+
+})();
+</script>
