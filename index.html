@@ -114,6 +114,11 @@
 
   /* Gate: project picker */
   #gate{ width:100%; max-width:900px; margin:0 auto; padding:48px 20px 60px; }
+  #authGate{ width:100%; max-width:460px; margin:0 auto; padding:90px 20px 40px; text-align:center; }
+  .auth-box{ margin-top:28px; background:var(--bg); border-radius:var(--radius-lg); padding:28px; box-shadow:var(--shadow); }
+  .auth-status{ color:var(--ink-soft); font-size:14px; margin-bottom:16px; }
+  .auth-denied p{ color:var(--ink-soft); font-size:13.5px; line-height:1.7; margin-bottom:16px; }
+  .auth-denied b{ color:var(--ink); }
   .gate-hero{ text-align:center; margin-bottom:36px; }
   .gate-hero h1{ font-size:clamp(26px,5vw,34px); font-weight:800; margin-top:8px; }
   .gate-hero p{ color:var(--ink-soft); margin-top:8px; font-size:14.5px; }
@@ -349,7 +354,22 @@
   }
 </style>
 
-<div id="app">
+<div id="authGate">
+  <div class="gate-hero fade-in">
+    <h1>創作ラボ</h1>
+    <p>キャラクター・関係性・年表・世界観をひとつの場所で育てる、共同創作メモ</p>
+  </div>
+  <div class="auth-box fade-in">
+    <p class="auth-status" id="authStatus">読み込み中…</p>
+    <button class="btn btn-primary hidden" id="googleLoginBtn">Googleでログイン</button>
+    <div class="auth-denied hidden" id="authDenied">
+      <p>このアカウント（<b id="authDeniedEmail"></b>）では利用できません。<br>管理者に共有をお願いしてください。</p>
+      <button class="btn" id="switchAccountBtn">別のアカウントでログイン</button>
+    </div>
+  </div>
+</div>
+
+<div id="app" class="hidden">
   <!-- GATE: project picker -->
   <div id="gate" class="hidden">
     <div class="gate-hero fade-in">
@@ -390,11 +410,12 @@
     </nav>
     <div class="sidebar-foot">
       <div class="nickname-box">
-        <label class="field"><span>あなたの名前（共同編集用）</span>
+        <label class="field"><span>表示名（未入力ならGoogleアカウントの名前）</span>
           <input type="text" id="nicknameInput" placeholder="例: たろう" maxlength="20">
         </label>
       </div>
       <div class="sync-pill" id="syncPill"><span class="sync-dot"></span>-</div>
+      <button class="btn btn-ghost btn-sm" id="sidebarLogoutBtn">ログアウト</button>
     </div>
   </aside>
 
@@ -424,110 +445,100 @@
 <div id="modalRoot"></div>
 <div class="toast-wrap" id="toastWrap"></div>
 
-<script>
-(function(){
-"use strict";
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-auth.js";
+import {
+  getFirestore, doc as fsDoc, getDoc as fsGetDoc, collection as fsCollection,
+  addDoc as fsAddDoc, updateDoc as fsUpdateDoc, deleteDoc as fsDeleteDoc,
+  getDocs as fsGetDocs, onSnapshot as fsOnSnapshot
+} from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
 
-/* ============================= STORAGE LAYER ============================= */
-const LS_KEY = 'hakoniwa_v1';
-function lsLoad(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'{}'); }catch(e){ return {}; } }
-function lsSave(d){ try{ localStorage.setItem(LS_KEY, JSON.stringify(d)); }catch(e){} }
-function uid(prefix){ return prefix+'_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+const firebaseConfig = {
+  apiKey: "AIzaSyAkoqpr_NQWHLACbjDWscyz78edipjq9lU",
+  authDomain: "sousaku-labo.firebaseapp.com",
+  projectId: "sousaku-labo",
+  storageBucket: "sousaku-labo.firebasestorage.app",
+  messagingSenderId: "319541429312",
+  appId: "1:319541429312:web:461791e540a8b5c24d4ba5"
+};
+const fbApp = initializeApp(firebaseConfig);
+const fbAuth = getAuth(fbApp);
+const fbDb = getFirestore(fbApp);
+const googleProvider = new GoogleAuthProvider();
+let currentUser = null;
 
+/* ============================= AUTH GATE ============================= */
+function showAuthGate(){ document.getElementById('authGate').classList.remove('hidden'); document.getElementById('app').classList.add('hidden'); }
+function hideAuthGate(){ document.getElementById('authGate').classList.add('hidden'); document.getElementById('app').classList.remove('hidden'); }
+
+const authStatusEl = document.getElementById('authStatus');
+const loginBtn = document.getElementById('googleLoginBtn');
+const deniedBox = document.getElementById('authDenied');
+const deniedEmailEl = document.getElementById('authDeniedEmail');
+
+loginBtn.addEventListener('click', async ()=>{
+  loginBtn.disabled = true; authStatusEl.textContent = 'ログイン中…';
+  try{ await signInWithPopup(fbAuth, googleProvider); }
+  catch(e){ console.error(e); authStatusEl.textContent = 'ログインに失敗しました。もう一度お試しください。'; }
+  loginBtn.disabled = false;
+});
+document.getElementById('switchAccountBtn').addEventListener('click', ()=> signOut(fbAuth));
+
+let booted = false;
+onAuthStateChanged(fbAuth, async (user)=>{
+  currentUser = user;
+  deniedBox.classList.add('hidden'); loginBtn.classList.add('hidden');
+  showAuthGate();
+  if (!user){
+    authStatusEl.textContent = 'このアプリを使うにはGoogleアカウントでログインしてください。';
+    loginBtn.classList.remove('hidden');
+    return;
+  }
+  authStatusEl.textContent = '確認中…';
+  try{
+    await fsGetDoc(fsDoc(fbDb, 'allowedEmails', user.email));
+  }catch(err){
+    deniedEmailEl.textContent = user.email;
+    deniedBox.classList.remove('hidden');
+    authStatusEl.textContent = '';
+    return;
+  }
+  hideAuthGate();
+  if (!booted){ booted = true; boot(); }
+  else { updateSyncPill(); }
+});
+
+/* ============================= STORAGE LAYER (Firestore) ============================= */
 const Store = {
-  mode:'local', db:null,
-  _listeners:{}, // key -> Set(fn)
-  async init(){
-    try{
-      if (window.claude && typeof window.claude.use === 'function'){
-        const db = await window.claude.use('db');
-        if (db){ this.db = db; this.mode = 'db'; return; }
-      }
-    }catch(e){ /* fall through to local */ }
-    this.mode = 'local';
-  },
-  _on(key, fn){ (this._listeners[key] = this._listeners[key] || new Set()).add(fn); },
-  _off(key, fn){ if(this._listeners[key]) this._listeners[key].delete(fn); },
-  _emit(key){ if(this._listeners[key]) this._listeners[key].forEach(fn=>fn()); },
-
-  localAll(){ const d = lsLoad(); d.projects = d.projects||{}; d.sub = d.sub||{}; return d; },
-  localProjectsList(){
-    const d = this.localAll();
-    return Object.keys(d.projects).map(id=>({id, ...d.projects[id]})).sort((a,b)=>(a.order||0)-(b.order||0));
-  },
-  localSubList(pid, sub){
-    const d = this.localAll();
-    const bucket = (d.sub[pid] && d.sub[pid][sub]) || {};
-    return Object.keys(bucket).map(id=>({id, ...bucket[id]}));
-  },
-
+  mode: 'firebase',
+  async init(){ /* auth already resolved before boot() runs */ },
   watchProjects(cb){
-    if (this.mode==='db'){
-      return this.db.collection('projects').onSnapshot(
-        snap=>{ const list = snap.docs.map(d=>({id:d.id, ...d.data()})); list.sort((a,b)=>(a.order||0)-(b.order||0)); cb(list); },
-        err=>{ console.error('watchProjects', err); cb([]); }
-      );
-    } else {
-      const fn = ()=> cb(this.localProjectsList());
-      this._on('projects', fn); fn();
-      return ()=> this._off('projects', fn);
-    }
+    return fsOnSnapshot(fsCollection(fbDb, 'projects'), snap=>{
+      const list = snap.docs.map(d=>({id:d.id, ...d.data()}));
+      list.sort((a,b)=>(a.order||0)-(b.order||0));
+      cb(list);
+    }, err=>{ console.error('watchProjects', err); cb([]); });
   },
   watchSub(pid, sub, cb){
-    if (this.mode==='db'){
-      return this.db.collection(`projects/${pid}/${sub}`).onSnapshot(
-        snap=> cb(snap.docs.map(d=>({id:d.id, ...d.data()}))),
-        err=>{ console.error('watchSub', sub, err); cb([]); }
-      );
-    } else {
-      const key = 'sub:'+pid+':'+sub;
-      const fn = ()=> cb(this.localSubList(pid, sub));
-      this._on(key, fn); fn();
-      return ()=> this._off(key, fn);
-    }
+    return fsOnSnapshot(fsCollection(fbDb, `projects/${pid}/${sub}`),
+      snap=> cb(snap.docs.map(d=>({id:d.id, ...d.data()}))),
+      err=>{ console.error('watchSub', sub, err); cb([]); }
+    );
   },
-
-  async addProject(data){
-    if (this.mode==='db'){ const ref = await this.db.collection('projects').add(data); return ref.id; }
-    const id = uid('p'); const d = this.localAll(); d.projects[id] = data; lsSave(d); this._emit('projects'); return id;
-  },
-  async updateProject(id, patch){
-    if (this.mode==='db'){ return this.db.doc(`projects/${id}`).update(patch); }
-    const d = this.localAll(); d.projects[id] = {...(d.projects[id]||{}), ...patch}; lsSave(d); this._emit('projects');
-  },
+  async addProject(data){ const ref = await fsAddDoc(fsCollection(fbDb,'projects'), data); return ref.id; },
+  async updateProject(id, patch){ return fsUpdateDoc(fsDoc(fbDb,'projects',id), patch); },
   async deleteProject(id){
-    if (this.mode==='db'){
-      const subs = ['characters','relationships','timeline','world','plot','schedule'];
-      for (const s of subs){
-        const col = this.db.collection(`projects/${id}/${s}`);
-        const snap = await col.get();
-        for (const doc of snap.docs){ await col.doc(doc.id).delete(); }
-      }
-      return this.db.doc(`projects/${id}`).delete();
+    const subs = ['characters','relationships','timeline','world','plot','schedule'];
+    for (const s of subs){
+      const snap = await fsGetDocs(fsCollection(fbDb, `projects/${id}/${s}`));
+      for (const d of snap.docs){ await fsDeleteDoc(d.ref); }
     }
-    const d = this.localAll(); delete d.projects[id]; delete d.sub[id]; lsSave(d); this._emit('projects');
+    return fsDeleteDoc(fsDoc(fbDb,'projects',id));
   },
-  async addDoc(pid, sub, data){
-    if (this.mode==='db'){ const ref = await this.db.collection(`projects/${pid}/${sub}`).add(data); return ref.id; }
-    const id = uid(sub[0]); const d = this.localAll();
-    d.sub[pid] = d.sub[pid]||{}; d.sub[pid][sub] = d.sub[pid][sub]||{};
-    d.sub[pid][sub][id] = data; lsSave(d); this._emit('sub:'+pid+':'+sub); return id;
-  },
-  async updateDoc(pid, sub, id, patch){
-    if (this.mode==='db'){ return this.db.doc(`projects/${pid}/${sub}/${id}`).update(patch); }
-    const d = this.localAll();
-    if (!d.sub[pid] || !d.sub[pid][sub] || !d.sub[pid][sub][id]) return;
-    d.sub[pid][sub][id] = {...d.sub[pid][sub][id], ...patch}; lsSave(d); this._emit('sub:'+pid+':'+sub);
-  },
-  async deleteDoc(pid, sub, id){
-    if (this.mode==='db'){
-      // db.doc().delete() directly (avoids needing a fetched ref)
-      return this.db.doc(`projects/${pid}/${sub}/${id}`).delete();
-    }
-    const d = this.localAll();
-    if (d.sub[pid] && d.sub[pid][sub]) delete d.sub[pid][sub][id];
-    lsSave(d); this._emit('sub:'+pid+':'+sub);
-  }
+  async addDoc(pid, sub, data){ const ref = await fsAddDoc(fsCollection(fbDb, `projects/${pid}/${sub}`), data); return ref.id; },
+  async updateDoc(pid, sub, id, patch){ return fsUpdateDoc(fsDoc(fbDb, `projects/${pid}/${sub}/${id}`), patch); },
+  async deleteDoc(pid, sub, id){ return fsDeleteDoc(fsDoc(fbDb, `projects/${pid}/${sub}/${id}`)); }
 };
 
 /* ============================= APP STATE ============================= */
@@ -542,7 +553,7 @@ const State = {
 
 const PRESET_COLORS = ['#6C4CF0','#E24E6B','#E8843F','#D6A72E','#4CAE50','#0FA394','#3F7FE0','#7C5CFC','#D6588C','#726D93'];
 
-function nick(){ return State.nickname.trim() || 'ゲスト'; }
+function nick(){ return State.nickname.trim() || (currentUser && (currentUser.displayName || currentUser.email)) || 'ゲスト'; }
 function el(tag, attrs, children){
   const node = document.createElement(tag);
   attrs = attrs || {};
@@ -1743,13 +1754,14 @@ function wireNav(){
     State.nickname = nickInput.value;
     localStorage.setItem('hakoniwa_nick', nickInput.value);
   });
+  document.getElementById('sidebarLogoutBtn').addEventListener('click', ()=> signOut(fbAuth));
 }
 function updateSyncPill(){
-  const label = Store.mode==='db' ? 'この端末以外とも同期して共同編集できます' : 'この端末だけに保存されています（共同編集はできません）';
+  const label = currentUser ? `${esc(currentUser.displayName || currentUser.email)} でログイン中・共同編集できます` : '接続確認中…';
   ['syncPill','syncPillGate'].forEach(id=>{
     const p = document.getElementById(id);
     if (!p) return;
-    p.innerHTML = `<span class="sync-dot${Store.mode!=='db'?' local':''}"></span>${label}`;
+    p.innerHTML = `<span class="sync-dot"></span>${label}`;
   });
 }
 
@@ -1776,7 +1788,4 @@ async function boot(){
     }
   });
 }
-boot();
-
-})();
 </script>
