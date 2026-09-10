@@ -1173,6 +1173,8 @@ function buildCharacterGallery(list){
 function buildNicknameSummaryList(list){
   const proj = State.projects.find(p=>p.id===State.currentProjectId) || {};
   const callNames = proj.callNames || {};
+  const outer = el('div', {});
+  outer.appendChild(el('div', {class:'hint', style:'margin-bottom:10px;'}, ['各キャラクターが、他の人からどう呼ばれているか（＝呼ばれ方）の一覧です']));
   let any = false;
   const wrap = el('div', {class:'row-list fade-in'});
   list.forEach(c=>{
@@ -1191,8 +1193,8 @@ function buildNicknameSummaryList(list){
     ]));
     wrap.appendChild(row);
   });
-  if (!any) return el('div', {class:'empty-state'}, ['あだ名表に入力すると、ここに一覧が表示されます。']);
-  return wrap;
+  outer.appendChild(any ? wrap : el('div', {class:'empty-state'}, ['あだ名表に入力すると、ここに一覧が表示されます。']));
+  return outer;
 }
 function buildNicknameTable(list){
   const proj = State.projects.find(p=>p.id===State.currentProjectId) || {};
