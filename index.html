@@ -223,22 +223,16 @@
   .char-view-toggle button{ font-family:var(--font-body); font-size:12.5px; font-weight:700; padding:6px 14px; border-radius:999px; background:transparent; color:var(--ink-soft); }
   .char-view-toggle button.active{ background:var(--bg); color:var(--accent-deep); box-shadow:var(--shadow-sm); }
 
-  .nickname-table-wrap{ overflow-x:auto; background:var(--bg); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); }
-  .nickname-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
-  .nickname-table th{ text-align:left; font-size:11.5px; font-weight:700; color:var(--ink-soft); padding:12px 16px; border-bottom:1px solid var(--line); white-space:nowrap; }
-  .nickname-table td{ padding:12px 16px; border-bottom:1px solid var(--line); color:var(--ink); }
-  .nickname-table tbody tr{ cursor:pointer; transition:background .1s ease; }
-  .nickname-table tbody tr:hover{ background:var(--surface-2); }
-  .nickname-table tbody tr:last-child td{ border-bottom:none; }
-  .nickname-dot{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:8px; vertical-align:middle; }
-
-  .callname-grid{ table-layout:fixed; }
-  .callname-grid th, .callname-grid td{ white-space:nowrap; }
-  .callname-corner{ background:var(--bg); position:sticky; left:0; z-index:2; }
-  .callname-rowhead{ text-align:left; position:sticky; left:0; background:var(--bg); z-index:1; font-size:12.5px; }
-  .callname-colhead{ min-width:110px; }
-  .callname-self{ text-align:center; color:var(--ink-faint); background:var(--surface-2); }
-  input.callname-input{ width:100px; padding:6px 8px; font-size:12.5px; box-shadow:var(--shadow-inset-sm); }
+  .nickname-table-wrap{ overflow-x:auto; border:1px solid var(--line-strong); border-radius:var(--radius-sm); }
+  .nickname-table{ width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
+  .nickname-table th, .nickname-table td{ border:1px solid var(--line-strong); padding:7px 10px; white-space:nowrap; }
+  .nickname-table th{ font-size:12px; font-weight:700; color:var(--ink-soft); background:var(--surface-2); text-align:center; }
+  .callname-corner{ background:var(--surface-2); position:sticky; left:0; z-index:2; }
+  .callname-rowhead{ text-align:left !important; position:sticky; left:0; background:var(--surface-2); z-index:1; }
+  .callname-colhead{ min-width:96px; }
+  .callname-self{ background:linear-gradient(to top left, transparent calc(50% - 1px), var(--line-strong) calc(50% - 1px), var(--line-strong) calc(50% + 1px), transparent calc(50% + 1px)); }
+  input.callname-input{ width:100%; padding:4px 2px; font-size:12.5px; text-align:center; background:transparent; box-shadow:none; }
+  input.callname-input:focus{ box-shadow:0 0 0 2px rgba(91,82,214,.3); border-radius:4px; }
 
   .toolbar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:6px 0 24px; }
   .toolbar .search-input{ flex:1; min-width:160px; max-width:280px; width:auto; }
@@ -1179,23 +1173,19 @@ function buildNicknameTable(list){
   const proj = State.projects.find(p=>p.id===State.currentProjectId) || {};
   const callNames = proj.callNames || {};
   const wrap = el('div', {});
-  wrap.appendChild(el('div', {class:'hint', style:'margin-bottom:10px;'}, ['縦（行）が「呼ぶ人」、横（列）が「呼ばれる人」です。セルに直接入力すると保存されます。']));
+  wrap.appendChild(el('div', {class:'hint', style:'margin-bottom:10px;'}, ['縦＝呼ぶ人、横＝呼ばれる人']));
   const tableWrap = el('div', {class:'nickname-table-wrap fade-in'});
   const table = el('table', {class:'nickname-table callname-grid'});
   const headRow = el('tr', {}, [el('th', {class:'callname-corner'}, [''])]);
-  list.forEach(c=> headRow.appendChild(el('th', {class:'callname-colhead'}, [
-    el('span', {class:'nickname-dot', style:`background:${c.color||'#6C4CF0'}`}), c.name || '?'
-  ])));
+  list.forEach(c=> headRow.appendChild(el('th', {class:'callname-colhead'}, [c.name || '?'])));
   table.appendChild(el('thead', {}, [headRow]));
   const tbody = el('tbody', {});
   list.forEach(rowChar=>{
     const tr = el('tr', {});
-    tr.appendChild(el('th', {class:'callname-rowhead'}, [
-      el('span', {class:'nickname-dot', style:`background:${rowChar.color||'#6C4CF0'}`}), rowChar.name || '?'
-    ]));
+    tr.appendChild(el('th', {class:'callname-rowhead'}, [rowChar.name || '?']));
     list.forEach(colChar=>{
       if (rowChar.id === colChar.id){
-        tr.appendChild(el('td', {class:'callname-self'}, ['—']));
+        tr.appendChild(el('td', {class:'callname-self'}, []));
         return;
       }
       const key = `${rowChar.id}|${colChar.id}`;
