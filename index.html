@@ -631,6 +631,20 @@ function el(tag, attrs, children){
   return node;
 }
 function esc(s){ const d=document.createElement('div'); d.textContent = s==null?'':String(s); return d.innerHTML; }
+
+/* Prevent accidental clicks (tab switches, card opens, etc.) when the user was actually drag-selecting text */
+(function(){
+  let downX = 0, downY = 0;
+  function recordDown(x, y){ downX = x; downY = y; }
+  document.addEventListener('mousedown', (e)=> recordDown(e.clientX, e.clientY), true);
+  document.addEventListener('touchstart', (e)=>{ const t = e.touches[0]; if (t) recordDown(t.clientX, t.clientY); }, true);
+  document.addEventListener('click', (e)=>{
+    const sel = window.getSelection && window.getSelection().toString();
+    if (!sel) return;
+    const dx = Math.abs(e.clientX - downX), dy = Math.abs(e.clientY - downY);
+    if (dx > 4 || dy > 4){ e.stopPropagation(); e.preventDefault(); }
+  }, true);
+})();
 function toast(msg){
   const wrap = document.getElementById('toastWrap');
   const t = el('div', {class:'toast'}, [msg]);
