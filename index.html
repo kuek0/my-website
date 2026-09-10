@@ -114,6 +114,8 @@
 
   /* Gate: project picker */
   #gate{ width:100%; max-width:900px; margin:0 auto; padding:48px 20px 60px; }
+  .usage-box{ display:flex; align-items:center; gap:10px; margin-top:28px; flex-wrap:wrap; }
+  .usage-result{ font-size:12.5px; color:var(--ink-soft); }
   #authGate{ width:100%; max-width:460px; margin:0 auto; padding:90px 20px 40px; text-align:center; }
   .auth-box{ margin-top:28px; background:var(--bg); border-radius:var(--radius-lg); padding:28px; box-shadow:var(--shadow); }
   .auth-status{ color:var(--ink-soft); font-size:14px; margin-bottom:16px; }
@@ -381,6 +383,11 @@
       <div class="sync-pill" id="syncPillGate"><span class="sync-dot"></span>接続確認中…</div>
     </div>
     <div id="projectGrid" class="project-grid"></div>
+    <div id="projectTrash"></div>
+    <div class="usage-box">
+      <button class="btn btn-sm" id="checkUsageBtn">使用容量を確認</button>
+      <span class="usage-result" id="usageResult"></span>
+    </div>
   </div>
 
   <!-- Mobile topbar -->
@@ -406,6 +413,7 @@
       <button class="tab-btn" data-tab="world">世界観</button>
       <button class="tab-btn" data-tab="plot">プロット</button>
       <button class="tab-btn" data-tab="schedule">スケジュール</button>
+      <button class="tab-btn" data-tab="trash">ゴミ箱<span class="tab-badge hidden" id="trashBadge">0</span></button>
       <button class="tab-btn" data-tab="checks">矛盾チェック<span class="tab-badge hidden" id="issueBadge">0</span></button>
     </nav>
     <div class="sidebar-foot">
@@ -427,6 +435,7 @@
     <button class="tab-btn" data-tab="world">世界</button>
     <button class="tab-btn" data-tab="plot">プロット</button>
     <button class="tab-btn" data-tab="schedule">予定</button>
+    <button class="tab-btn" data-tab="trash">ゴミ箱<span class="tab-badge hidden" id="trashBadgeMobile">0</span></button>
     <button class="tab-btn" data-tab="checks">チェック<span class="tab-badge hidden" id="issueBadgeMobile">0</span></button>
   </nav>
 
@@ -438,6 +447,7 @@
     <section id="view-world" class="view hidden"></section>
     <section id="view-plot" class="view hidden"></section>
     <section id="view-schedule" class="view hidden"></section>
+    <section id="view-trash" class="view hidden"></section>
     <section id="view-checks" class="view hidden"></section>
   </main>
 </div>
@@ -538,15 +548,34 @@ const Store = {
   },
   async addDoc(pid, sub, data){ const ref = await fsAddDoc(fsCollection(fbDb, `projects/${pid}/${sub}`), data); return ref.id; },
   async updateDoc(pid, sub, id, patch){ return fsUpdateDoc(fsDoc(fbDb, `projects/${pid}/${sub}/${id}`), patch); },
-  async deleteDoc(pid, sub, id){ return fsDeleteDoc(fsDoc(fbDb, `projects/${pid}/${sub}/${id}`)); }
+  async deleteDoc(pid, sub, id){ return fsDeleteDoc(fsDoc(fbDb, `projects/${pid}/${sub}/${id}`)); },
+  async softDeleteDoc(pid, sub, id){ return fsUpdateDoc(fsDoc(fbDb, `projects/${pid}/${sub}/${id}`), {deletedAt:Date.now(), deletedBy:nick()}); },
+  async restoreDoc(pid, sub, id){ return fsUpdateDoc(fsDoc(fbDb, `projects/${pid}/${sub}/${id}`), {deletedAt:null, deletedBy:null}); },
+  async softDeleteProject(id){ return fsUpdateDoc(fsDoc(fbDb,'projects',id), {deletedAt:Date.now(), deletedBy:nick()}); },
+  async restoreProject(id){ return fsUpdateDoc(fsDoc(fbDb,'projects',id), {deletedAt:null, deletedBy:null}); },
+  async estimateUsageBytes(){
+    let total = 0;
+    const projSnap = await fsGetDocs(fsCollection(fbDb, 'projects'));
+    for (const pDoc of projSnap.docs){
+      total += new Blob([JSON.stringify(pDoc.data())]).size;
+      const subs = ['characters','relationships','timeline','world','plot','schedule'];
+      for (const s of subs){
+        const subSnap = await fsGetDocs(fsCollection(fbDb, `projects/${pDoc.id}/${s}`));
+        subSnap.docs.forEach(d=>{ total += new Blob([JSON.stringify(d.data())]).size; });
+      }
+    }
+    return total;
+  }
 };
 
 /* ============================= APP STATE ============================= */
 const State = {
   projects: [],
+  trashedProjects: [],
   currentProjectId: null,
   activeTab: 'characters',
   data: { characters:[], relationships:[], timeline:[], world:[], plot:[], schedule:[] },
+  trash: { characters:[], relationships:[], timeline:[], world:[], plot:[], schedule:[] },
   unsubs: [],
   nickname: localStorage.getItem('hakoniwa_nick') || ''
 };
@@ -868,9 +897,9 @@ function renderGate(){
     const editBtn = el('button', {class:'pmeta-btn', onclick:(e)=>{ e.stopPropagation(); openProjectForm(p); }}, ['編集']);
     const delBtn = el('button', {class:'pmeta-btn', onclick: async (e)=>{
       e.stopPropagation();
-      if (await confirmDialog(`「${p.name}」を削除します。中のキャラクターや設定もすべて削除されます。よろしいですか？`)){
-        await Store.deleteProject(p.id);
-        toast('作品を削除しました');
+      if (await confirmDialog(`「${p.name}」をゴミ箱に移動します。中のキャラクターや設定は保持されます。よろしいですか？`)){
+        await Store.softDeleteProject(p.id);
+        toast('作品をゴミ箱に移動しました');
       }
     }}, ['削除']);
     const card = el('div', {class:'project-card fade-in', style:`--pc:${p.color||'#6C4CF0'}; animation-delay:${(i+1)*40}ms`, onclick:()=>enterProject(p.id)}, [
@@ -880,6 +909,30 @@ function renderGate(){
     ]);
     grid.appendChild(card);
   });
+  const trashHost = document.getElementById('projectTrash');
+  trashHost.innerHTML = '';
+  if (State.trashedProjects.length){
+    trashHost.appendChild(el('h3', {style:'font-size:13px;color:var(--ink-soft);margin:24px 0 10px;'}, [`ゴミ箱（作品）・${State.trashedProjects.length}件`]));
+    const list = el('div', {class:'row-list'});
+    State.trashedProjects.forEach(p=>{
+      const row = el('div', {class:'item-row fade-in'});
+      row.appendChild(el('div', {class:'ir-main'}, [
+        el('div', {class:'ir-title'}, [p.name || '(無題の作品)']),
+        el('div', {class:'ir-desc'}, [`削除者: ${p.deletedBy||'不明'}`])
+      ]));
+      row.appendChild(el('div', {class:'ir-actions'}, [
+        el('button', {class:'btn btn-sm', onclick: async ()=>{ await Store.restoreProject(p.id); toast('復元しました'); }}, ['復元']),
+        el('button', {class:'btn btn-sm btn-danger', onclick: async ()=>{
+          if (await confirmDialog(`「${p.name}」を完全に削除します。中のキャラクターや設定もすべて消え、元に戻せません。よろしいですか？`)){
+            await Store.deleteProject(p.id);
+            toast('完全に削除しました');
+          }
+        }}, ['完全に削除'])
+      ]));
+      list.appendChild(row);
+    });
+    trashHost.appendChild(list);
+  }
 }
 function openProjectForm(existing){
   openForm({
@@ -892,7 +945,7 @@ function openProjectForm(existing){
       {key:'description', label:'ひとことメモ', type:'textarea', placeholder:'例: 学園を舞台にした群像劇。全10章予定。', rows:2},
       {key:'color', label:'テーマカラー', type:'color', default:'#6C4CF0'}
     ],
-    onDelete: existing ? async ()=>{ await Store.deleteProject(existing.id); toast('作品を削除しました'); } : null,
+    onDelete: existing ? async ()=>{ await Store.softDeleteProject(existing.id); toast('作品をゴミ箱に移動しました'); } : null,
     onSubmit: async (vals)=>{
       if (!vals.name.trim()) vals.name = '(無題の作品)';
       if (existing){ await Store.updateProject(existing.id, vals); toast('作品を更新しました'); }
@@ -937,9 +990,11 @@ function subscribeSub(pid){
   unsubscribeSub();
   ['characters','relationships','timeline','world','plot','schedule'].forEach(sub=>{
     const un = Store.watchSub(pid, sub, (list)=>{
-      State.data[sub] = list;
+      State.data[sub] = list.filter(x=>!x.deletedAt);
+      State.trash[sub] = list.filter(x=>x.deletedAt);
       renderActiveView();
       runChecks();
+      updateTrashBadge();
     });
     State.unsubs.push(un);
   });
@@ -954,7 +1009,7 @@ function setTab(tab){
 }
 function renderActiveView(){
   if (!State.currentProjectId) return;
-  const map = { characters:renderCharacters, relationships:renderRelationships, timeline:renderTimeline, world:renderWorld, plot:renderPlot, schedule:renderSchedule, checks:renderChecks };
+  const map = { characters:renderCharacters, relationships:renderRelationships, timeline:renderTimeline, world:renderWorld, plot:renderPlot, schedule:renderSchedule, trash:renderTrash, checks:renderChecks };
   const fn = map[State.activeTab];
   if (fn) fn();
 }
@@ -1114,8 +1169,8 @@ function openCharacterForm(existing){
       {key:'notes', label:'メモ', type:'textarea', placeholder:'その他の覚え書き', rows:2}
     ],
     onDelete: existing ? async ()=>{
-      await Store.deleteDoc(State.currentProjectId, 'characters', existing.id);
-      toast('キャラクターを削除しました');
+      await Store.softDeleteDoc(State.currentProjectId, 'characters', existing.id);
+      toast('キャラクターをゴミ箱に移動しました');
     } : null,
     onSubmit: async (vals)=>{
       vals.updatedBy = nick(); vals.updatedAt = Date.now();
@@ -1315,7 +1370,7 @@ function openRelationshipForm(existing){
       {key:'mutual', label:'相互関係（両想い・両者敵対など）', type:'checkbox'},
       {key:'description', label:'説明', type:'textarea', placeholder:'関係の背景や経緯', rows:3}
     ],
-    onDelete: existing ? async ()=>{ await Store.deleteDoc(State.currentProjectId, 'relationships', existing.id); toast('関係性を削除しました'); } : null,
+    onDelete: existing ? async ()=>{ await Store.softDeleteDoc(State.currentProjectId, 'relationships', existing.id); toast('関係性をゴミ箱に移動しました'); } : null,
     onSubmit: async (vals)=>{
       if (!vals.fromId || !vals.toId){ toast('キャラクターA・Bを両方選択してください'); return; }
       if (vals.fromId === vals.toId){ toast('同じキャラクター同士は選べません'); return; }
@@ -1377,7 +1432,7 @@ function openTimelineForm(existing){
       {key:'charIds', label:'関連キャラクター', type:'multiselect', options:charOpts},
       {key:'isFlashback', label:'回想シーン（矛盾チェックの対象から外す）', type:'checkbox'}
     ],
-    onDelete: existing ? async ()=>{ await Store.deleteDoc(State.currentProjectId, 'timeline', existing.id); toast('出来事を削除しました'); } : null,
+    onDelete: existing ? async ()=>{ await Store.softDeleteDoc(State.currentProjectId, 'timeline', existing.id); toast('出来事をゴミ箱に移動しました'); } : null,
     onSubmit: async (vals)=>{
       vals.updatedBy = nick(); vals.updatedAt = Date.now();
       if (existing) await Store.updateDoc(State.currentProjectId, 'timeline', existing.id, vals);
@@ -1460,7 +1515,7 @@ function openWorldForm(existing){
       {key:'name', label:'名称', type:'text', placeholder:'例: 中央図書館'},
       {key:'description', label:'説明', type:'textarea', placeholder:'特徴、由来、ルールなど', rows:4}
     ],
-    onDelete: existing ? async ()=>{ await Store.deleteDoc(State.currentProjectId, 'world', existing.id); toast('削除しました'); } : null,
+    onDelete: existing ? async ()=>{ await Store.softDeleteDoc(State.currentProjectId, 'world', existing.id); toast('ゴミ箱に移動しました'); } : null,
     onSubmit: async (vals)=>{
       vals.updatedBy = nick(); vals.updatedAt = Date.now();
       if (existing) await Store.updateDoc(State.currentProjectId, 'world', existing.id, vals);
@@ -1527,7 +1582,7 @@ function openPlotForm(existing){
       {key:'status', label:'進行状況', type:'select', options:PLOT_STATUS},
       {key:'summary', label:'あらすじ・メモ', type:'textarea', placeholder:'この章で起きること、伏線、狙いなど', rows:5}
     ],
-    onDelete: existing ? async ()=>{ await Store.deleteDoc(State.currentProjectId, 'plot', existing.id); toast('削除しました'); } : null,
+    onDelete: existing ? async ()=>{ await Store.softDeleteDoc(State.currentProjectId, 'plot', existing.id); toast('ゴミ箱に移動しました'); } : null,
     onSubmit: async (vals)=>{
       vals.updatedBy = nick(); vals.updatedAt = Date.now();
       if (existing) await Store.updateDoc(State.currentProjectId, 'plot', existing.id, vals);
@@ -1605,7 +1660,7 @@ function openScheduleForm(existing){
       {key:'assignee', label:'担当（任意）', type:'text', placeholder:'例: たろう'},
       {key:'notes', label:'メモ', type:'textarea', placeholder:'詳細や注意点など', rows:3}
     ],
-    onDelete: existing ? async ()=>{ await Store.deleteDoc(State.currentProjectId, 'schedule', existing.id); toast('削除しました'); } : null,
+    onDelete: existing ? async ()=>{ await Store.softDeleteDoc(State.currentProjectId, 'schedule', existing.id); toast('ゴミ箱に移動しました'); } : null,
     onSubmit: async (vals)=>{
       vals.updatedBy = nick(); vals.updatedAt = Date.now();
       if (existing) await Store.updateDoc(State.currentProjectId, 'schedule', existing.id, vals);
@@ -1704,6 +1759,19 @@ function runChecks(){
   });
   if (State.activeTab === 'checks') renderChecks();
 }
+function totalTrashCount(){
+  return Object.values(State.trash).reduce((sum, arr)=> sum + arr.length, 0);
+}
+function updateTrashBadge(){
+  const count = totalTrashCount();
+  const badge1 = document.getElementById('trashBadge'), badge2 = document.getElementById('trashBadgeMobile');
+  [badge1, badge2].forEach(b=>{
+    if (!b) return;
+    if (count){ b.textContent = count; b.classList.remove('hidden'); }
+    else { b.classList.add('hidden'); }
+  });
+  if (State.activeTab === 'trash') renderTrash();
+}
 function renderChecks(){
   const view = document.getElementById('view-checks');
   view.innerHTML = '';
@@ -1741,6 +1809,50 @@ function goToIssue(iss){
   }
 }
 
+/* ============================= TRASH ============================= */
+const TRASH_TYPES = [
+  {sub:'characters', label:'キャラクター', name:(x)=>x.name||'(無名)'},
+  {sub:'relationships', label:'関係性', name:(x)=>{ const a=charById(x.fromId), b=charById(x.toId); return `${a?a.name:'(削除済み)'} → ${b?b.name:'(削除済み)'}`; }},
+  {sub:'timeline', label:'年表', name:(x)=>x.title||'(無題の出来事)'},
+  {sub:'world', label:'世界観', name:(x)=>x.name||'(無題)'},
+  {sub:'plot', label:'プロット', name:(x)=>x.title||'(無題の章)'},
+  {sub:'schedule', label:'スケジュール', name:(x)=>x.title||'(無題の予定)'}
+];
+function renderTrash(){
+  const view = document.getElementById('view-trash');
+  view.innerHTML = '';
+  view.appendChild(el('div', {class:'content-head'}, [
+    el('div', {}, [ el('h2', {}, ['ゴミ箱']), el('div', {class:'sub'}, ['削除した項目を復元、または完全に削除できます']) ])
+  ]));
+  let any = false;
+  TRASH_TYPES.forEach(t=>{
+    const items = State.trash[t.sub] || [];
+    if (!items.length) return;
+    any = true;
+    view.appendChild(el('h3', {style:'font-size:13px;color:var(--ink-soft);margin:18px 0 8px;'}, [t.label]));
+    const list = el('div', {class:'row-list'});
+    items.forEach((x,i)=>{
+      const row = el('div', {class:'item-row fade-in', style:`animation-delay:${i*30}ms`});
+      row.appendChild(el('div', {class:'ir-main'}, [
+        el('div', {class:'ir-title'}, [t.name(x)]),
+        el('div', {class:'ir-desc'}, [`削除者: ${x.deletedBy||'不明'}`])
+      ]));
+      row.appendChild(el('div', {class:'ir-actions'}, [
+        el('button', {class:'btn btn-sm', onclick: async ()=>{ await Store.restoreDoc(State.currentProjectId, t.sub, x.id); toast('復元しました'); }}, ['復元']),
+        el('button', {class:'btn btn-sm btn-danger', onclick: async ()=>{
+          if (await confirmDialog('完全に削除します。この操作は取り消せません。よろしいですか？')){
+            await Store.deleteDoc(State.currentProjectId, t.sub, x.id);
+            toast('完全に削除しました');
+          }
+        }}, ['完全に削除'])
+      ]));
+      list.appendChild(row);
+    });
+    view.appendChild(list);
+  });
+  if (!any) view.appendChild(el('div', {class:'empty-state'}, ['ゴミ箱は空です。']));
+}
+
 /* ============================= WIRE UP ============================= */
 function wireNav(){
   document.querySelectorAll('.tab-btn').forEach(b=>{
@@ -1765,19 +1877,38 @@ function updateSyncPill(){
   });
 }
 
+async function checkStorageUsage(){
+  const btn = document.getElementById('checkUsageBtn');
+  const resultEl = document.getElementById('usageResult');
+  btn.disabled = true;
+  resultEl.textContent = '集計中…';
+  try{
+    const bytes = await Store.estimateUsageBytes();
+    const mb = bytes / (1024*1024);
+    const pct = (bytes / (1024*1024*1024)) * 100;
+    resultEl.textContent = `推定使用量: 約 ${mb.toFixed(2)} MB / 1024 MB（${pct.toFixed(2)}%）`;
+  }catch(e){
+    console.error(e);
+    resultEl.textContent = '集計に失敗しました';
+  }
+  btn.disabled = false;
+}
+
 async function boot(){
   wireNav();
   await Store.init();
   updateSyncPill();
   document.getElementById('gate').classList.remove('hidden');
+  document.getElementById('checkUsageBtn').addEventListener('click', checkStorageUsage);
   Store.watchProjects((list)=>{
-    State.projects = list;
+    State.projects = list.filter(p=>!p.deletedAt);
+    State.trashedProjects = list.filter(p=>p.deletedAt);
     if (!State.currentProjectId){
       renderGate();
       const last = localStorage.getItem('hakoniwa_last_project');
-      if (last && list.some(p=>p.id===last)) enterProject(last);
+      if (last && State.projects.some(p=>p.id===last)) enterProject(last);
     } else {
-      const p = list.find(x=>x.id===State.currentProjectId);
+      const p = State.projects.find(x=>x.id===State.currentProjectId);
       if (p){
         document.getElementById('cpName').textContent = p.name;
         document.getElementById('cpDot').style.background = p.color || '#6C4CF0';
