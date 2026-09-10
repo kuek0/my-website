@@ -90,6 +90,7 @@
   label.field{ display:block; margin-bottom:12px; }
   label.field > span{ display:block; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin-bottom:5px; letter-spacing:.02em; }
   .hint{ font-size:12px; color:var(--ink-faint); margin-top:4px; }
+  .hint-warn{ color:#B8790C; font-weight:700; }
 
   input[type=color]{ -webkit-appearance:none; width:38px; height:38px; border:none; border-radius:10px; padding:2px; background:var(--bg); box-shadow:var(--shadow-inset-sm), 0 0 0 2px var(--bg), 0 0 0 4px var(--ink); flex:none; }
   input[type=color]::-webkit-color-swatch{ border-radius:6px; border:none; }
@@ -206,7 +207,7 @@
   .ch-avatar-img{ width:38px; height:38px; border-radius:50%; object-fit:cover; flex:none; box-shadow:0 0 0 2px var(--cc,var(--accent)); }
   .rel-avatar{ width:22px; height:22px; border-radius:50%; object-fit:cover; flex:none; vertical-align:middle; box-shadow:0 0 0 2px var(--cc, rgba(0,0,0,.08)); }
   .rel-avatar-fallback{ width:22px; height:22px; border-radius:50%; flex:none; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:10.5px; vertical-align:middle; box-shadow:0 0 0 2px var(--cc, rgba(0,0,0,.12)); }
-  .rel-pair{ display:inline-flex; align-items:center; gap:5px; }
+  .rel-pair{ display:inline-flex; align-items:center; gap:6px; font-weight:800; font-size:14.5px; color:var(--ink); }
   .ch-name{ font-weight:800; font-size:15.5px; }
   .ch-reading{ font-size:11px; color:var(--ink-faint); }
   .ch-role{ font-size:11.5px; color:var(--ink-soft); background:var(--surface-2); display:inline-block; padding:2px 9px; border-radius:999px; margin-top:2px; }
@@ -219,6 +220,15 @@
   .char-view-toggle{ display:flex; gap:2px; background:var(--bg); border-radius:999px; padding:4px; flex:none; box-shadow:var(--shadow-inset-sm); }
   .char-view-toggle button{ font-family:var(--font-body); font-size:12.5px; font-weight:700; padding:6px 14px; border-radius:999px; background:transparent; color:var(--ink-soft); }
   .char-view-toggle button.active{ background:var(--bg); color:var(--accent-deep); box-shadow:var(--shadow-sm); }
+
+  .nickname-table-wrap{ overflow-x:auto; background:var(--bg); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); }
+  .nickname-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  .nickname-table th{ text-align:left; font-size:11.5px; font-weight:700; color:var(--ink-soft); padding:12px 16px; border-bottom:1px solid var(--line); white-space:nowrap; }
+  .nickname-table td{ padding:12px 16px; border-bottom:1px solid var(--line); color:var(--ink); }
+  .nickname-table tbody tr{ cursor:pointer; transition:background .1s ease; }
+  .nickname-table tbody tr:hover{ background:var(--surface-2); }
+  .nickname-table tbody tr:last-child td{ border-bottom:none; }
+  .nickname-dot{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:8px; vertical-align:middle; }
 
   .toolbar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:6px 0 24px; }
   .toolbar .search-input{ flex:1; min-width:160px; max-width:280px; width:auto; }
@@ -257,7 +267,7 @@
   .favor-negative{ color:var(--red); }
   .favor-neutral{ color:var(--gray); }
   .favor-complex{ color:var(--purple); }
-  .favor-chip{ font-size:11px; font-weight:800; padding:2px 10px; border-radius:999px; }
+  .favor-chip{ font-size:11.5px; font-weight:800; padding:3px 11px; border-radius:999px; }
   .favor-chip.favor-positive{ background:#E8F8F1; }
   .favor-chip.favor-negative{ background:#FDEDEB; }
   .favor-chip.favor-neutral{ background:#F1F0F5; }
@@ -319,6 +329,14 @@
     box-shadow:0 20px 50px rgba(20,16,40,.28); animation:popIn .22s cubic-bezier(.2,.8,.25,1) both;
   }
   .modal h3{ font-size:18px; font-weight:800; margin-bottom:16px; }
+  .profile-head{ display:flex; align-items:center; gap:14px; margin-bottom:18px; }
+  .profile-avatar{ width:56px; height:56px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:22px; }
+  .profile-avatar-img{ width:56px; height:56px; border-radius:50%; object-fit:cover; flex:none; box-shadow:0 0 0 3px var(--cc,var(--accent)); }
+  .profile-rows{ display:flex; flex-direction:column; gap:12px; }
+  .profile-row{ padding-top:12px; border-top:1px solid var(--line); }
+  .profile-row:first-child{ padding-top:0; border-top:none; }
+  .profile-label{ font-size:11.5px; font-weight:700; color:var(--ink-soft); letter-spacing:.02em; margin-bottom:4px; }
+  .profile-value{ font-size:13.5px; color:var(--ink); white-space:pre-wrap; line-height:1.7; }
   .modal-foot{ display:flex; justify-content:flex-end; gap:8px; margin-top:18px; }
   .multiselect-box{ display:flex; flex-wrap:wrap; gap:6px; border:none; border-radius:var(--radius-sm); padding:8px; max-height:130px; overflow-y:auto; background:var(--bg); box-shadow:var(--shadow-inset-sm); }
   .ms-chip{ font-size:12px; padding:4px 10px; border-radius:999px; border:none; background:var(--bg); font-weight:700; color:var(--ink-soft); box-shadow:var(--shadow-inset-sm), var(--ring); cursor:pointer; }
@@ -721,7 +739,7 @@ function confirmDialog(message){
     document.body.appendChild(back);
   });
 }
-function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, celebrate}){
+function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, celebrate, onReady}){
   initial = initial || {};
   const root = document.getElementById('modalRoot');
   root.innerHTML = '';
@@ -846,17 +864,7 @@ function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, cele
     modal.appendChild(wrap);
   });
 
-  fields.forEach(f=>{
-    if (!f.excludeField) return;
-    const selfInput = fieldRefs[f.key], otherInput = fieldRefs[f.excludeField];
-    if (!selfInput || !otherInput || !selfInput.options) return;
-    const refresh = ()=>{
-      const otherVal = otherInput.value;
-      Array.from(selfInput.options).forEach(opt=>{ opt.disabled = opt.value!=='' && opt.value===otherVal; });
-    };
-    otherInput.addEventListener('change', refresh);
-    refresh();
-  });
+  if (onReady) onReady(fieldRefs, modal);
 
   const foot = el('div', {class:'modal-foot'});
   if (onDelete){
@@ -1052,7 +1060,8 @@ function renderCharacters(){
   view.innerHTML = '';
   const toggle = el('div', {class:'char-view-toggle'}, [
     el('button', {type:'button', class: charViewMode==='list' ? 'active' : '', onclick:()=>{ charViewMode='list'; renderCharacters(); }}, ['リスト']),
-    el('button', {type:'button', class: charViewMode==='gallery' ? 'active' : '', onclick:()=>{ charViewMode='gallery'; renderCharacters(); }}, ['ギャラリー'])
+    el('button', {type:'button', class: charViewMode==='gallery' ? 'active' : '', onclick:()=>{ charViewMode='gallery'; renderCharacters(); }}, ['ギャラリー']),
+    el('button', {type:'button', class: charViewMode==='nicknames' ? 'active' : '', onclick:()=>{ charViewMode='nicknames'; renderCharacters(); }}, ['あだ名表'])
   ]);
   view.appendChild(el('div', {class:'content-head'}, [
     el('div', {}, [ el('h2', {}, ['キャラクター']), el('div', {class:'sub'}, [`${State.data.characters.length} 人 登録されています`]) ]),
@@ -1063,6 +1072,10 @@ function renderCharacters(){
   ]));
   if (!State.data.characters.length){
     view.appendChild(el('div', {class:'empty-state'}, ['最初のキャラクターを登録してみましょう。']));
+    return;
+  }
+  if (charViewMode === 'nicknames'){
+    view.appendChild(buildNicknameTable(State.data.characters));
     return;
   }
   const toolbar = el('div', {class:'toolbar'});
@@ -1097,7 +1110,7 @@ function renderCharacters(){
     }
     const grid = el('div', {class:'card-grid'});
     filtered.forEach((c,i)=>{
-      const card = el('div', {class:'char-card fade-in', style:`--cc:${c.color||'#6C4CF0'}; animation-delay:${i*30}ms`, onclick:()=>openCharacterForm(c)});
+      const card = el('div', {class:'char-card fade-in', style:`--cc:${c.color||'#6C4CF0'}; animation-delay:${i*30}ms`, onclick:()=>openCharacterProfile(c)});
       const avatar = c.image
         ? el('img', {class:'ch-avatar-img', src:c.image, style:`--cc:${c.color||'#6C4CF0'}`})
         : el('div', {class:'ch-avatar', style:`color:${contrastColor(c.color||'#6C4CF0')}`}, [(c.name||'?').charAt(0)]);
@@ -1119,6 +1132,9 @@ function renderCharacters(){
       }
       if (c.personality) card.appendChild(el('div', {class:'ch-desc'}, [c.personality]));
       if (c.updatedBy) card.appendChild(el('div', {class:'updated-by'}, [`最終更新: ${c.updatedBy}`]));
+      card.appendChild(el('div', {class:'card-actions'}, [
+        el('button', {class:'btn btn-sm', onclick:(e)=>{ e.stopPropagation(); openCharacterForm(c); }}, ['編集'])
+      ]));
       grid.appendChild(card);
     });
     listHost.appendChild(grid);
@@ -1130,7 +1146,7 @@ function buildCharacterGallery(list){
   const grid = el('div', {class:'gallery-grid'});
   list.forEach((c,i)=>{
     const color = c.color || '#6C4CF0';
-    const tile = el('div', {class:'gallery-tile fade-in', style:`--gc:${color}; animation-delay:${i*30}ms`, onclick:()=>openCharacterForm(c)});
+    const tile = el('div', {class:'gallery-tile fade-in', style:`--gc:${color}; animation-delay:${i*30}ms`, onclick:()=>openCharacterProfile(c)});
     if (c.image) tile.appendChild(el('img', {src:c.image}));
     else tile.appendChild(el('div', {class:'gt-noimg', style:`background:${color}; color:${contrastColor(color)}`}, [(c.name||'?').charAt(0)]));
     tile.appendChild(el('div', {class:'gt-label'}, [
@@ -1140,6 +1156,27 @@ function buildCharacterGallery(list){
     grid.appendChild(tile);
   });
   return grid;
+}
+function buildNicknameTable(list){
+  const wrap = el('div', {class:'nickname-table-wrap fade-in'});
+  const table = el('table', {class:'nickname-table'});
+  table.appendChild(el('thead', {}, [el('tr', {}, [
+    el('th', {}, ['名前']), el('th', {}, ['よみがな']), el('th', {}, ['あだ名'])
+  ])]));
+  const tbody = el('tbody', {});
+  list.forEach(c=>{
+    const tr = el('tr', {onclick:()=>openCharacterProfile(c)});
+    tr.appendChild(el('td', {}, [
+      el('span', {class:'nickname-dot', style:`background:${c.color||'#6C4CF0'}`}),
+      c.name || '(名前未設定)'
+    ]));
+    tr.appendChild(el('td', {}, [c.reading || '—']));
+    tr.appendChild(el('td', {}, [c.nicknames || '—']));
+    tbody.appendChild(tr);
+  });
+  table.appendChild(tbody);
+  wrap.appendChild(table);
+  return wrap;
 }
 function openCharacterForm(existing){
   const initial = existing ? {
@@ -1156,6 +1193,7 @@ function openCharacterForm(existing){
       {key:'image', label:'画像（任意）', type:'image', hint:'アップロードすると自動で縮小されます。設定しない場合はイメージカラーで表示されます'},
       {key:'name', label:'名前', type:'text', placeholder:'例: 主人公 太郎'},
       {key:'reading', label:'よみがな', type:'text', placeholder:'例: しゅじんこう たろう'},
+      {key:'nicknames', label:'あだ名（任意、読点区切りで複数可）', type:'text', placeholder:'例: たろちゃん、たろ'},
       {key:'role', label:'役割', type:'combo', options:ROLE_OPTIONS, placeholder:'例: 主人公 / 語り部 など自由に入力できます', hint:'候補から選ぶか、自由に入力してください'},
       {key:'color', label:'イメージカラー', type:'color', default:'#6C4CF0'},
       {key:'affiliation', label:'所属', type:'text', placeholder:'例: 〇〇学園'},
@@ -1182,6 +1220,54 @@ function openCharacterForm(existing){
       toast('保存しました');
     }
   });
+}
+function openCharacterProfile(c){
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = '';
+  const back = el('div', {class:'modal-back', onclick:(e)=>{ if(e.target===back) closeModal(); }});
+  const modal = el('div', {class:'modal profile-modal'});
+
+  const color = c.color || '#6C4CF0';
+  const head = el('div', {class:'profile-head'});
+  if (c.image) head.appendChild(el('img', {class:'profile-avatar-img', src:c.image, style:`--cc:${color}`}));
+  else head.appendChild(el('div', {class:'profile-avatar', style:`background:${color}; color:${contrastColor(color)}`}, [(c.name||'?').charAt(0)]));
+  const headText = el('div', {}, [
+    el('h3', {style:'margin-bottom:2px;'}, [c.name || '(名前未設定)']),
+    c.reading ? el('div', {class:'ch-reading'}, [c.reading]) : null,
+    c.role ? el('div', {class:'ch-role', style:'margin-top:6px;'}, [c.role]) : null
+  ]);
+  head.appendChild(headText);
+  modal.appendChild(head);
+
+  const rows = el('div', {class:'profile-rows'});
+  function row(label, value){
+    if (value==null || value==='') return;
+    rows.appendChild(el('div', {class:'profile-row'}, [
+      el('div', {class:'profile-label'}, [label]),
+      el('div', {class:'profile-value'}, [value])
+    ]));
+  }
+  row('所属', c.affiliation);
+  const by = charBirthYear(c), dy = charDeathYear(c), ageVal = charAge(c);
+  if (by!=null || dy!=null){
+    const parts = [`生: ${by!=null?by:'?'}`, `没: ${dy!=null?dy:'存命'}`];
+    if (ageVal!=null) parts.push(`享年${ageVal}`);
+    row('生没', parts.join(' / '));
+  }
+  row('外見', c.appearance);
+  row('性格', c.personality);
+  row('背景・経歴', c.background);
+  row('メモ', c.notes);
+  modal.appendChild(rows);
+  if (c.updatedBy) modal.appendChild(el('div', {class:'updated-by', style:'margin-top:12px;'}, [`最終更新: ${c.updatedBy}`]));
+
+  const foot = el('div', {class:'modal-foot'});
+  foot.appendChild(el('button', {class:'btn', onclick: closeModal}, ['閉じる']));
+  foot.appendChild(el('button', {class:'btn btn-primary', onclick:()=>{ closeModal(); openCharacterForm(c); }}, ['編集する']));
+  modal.appendChild(foot);
+
+  back.appendChild(modal);
+  root.appendChild(back);
 }
 
 /* ============================= RELATIONSHIPS ============================= */
@@ -1261,9 +1347,9 @@ function renderRelationships(){
     row.appendChild(el('div', {class:'ir-main'}, [
       el('div', {class:'ir-title'}, [
         el('span', {class:'rel-pair'}, [ charAvatar(a), `${a? a.name : '(削除済み)'}`, ' → ', charAvatar(b), `${b? b.name : '(削除済み)'}` ]),
+        r.type ? el('span', {class:'tag cat'}, [r.type]) : null,
         el('span', {class:'favor-chip favor-'+r.favor}, [FAVOR_LABEL[r.favor]||r.favor]),
-        r.mutual ? el('span', {class:'tag'}, ['相互']) : null,
-        r.type ? el('span', {class:'tag cat'}, [r.type]) : null
+        r.mutual ? el('span', {class:'tag'}, ['相互']) : null
       ]),
       r.description ? el('div', {class:'ir-desc'}, [r.description]) : null
     ]));
@@ -1285,7 +1371,7 @@ function buildRelationshipDiagram(){
   let svg = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" font-family="Noto Sans JP, sans-serif">`;
   svg += '<defs>';
   Object.keys(FAVOR_COLOR).forEach(key=>{
-    svg += `<marker id="arrow-${key}" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="${FAVOR_COLOR[key]}" /></marker>`;
+    svg += `<marker id="arrow-${key}" viewBox="0 0 10 10" refX="5.5" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0,1L6,5L0,9z" fill="${FAVOR_COLOR[key]}" /></marker>`;
   });
   svg += '</defs>';
   const pairGroups = {};
@@ -1340,7 +1426,7 @@ function buildRelationshipDiagram(){
       svg += `<text x="${p.x}" y="${p.y+5}" text-anchor="middle" font-size="16" font-weight="800" fill="${tColor}">${esc((c.name||'?').charAt(0))}</text>`;
     }
     const labelY = p.y + (p.y > cy ? 44 : -36);
-    svg += `<text x="${p.x}" y="${labelY}" text-anchor="middle" font-size="12" font-weight="700" fill="#2A2145">${esc(c.name||'')}</text>`;
+    svg += `<text x="${p.x}" y="${labelY}" text-anchor="middle" font-size="13" font-weight="800" fill="#211B3D" style="paint-order:stroke; stroke:#F1F2F7; stroke-width:5px; stroke-linejoin:round;">${esc(c.name||'')}</text>`;
   });
   svg += `</svg>`;
   wrap.innerHTML = svg;
@@ -1362,17 +1448,25 @@ function openRelationshipForm(existing){
     celebrate: !existing,
     initial: existing || {},
     fields: [
-      {key:'fromId', label:'キャラクターA', type:'select', options:charOpts, excludeField:'toId'},
-      {key:'toId', label:'キャラクターB', type:'select', options:charOpts, excludeField:'fromId'},
+      {key:'fromId', label:'キャラクターA', type:'select', options:charOpts},
+      {key:'toId', label:'キャラクターB', type:'select', options:charOpts},
       {key:'type', label:'関係の種類（自由記述）', type:'text', placeholder:'例: 幼なじみ / 師弟 / 家族 など'},
       {key:'favor', label:'感情の方向', type:'select', options:FAVOR_OPTIONS, default:'neutral'},
       {key:'mutual', label:'相互関係（両想い・両者敵対など）', type:'checkbox'},
       {key:'description', label:'説明', type:'textarea', placeholder:'関係の背景や経緯', rows:3}
     ],
+    onReady: (fieldRefs, modal)=>{
+      const fromSel = fieldRefs.fromId, toSel = fieldRefs.toId;
+      const warn = el('div', {class:'hint hint-warn hidden'}, ['⚠ 同じキャラクターが選択されています']);
+      toSel.parentElement.appendChild(warn);
+      const refresh = ()=> warn.classList.toggle('hidden', !fromSel.value || fromSel.value !== toSel.value);
+      fromSel.addEventListener('change', refresh);
+      toSel.addEventListener('change', refresh);
+      refresh();
+    },
     onDelete: existing ? async ()=>{ await Store.softDeleteDoc(State.currentProjectId, 'relationships', existing.id); toast('関係性をゴミ箱に移動しました'); } : null,
     onSubmit: async (vals)=>{
       if (!vals.fromId || !vals.toId){ toast('キャラクターA・Bを両方選択してください'); return; }
-      if (vals.fromId === vals.toId){ toast('同じキャラクター同士は選べません'); return; }
       vals.updatedBy = nick(); vals.updatedAt = Date.now();
       if (existing) await Store.updateDoc(State.currentProjectId, 'relationships', existing.id, vals);
       else {
@@ -1696,6 +1790,9 @@ function runChecks(){
   relationships.forEach(r=>{
     if (!charIds.has(r.fromId) || !charIds.has(r.toId)){
       issues.push({ severity:'error', message:'削除済みのキャラクターを参照している関係性があります', detail:`関係「${r.type||''}」が存在しないキャラクターを指しています。編集または削除してください。`, tab:'relationships', targetType:'relationships', targetId:r.id });
+    } else if (r.fromId === r.toId){
+      const c = charById(r.fromId);
+      issues.push({ severity:'warning', message:`「${c?c.name:'?'}」の関係性が自分自身に向いています`, detail:'キャラクターの差し替えが途中になっていないか確認してください。', tab:'relationships', targetType:'relationships', targetId:r.id });
     }
   });
 
