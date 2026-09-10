@@ -1195,7 +1195,8 @@ function buildNicknameSummaryList(list){
     const row = el('div', {class:'item-row'});
     const main = el('div', {class:'ir-main'}, [ el('div', {class:'ir-title'}, [c.name || '(名前未設定)']) ]);
     main.appendChild(el('div', {class:'ir-desc'}, [ el('b',{},['呼び方: ']), callsOthers.length ? callsOthers.join('、') : 'なし' ]));
-    main.appendChild(el('div', {class:'ir-desc'}, [ el('b',{},['呼ばれ方: ']), calledByOthers.length ? calledByOthers.join('、') : 'なし' ]));
+    const uniqueCalledBy = [...new Set(calledByOthers)];
+    main.appendChild(el('div', {class:'ir-desc'}, [ el('b',{},['呼ばれ方: ']), uniqueCalledBy.length ? uniqueCalledBy.join('、') : 'なし' ]));
     row.appendChild(main);
     wrap.appendChild(row);
   });
