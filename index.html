@@ -1264,6 +1264,7 @@ function openCharacterForm(existing){
       {key:'deathYear', label:'没年（存命なら空欄）', type:'number', placeholder:'例: 1023'},
       {key:'age', label:'年齢（任意）', type:'number', placeholder:'例: 18', hint:'生年・没年の両方が分かる場合は自動計算されるため、入力は不要です'},
       {key:'motif', label:'モチーフ（任意）', type:'text', placeholder:'例: 桜 / 狼 / 月 など'},
+      {key:'battleStyle', label:'戦闘スタイル', type:'textarea', placeholder:'得意な武器・技、戦い方の特徴など', rows:2},
       {key:'appearance', label:'外見', type:'textarea', placeholder:'背格好、服装の特徴など', rows:2},
       {key:'personality', label:'性格', type:'textarea', placeholder:'性格や口癖など', rows:2},
       {key:'background', label:'背景・経歴', type:'textarea', placeholder:'生い立ちや設定の詳細', rows:3},
@@ -1329,6 +1330,7 @@ function openCharacterProfile(c){
     row('生没', parts.join(' / '));
   }
   row('モチーフ', c.motif);
+  row('戦闘スタイル', c.battleStyle);
   row('外見', c.appearance);
   row('性格', c.personality);
   row('背景・経歴', c.background);
