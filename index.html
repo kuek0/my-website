@@ -1249,7 +1249,10 @@ function openCharacterForm(existing){
     initial,
     fields: [
       {key:'image', label:'画像（任意）', type:'image', hint:'アップロードすると自動で縮小されます。設定しない場合はイメージカラーで表示されます'},
-      {key:'name', label:'名前', type:'text', placeholder:'例: 主人公 太郎'},
+      {key:'surname', label:'苗字', type:'text', placeholder:'例: 主人公'},
+      {key:'givenName', label:'名前', type:'text', placeholder:'例: 太郎'},
+      {key:'middleName', label:'ミドルネーム（あれば）', type:'text', placeholder:'例: ジョン'},
+      {key:'name', label:'表示名', type:'text', placeholder:'例: 主人公 太郎', hint:'キャラクター一覧・関係図など、他のタブでの表示に使われる名前です。空欄なら苗字・名前・ミドルネームから自動で作成されます'},
       {key:'reading', label:'よみがな', type:'text', placeholder:'例: しゅじんこう たろう'},
       {key:'role', label:'役割', type:'combo', options:ROLE_OPTIONS, placeholder:'例: 主人公 / 語り部 など自由に入力できます', hint:'候補から選ぶか、自由に入力してください'},
       {key:'color', label:'イメージカラー', type:'color', default:'#6C4CF0'},
@@ -1263,6 +1266,13 @@ function openCharacterForm(existing){
       {key:'background', label:'背景・経歴', type:'textarea', placeholder:'生い立ちや設定の詳細', rows:3},
       {key:'notes', label:'メモ', type:'textarea', placeholder:'その他の覚え書き', rows:2}
     ],
+    onReady: (fieldRefs)=>{
+      const surnameEl = fieldRefs.surname, givenEl = fieldRefs.givenName, middleEl = fieldRefs.middleName, nameEl = fieldRefs.name;
+      let autoSync = !nameEl.value;
+      const compose = ()=> [surnameEl.value.trim(), givenEl.value.trim(), middleEl.value.trim()].filter(Boolean).join(' ');
+      [surnameEl, givenEl, middleEl].forEach(inp=> inp.addEventListener('input', ()=>{ if (autoSync) nameEl.value = compose(); }));
+      nameEl.addEventListener('input', ()=>{ autoSync = !nameEl.value; });
+    },
     onDelete: existing ? async ()=>{
       await Store.softDeleteDoc(State.currentProjectId, 'characters', existing.id);
       toast('キャラクターをゴミ箱に移動しました');
@@ -1305,6 +1315,9 @@ function openCharacterProfile(c){
       el('div', {class:'profile-value'}, [value])
     ]));
   }
+  row('苗字', c.surname);
+  row('名前', c.givenName);
+  row('ミドルネーム', c.middleName);
   row('所属', c.affiliation);
   const by = charBirthYear(c), dy = charDeathYear(c), ageVal = charAge(c);
   if (by!=null || dy!=null){
