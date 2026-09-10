@@ -436,6 +436,7 @@
       <button class="tab-btn" data-tab="timeline">年表</button>
       <button class="tab-btn" data-tab="world">世界観</button>
       <button class="tab-btn" data-tab="plot">プロット</button>
+      <button class="tab-btn" data-tab="meta">制作・メタ情報</button>
       <button class="tab-btn" data-tab="schedule">スケジュール</button>
       <button class="tab-btn" data-tab="trash">ゴミ箱<span class="tab-badge hidden" id="trashBadge">0</span></button>
       <button class="tab-btn" data-tab="checks">矛盾チェック<span class="tab-badge hidden" id="issueBadge">0</span></button>
@@ -458,6 +459,7 @@
     <button class="tab-btn" data-tab="timeline">年表</button>
     <button class="tab-btn" data-tab="world">世界</button>
     <button class="tab-btn" data-tab="plot">プロット</button>
+    <button class="tab-btn" data-tab="meta">メタ情報</button>
     <button class="tab-btn" data-tab="schedule">予定</button>
     <button class="tab-btn" data-tab="trash">ゴミ箱<span class="tab-badge hidden" id="trashBadgeMobile">0</span></button>
     <button class="tab-btn" data-tab="checks">チェック<span class="tab-badge hidden" id="issueBadgeMobile">0</span></button>
@@ -470,6 +472,7 @@
     <section id="view-timeline" class="view hidden"></section>
     <section id="view-world" class="view hidden"></section>
     <section id="view-plot" class="view hidden"></section>
+    <section id="view-meta" class="view hidden"></section>
     <section id="view-schedule" class="view hidden"></section>
     <section id="view-trash" class="view hidden"></section>
     <section id="view-checks" class="view hidden"></section>
@@ -563,7 +566,7 @@ const Store = {
   async addProject(data){ const ref = await fsAddDoc(fsCollection(fbDb,'projects'), data); return ref.id; },
   async updateProject(id, patch){ return fsUpdateDoc(fsDoc(fbDb,'projects',id), patch); },
   async deleteProject(id){
-    const subs = ['characters','relationships','timeline','world','plot','schedule'];
+    const subs = ['characters','relationships','timeline','world','plot','meta','schedule'];
     for (const s of subs){
       const snap = await fsGetDocs(fsCollection(fbDb, `projects/${id}/${s}`));
       for (const d of snap.docs){ await fsDeleteDoc(d.ref); }
@@ -582,7 +585,7 @@ const Store = {
     const projSnap = await fsGetDocs(fsCollection(fbDb, 'projects'));
     for (const pDoc of projSnap.docs){
       total += new Blob([JSON.stringify(pDoc.data())]).size;
-      const subs = ['characters','relationships','timeline','world','plot','schedule'];
+      const subs = ['characters','relationships','timeline','world','plot','meta','schedule'];
       for (const s of subs){
         const subSnap = await fsGetDocs(fsCollection(fbDb, `projects/${pDoc.id}/${s}`));
         subSnap.docs.forEach(d=>{ total += new Blob([JSON.stringify(d.data())]).size; });
@@ -598,8 +601,8 @@ const State = {
   trashedProjects: [],
   currentProjectId: null,
   activeTab: 'characters',
-  data: { characters:[], relationships:[], timeline:[], world:[], plot:[], schedule:[] },
-  trash: { characters:[], relationships:[], timeline:[], world:[], plot:[], schedule:[] },
+  data: { characters:[], relationships:[], timeline:[], world:[], plot:[], meta:[], schedule:[] },
+  trash: { characters:[], relationships:[], timeline:[], world:[], plot:[], meta:[], schedule:[] },
   unsubs: [],
   nickname: localStorage.getItem('hakoniwa_nick') || ''
 };
@@ -1002,7 +1005,7 @@ function enterProject(pid){
 function unsubscribeSub(){ State.unsubs.forEach(u=>{ try{u&&u();}catch(e){} }); State.unsubs = []; }
 function subscribeSub(pid){
   unsubscribeSub();
-  ['characters','relationships','timeline','world','plot','schedule'].forEach(sub=>{
+  ['characters','relationships','timeline','world','plot','meta','schedule'].forEach(sub=>{
     const un = Store.watchSub(pid, sub, (list)=>{
       State.data[sub] = list.filter(x=>!x.deletedAt);
       State.trash[sub] = list.filter(x=>x.deletedAt);
@@ -1030,7 +1033,7 @@ function setTab(tab){
 }
 function renderActiveView(){
   if (!State.currentProjectId) return;
-  const map = { characters:renderCharacters, relationships:renderRelationships, timeline:renderTimeline, world:renderWorld, plot:renderPlot, schedule:renderSchedule, trash:renderTrash, checks:renderChecks };
+  const map = { characters:renderCharacters, relationships:renderRelationships, timeline:renderTimeline, world:renderWorld, plot:renderPlot, meta:renderMeta, schedule:renderSchedule, trash:renderTrash, checks:renderChecks };
   const fn = map[State.activeTab];
   if (fn) fn();
 }
@@ -1049,7 +1052,7 @@ function charAge(c){
   return c.age!=null ? c.age : null;
 }
 let charViewMode = 'list';
-let charSortKey = 'created';
+let charSortKey = 'custom';
 let charSearchText = '';
 function sortCharacters(list){
   const out = [...list];
@@ -1351,7 +1354,7 @@ const FAVOR_COLOR = { positive:'#1FA070', negative:'#E24E6B', complex:'#7C5CFC',
 const FAVOR_LABEL = { positive:'好意的', negative:'敵対的', complex:'複雑', neutral:'中立' };
 const FAVOR_ORDER = { positive:0, complex:1, neutral:2, negative:3 };
 const RELATIONSHIP_SORTS = [['created','登録順（追加した順）'], ['nameA','キャラクターA名順（あいうえお順）'], ['favor','感情の方向順（好意的→複雑→中立→敵対的）'], ['custom','カスタム（ドラッグで並び替え）']];
-let relSortKey = 'created';
+let relSortKey = 'custom';
 function sortRelationships(list){
   const out = [...list];
   if (relSortKey === 'nameA'){
@@ -1760,6 +1763,89 @@ function openPlotForm(existing){
   });
 }
 
+/* ============================= META (production info: platform, staff, concept — not story content) ============================= */
+const META_CATS = [
+  {value:'プラットフォーム', label:'プラットフォーム・媒体'}, {value:'スタッフ', label:'スタッフ・制作者'},
+  {value:'企画', label:'企画・コンセプト'}, {value:'仕様', label:'仕様・技術'}, {value:'その他', label:'その他'}
+];
+let metaSearchText = '';
+let metaFilterCategory = '';
+function renderMeta(){
+  const view = document.getElementById('view-meta');
+  view.innerHTML = '';
+  view.appendChild(el('div', {class:'content-head'}, [
+    el('div', {}, [ el('h2', {}, ['制作・メタ情報']), el('div', {class:'sub'}, ['作中の世界観ではなく、ゲームのプラットフォームやスタッフなど制作側の設定です']) ]),
+    el('button', {class:'btn btn-primary', onclick:()=>openMetaForm(null)}, ['＋ 設定を追加'])
+  ]));
+  if (!State.data.meta.length){
+    view.appendChild(el('div', {class:'empty-state'}, ['プラットフォームやスタッフ、企画意図などを登録しましょう。']));
+    return;
+  }
+  const toolbar = el('div', {class:'toolbar'});
+  const searchInput = el('input', {type:'text', class:'search-input', placeholder:'名称・説明で検索'});
+  searchInput.value = metaSearchText;
+  searchInput.addEventListener('input', ()=>{ metaSearchText = searchInput.value; renderMetaList(); });
+  toolbar.appendChild(searchInput);
+  const catSelect = el('select', {});
+  catSelect.appendChild(el('option', {value:''}, ['すべてのカテゴリ']));
+  META_CATS.forEach(o=>{ const opt = el('option', {value:o.value}, [o.label]); if (o.value===metaFilterCategory) opt.setAttribute('selected','selected'); catSelect.appendChild(opt); });
+  catSelect.addEventListener('change', ()=>{ metaFilterCategory = catSelect.value; renderMetaList(); });
+  toolbar.appendChild(catSelect);
+  view.appendChild(toolbar);
+  const listHost = el('div', {});
+  view.appendChild(listHost);
+  function renderMetaList(){
+    listHost.innerHTML = '';
+    const q = metaSearchText.trim().toLowerCase();
+    const filtered = State.data.meta.filter(m=>{
+      if (metaFilterCategory && m.category !== metaFilterCategory) return false;
+      if (!q) return true;
+      return [m.name, m.description].filter(Boolean).join(' ').toLowerCase().includes(q);
+    });
+    if (!filtered.length){
+      listHost.appendChild(el('div', {class:'empty-state'}, ['検索条件に一致する設定がいません。']));
+      return;
+    }
+    const cats = {};
+    filtered.forEach(m=>{ (cats[m.category||'その他'] = cats[m.category||'その他']||[]).push(m); });
+    Object.keys(cats).forEach(cat=>{
+      listHost.appendChild(el('h3', {style:'font-size:13px;color:var(--ink-soft);margin:18px 0 8px;'}, [cat]));
+      const list = el('div', {class:'row-list'});
+      cats[cat].forEach((m,i)=>{
+        const row = el('div', {class:'item-row fade-in', style:`animation-delay:${i*30}ms`});
+        row.appendChild(el('div', {class:'ir-main'}, [
+          el('div', {class:'ir-title'}, [m.name || '(無題)']),
+          m.description ? el('div', {class:'ir-desc'}, [m.description]) : null
+        ]));
+        row.appendChild(el('div', {class:'ir-actions'}, [ el('button', {class:'btn btn-sm', onclick:()=>openMetaForm(m)}, ['編集']) ]));
+        list.appendChild(row);
+      });
+      listHost.appendChild(list);
+    });
+  }
+  renderMetaList();
+}
+function openMetaForm(existing){
+  openForm({
+    title: existing ? '制作・メタ情報を編集' : '新しい制作・メタ情報',
+    submitLabel: existing ? '保存する' : '追加する',
+    celebrate: !existing,
+    initial: existing || {category:'プラットフォーム'},
+    fields: [
+      {key:'category', label:'カテゴリ', type:'select', options:META_CATS},
+      {key:'name', label:'名称', type:'text', placeholder:'例: Nintendo Switch / 原画担当 など'},
+      {key:'description', label:'説明', type:'textarea', placeholder:'詳細、備考など', rows:4}
+    ],
+    onDelete: existing ? async ()=>{ await Store.softDeleteDoc(State.currentProjectId, 'meta', existing.id); toast('ゴミ箱に移動しました'); } : null,
+    onSubmit: async (vals)=>{
+      vals.updatedBy = nick(); vals.updatedAt = Date.now();
+      if (existing) await Store.updateDoc(State.currentProjectId, 'meta', existing.id, vals);
+      else { vals.createdAt = Date.now(); await Store.addDoc(State.currentProjectId, 'meta', vals); }
+      toast('保存しました');
+    }
+  });
+}
+
 /* ============================= SCHEDULE (real-world deadlines, not story timeline) ============================= */
 const SCHEDULE_STATUS = [ {value:'todo', label:'未着手'}, {value:'doing', label:'進行中'}, {value:'done', label:'完了'} ];
 const SCHEDULE_STATUS_LABEL = {todo:'未着手', doing:'進行中', done:'完了'};
@@ -1987,6 +2073,7 @@ const TRASH_TYPES = [
   {sub:'timeline', label:'年表', name:(x)=>x.title||'(無題の出来事)'},
   {sub:'world', label:'世界観', name:(x)=>x.name||'(無題)'},
   {sub:'plot', label:'プロット', name:(x)=>x.title||'(無題の章)'},
+  {sub:'meta', label:'制作・メタ情報', name:(x)=>x.name||'(無題)'},
   {sub:'schedule', label:'スケジュール', name:(x)=>x.title||'(無題の予定)'}
 ];
 function renderTrash(){
