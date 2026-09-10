@@ -1376,12 +1376,20 @@ async function moveRelationship(sorted, idx, dir){
   await Store.updateDoc(State.currentProjectId, 'relationships', other.id, {order:a, updatedBy:nick()});
 }
 
+let relViewMode = 'list';
 function renderRelationships(){
   const view = document.getElementById('view-relationships');
   view.innerHTML = '';
+  const relToggle = el('div', {class:'char-view-toggle'}, [
+    el('button', {type:'button', class: relViewMode==='list' ? 'active' : '', onclick:()=>{ relViewMode='list'; renderRelationships(); animateView(view); }}, ['詳細一覧']),
+    el('button', {type:'button', class: relViewMode==='summary' ? 'active' : '', onclick:()=>{ relViewMode='summary'; renderRelationships(); animateView(view); }}, ['まとめ'])
+  ]);
   view.appendChild(el('div', {class:'content-head'}, [
     el('div', {}, [ el('h2', {}, ['関係性']), el('div', {class:'sub'}, [`${State.data.relationships.length} 件の関係`]) ]),
-    el('button', {class:'btn btn-primary', onclick:()=>openRelationshipForm(null), disabled: State.data.characters.length<2}, ['＋ 関係を追加'])
+    el('div', {style:'display:flex; align-items:center; gap:10px;'}, [
+      relToggle,
+      el('button', {class:'btn btn-primary', onclick:()=>openRelationshipForm(null), disabled: State.data.characters.length<2}, ['＋ 関係を追加'])
+    ])
   ]));
   if (State.data.characters.length < 2){
     view.appendChild(el('div', {class:'empty-state'}, ['関係性を作るには、まず2人以上のキャラクターを登録してください。']));
@@ -1390,6 +1398,10 @@ function renderRelationships(){
   view.appendChild(buildRelationshipDiagram());
   if (!State.data.relationships.length){
     view.appendChild(el('div', {class:'empty-state'}, ['まだ関係が登録されていません。']));
+    return;
+  }
+  if (relViewMode === 'summary'){
+    view.appendChild(buildRelationshipSummaryList());
     return;
   }
   const sortRow = el('div', {style:'display:flex; align-items:center; gap:8px; margin:6px 0 20px;'});
@@ -1435,6 +1447,34 @@ function renderRelationships(){
   });
   view.appendChild(list);
   if (relSortKey === 'custom') makeDraggableList(list, sorted, 'relationships');
+}
+function buildRelationshipSummaryList(){
+  const chars = [...State.data.characters].sort((a,b)=>(a.order??0)-(b.order??0));
+  const outer = el('div', {});
+  outer.appendChild(el('div', {class:'hint', style:'margin-bottom:10px;'}, ['キャラクターごとに、誰とどんな関係かをまとめています']));
+  let any = false;
+  const wrap = el('div', {class:'row-list fade-in'});
+  chars.forEach(c=>{
+    const parts = [];
+    State.data.relationships.forEach(r=>{
+      let other = null;
+      if (r.fromId === c.id) other = charById(r.toId);
+      else if (r.toId === c.id) other = charById(r.fromId);
+      if (!other) return;
+      const label = r.type || FAVOR_LABEL[r.favor] || '';
+      parts.push(label ? `${other.name}（${label}）` : (other.name||'?'));
+    });
+    if (!parts.length) return;
+    any = true;
+    const row = el('div', {class:'item-row'});
+    row.appendChild(el('div', {class:'ir-main'}, [
+      el('div', {class:'ir-title'}, [c.name || '(名前未設定)']),
+      el('div', {class:'ir-desc'}, [parts.join('、')])
+    ]));
+    wrap.appendChild(row);
+  });
+  outer.appendChild(any ? wrap : el('div', {class:'empty-state'}, ['関係性を登録すると、ここに一覧が表示されます。']));
+  return outer;
 }
 function buildRelationshipDiagram(){
   const wrap = el('div', {class:'diagram-wrap fade-in'});
