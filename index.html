@@ -197,8 +197,10 @@
   .card-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:16px; }
   .char-card{
     background:var(--bg); border:none; border-radius:var(--radius-md); padding:16px 16px 16px 20px;
-    box-shadow:var(--shadow-sm), inset 6px 0 0 var(--cc,var(--accent)); display:flex; flex-direction:column; gap:8px;
+    box-shadow:var(--shadow-sm), inset 6px 0 0 var(--cc,var(--accent)), var(--ring); display:flex; flex-direction:column; gap:8px;
+    cursor:pointer; transition:box-shadow .15s ease, transform .12s ease;
   }
+  .char-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow), inset 6px 0 0 var(--cc,var(--accent)), var(--ring-hover); }
   .char-card .ch-top{ display:flex; align-items:center; gap:10px; }
   .ch-avatar{ width:38px; height:38px; border-radius:50%; background:var(--cc,var(--accent)); flex:none; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:15px; }
   .ch-avatar-img{ width:38px; height:38px; border-radius:50%; object-fit:cover; flex:none; box-shadow:0 0 0 2px var(--cc,var(--accent)); }
@@ -1095,7 +1097,7 @@ function renderCharacters(){
     }
     const grid = el('div', {class:'card-grid'});
     filtered.forEach((c,i)=>{
-      const card = el('div', {class:'char-card fade-in', style:`--cc:${c.color||'#6C4CF0'}; animation-delay:${i*30}ms`});
+      const card = el('div', {class:'char-card fade-in', style:`--cc:${c.color||'#6C4CF0'}; animation-delay:${i*30}ms`, onclick:()=>openCharacterForm(c)});
       const avatar = c.image
         ? el('img', {class:'ch-avatar-img', src:c.image, style:`--cc:${c.color||'#6C4CF0'}`})
         : el('div', {class:'ch-avatar', style:`color:${contrastColor(c.color||'#6C4CF0')}`}, [(c.name||'?').charAt(0)]);
@@ -1117,9 +1119,6 @@ function renderCharacters(){
       }
       if (c.personality) card.appendChild(el('div', {class:'ch-desc'}, [c.personality]));
       if (c.updatedBy) card.appendChild(el('div', {class:'updated-by'}, [`最終更新: ${c.updatedBy}`]));
-      card.appendChild(el('div', {class:'card-actions'}, [
-        el('button', {class:'btn btn-sm', onclick:()=>openCharacterForm(c)}, ['編集']),
-      ]));
       grid.appendChild(card);
     });
     listHost.appendChild(grid);
