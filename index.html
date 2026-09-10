@@ -1183,9 +1183,9 @@ function buildNicknameSummaryList(list){
     list.forEach(other=>{
       if (other.id===c.id) return;
       const toOther = callNames[`${c.id}|${other.id}`];
-      if (toOther) callsOthers.push(`${other.name}（${toOther}）`);
+      if (toOther) callsOthers.push(toOther);
       const fromOther = callNames[`${other.id}|${c.id}`];
-      if (fromOther) calledByOthers.push(`${other.name}（${fromOther}）`);
+      if (fromOther) calledByOthers.push(fromOther);
     });
     if (!callsOthers.length && !calledByOthers.length) return;
     any = true;
