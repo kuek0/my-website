@@ -230,6 +230,14 @@
   .nickname-table tbody tr:last-child td{ border-bottom:none; }
   .nickname-dot{ display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:8px; vertical-align:middle; }
 
+  .callname-grid{ table-layout:fixed; }
+  .callname-grid th, .callname-grid td{ white-space:nowrap; }
+  .callname-corner{ background:var(--bg); position:sticky; left:0; z-index:2; }
+  .callname-rowhead{ text-align:left; position:sticky; left:0; background:var(--bg); z-index:1; font-size:12.5px; }
+  .callname-colhead{ min-width:110px; }
+  .callname-self{ text-align:center; color:var(--ink-faint); background:var(--surface-2); }
+  input.callname-input{ width:100px; padding:6px 8px; font-size:12.5px; box-shadow:var(--shadow-inset-sm); }
+
   .toolbar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:6px 0 24px; }
   .toolbar .search-input{ flex:1; min-width:160px; max-width:280px; width:auto; }
   .toolbar select{ width:auto; }
@@ -1158,24 +1166,40 @@ function buildCharacterGallery(list){
   return grid;
 }
 function buildNicknameTable(list){
-  const wrap = el('div', {class:'nickname-table-wrap fade-in'});
-  const table = el('table', {class:'nickname-table'});
-  table.appendChild(el('thead', {}, [el('tr', {}, [
-    el('th', {}, ['名前']), el('th', {}, ['よみがな']), el('th', {}, ['あだ名'])
-  ])]));
+  const proj = State.projects.find(p=>p.id===State.currentProjectId) || {};
+  const callNames = proj.callNames || {};
+  const wrap = el('div', {});
+  wrap.appendChild(el('div', {class:'hint', style:'margin-bottom:10px;'}, ['縦（行）が「呼ぶ人」、横（列）が「呼ばれる人」です。セルに直接入力すると保存されます。']));
+  const tableWrap = el('div', {class:'nickname-table-wrap fade-in'});
+  const table = el('table', {class:'nickname-table callname-grid'});
+  const headRow = el('tr', {}, [el('th', {class:'callname-corner'}, [''])]);
+  list.forEach(c=> headRow.appendChild(el('th', {class:'callname-colhead'}, [c.name || '?'])));
+  table.appendChild(el('thead', {}, [headRow]));
   const tbody = el('tbody', {});
-  list.forEach(c=>{
-    const tr = el('tr', {onclick:()=>openCharacterProfile(c)});
-    tr.appendChild(el('td', {}, [
-      el('span', {class:'nickname-dot', style:`background:${c.color||'#6C4CF0'}`}),
-      c.name || '(名前未設定)'
-    ]));
-    tr.appendChild(el('td', {}, [c.reading || '—']));
-    tr.appendChild(el('td', {}, [c.nicknames || '—']));
+  list.forEach(rowChar=>{
+    const tr = el('tr', {});
+    tr.appendChild(el('th', {class:'callname-rowhead'}, [rowChar.name || '?']));
+    list.forEach(colChar=>{
+      if (rowChar.id === colChar.id){
+        tr.appendChild(el('td', {class:'callname-self'}, ['—']));
+        return;
+      }
+      const key = `${rowChar.id}|${colChar.id}`;
+      const input = el('input', {type:'text', class:'callname-input', placeholder:'—'});
+      input.value = callNames[key] || '';
+      input.addEventListener('change', async ()=>{
+        await Store.updateProject(State.currentProjectId, {[`callNames.${key}`]: input.value});
+        toast('保存しました');
+      });
+      const td = el('td', {});
+      td.appendChild(input);
+      tr.appendChild(td);
+    });
     tbody.appendChild(tr);
   });
   table.appendChild(tbody);
-  wrap.appendChild(table);
+  tableWrap.appendChild(table);
+  wrap.appendChild(tableWrap);
   return wrap;
 }
 function openCharacterForm(existing){
@@ -1193,7 +1217,6 @@ function openCharacterForm(existing){
       {key:'image', label:'画像（任意）', type:'image', hint:'アップロードすると自動で縮小されます。設定しない場合はイメージカラーで表示されます'},
       {key:'name', label:'名前', type:'text', placeholder:'例: 主人公 太郎'},
       {key:'reading', label:'よみがな', type:'text', placeholder:'例: しゅじんこう たろう'},
-      {key:'nicknames', label:'あだ名（任意、読点区切りで複数可）', type:'text', placeholder:'例: たろちゃん、たろ'},
       {key:'role', label:'役割', type:'combo', options:ROLE_OPTIONS, placeholder:'例: 主人公 / 語り部 など自由に入力できます', hint:'候補から選ぶか、自由に入力してください'},
       {key:'color', label:'イメージカラー', type:'color', default:'#6C4CF0'},
       {key:'affiliation', label:'所属', type:'text', placeholder:'例: 〇〇学園'},
@@ -1362,7 +1385,10 @@ function renderRelationships(){
 function buildRelationshipDiagram(){
   const wrap = el('div', {class:'diagram-wrap fade-in'});
   const chars = State.data.characters;
-  const W = 640, H = 420, cx = W/2, cy = H/2, R = Math.min(W,H)/2 - 70;
+  const n = Math.max(chars.length, 1);
+  const R = Math.min(340, Math.max(140, 60 + n * 16));
+  const W = Math.round(R*2 + 180), H = Math.round(R*2 + 140);
+  const cx = W/2, cy = H/2;
   const pos = {};
   chars.forEach((c,i)=>{
     const angle = (i / chars.length) * Math.PI*2 - Math.PI/2;
