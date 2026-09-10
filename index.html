@@ -56,6 +56,8 @@
   .fade-in{ animation:fadeInUp .5s cubic-bezier(.2,.8,.25,1) both; }
   @keyframes fadeInUp{ from{ opacity:0; transform:translateY(10px) scale(.99);} to{ opacity:1; transform:translateY(0) scale(1);} }
   @keyframes popIn{ from{ opacity:0; transform:scale(.9);} to{ opacity:1; transform:scale(1);} }
+  @keyframes tabSlideIn{ from{ opacity:0; transform:translateX(18px);} to{ opacity:1; transform:translateX(0);} }
+  .tab-anim{ animation:tabSlideIn .3s cubic-bezier(.2,.8,.25,1) both; }
 
   button{ cursor:pointer; border:none; font-weight:700; }
   .btn{
@@ -1019,11 +1021,18 @@ function subscribeSub(pid){
 }
 
 /* ============================= TABS ============================= */
+function animateView(viewEl){
+  if (!viewEl) return;
+  viewEl.classList.remove('tab-anim');
+  void viewEl.offsetWidth;
+  viewEl.classList.add('tab-anim');
+}
 function setTab(tab){
   State.activeTab = tab;
   document.querySelectorAll('.tab-btn').forEach(b=> b.classList.toggle('active', b.dataset.tab===tab));
   document.querySelectorAll('.view').forEach(v=> v.classList.toggle('hidden', v.id !== 'view-'+tab));
   renderActiveView();
+  animateView(document.getElementById('view-'+tab));
 }
 function renderActiveView(){
   if (!State.currentProjectId) return;
@@ -1067,9 +1076,9 @@ function renderCharacters(){
   const view = document.getElementById('view-characters');
   view.innerHTML = '';
   const toggle = el('div', {class:'char-view-toggle'}, [
-    el('button', {type:'button', class: charViewMode==='list' ? 'active' : '', onclick:()=>{ charViewMode='list'; renderCharacters(); }}, ['リスト']),
-    el('button', {type:'button', class: charViewMode==='gallery' ? 'active' : '', onclick:()=>{ charViewMode='gallery'; renderCharacters(); }}, ['ギャラリー']),
-    el('button', {type:'button', class: charViewMode==='nicknames' ? 'active' : '', onclick:()=>{ charViewMode='nicknames'; renderCharacters(); }}, ['あだ名表'])
+    el('button', {type:'button', class: charViewMode==='list' ? 'active' : '', onclick:()=>{ charViewMode='list'; renderCharacters(); animateView(document.getElementById('view-characters')); }}, ['リスト']),
+    el('button', {type:'button', class: charViewMode==='gallery' ? 'active' : '', onclick:()=>{ charViewMode='gallery'; renderCharacters(); animateView(document.getElementById('view-characters')); }}, ['ギャラリー']),
+    el('button', {type:'button', class: charViewMode==='nicknames' ? 'active' : '', onclick:()=>{ charViewMode='nicknames'; renderCharacters(); animateView(document.getElementById('view-characters')); }}, ['あだ名表'])
   ]);
   view.appendChild(el('div', {class:'content-head'}, [
     el('div', {}, [ el('h2', {}, ['キャラクター']), el('div', {class:'sub'}, [`${State.data.characters.length} 人 登録されています`]) ]),
@@ -1083,7 +1092,8 @@ function renderCharacters(){
     return;
   }
   if (charViewMode === 'nicknames'){
-    view.appendChild(buildNicknameTable(State.data.characters));
+    const orderedChars = [...State.data.characters].sort((a,b)=>(a.order??0)-(b.order??0));
+    view.appendChild(buildNicknameTable(orderedChars));
     return;
   }
   const toolbar = el('div', {class:'toolbar'});
@@ -1173,12 +1183,16 @@ function buildNicknameTable(list){
   const tableWrap = el('div', {class:'nickname-table-wrap fade-in'});
   const table = el('table', {class:'nickname-table callname-grid'});
   const headRow = el('tr', {}, [el('th', {class:'callname-corner'}, [''])]);
-  list.forEach(c=> headRow.appendChild(el('th', {class:'callname-colhead'}, [c.name || '?'])));
+  list.forEach(c=> headRow.appendChild(el('th', {class:'callname-colhead'}, [
+    el('span', {class:'nickname-dot', style:`background:${c.color||'#6C4CF0'}`}), c.name || '?'
+  ])));
   table.appendChild(el('thead', {}, [headRow]));
   const tbody = el('tbody', {});
   list.forEach(rowChar=>{
     const tr = el('tr', {});
-    tr.appendChild(el('th', {class:'callname-rowhead'}, [rowChar.name || '?']));
+    tr.appendChild(el('th', {class:'callname-rowhead'}, [
+      el('span', {class:'nickname-dot', style:`background:${rowChar.color||'#6C4CF0'}`}), rowChar.name || '?'
+    ]));
     list.forEach(colChar=>{
       if (rowChar.id === colChar.id){
         tr.appendChild(el('td', {class:'callname-self'}, ['—']));
@@ -1223,6 +1237,7 @@ function openCharacterForm(existing){
       {key:'birthYear', label:'生年', type:'number', placeholder:'例: 1005'},
       {key:'deathYear', label:'没年（存命なら空欄）', type:'number', placeholder:'例: 1023'},
       {key:'age', label:'年齢（任意）', type:'number', placeholder:'例: 18', hint:'生年・没年の両方が分かる場合は自動計算されるため、入力は不要です'},
+      {key:'motif', label:'モチーフ（任意）', type:'text', placeholder:'例: 桜 / 狼 / 月 など'},
       {key:'appearance', label:'外見', type:'textarea', placeholder:'背格好、服装の特徴など', rows:2},
       {key:'personality', label:'性格', type:'textarea', placeholder:'性格や口癖など', rows:2},
       {key:'background', label:'背景・経歴', type:'textarea', placeholder:'生い立ちや設定の詳細', rows:3},
@@ -1277,6 +1292,7 @@ function openCharacterProfile(c){
     if (ageVal!=null) parts.push(`享年${ageVal}`);
     row('生没', parts.join(' / '));
   }
+  row('モチーフ', c.motif);
   row('外見', c.appearance);
   row('性格', c.personality);
   row('背景・経歴', c.background);
