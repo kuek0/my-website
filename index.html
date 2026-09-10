@@ -230,7 +230,7 @@
   .callname-corner{ background:var(--surface-2); position:sticky; left:0; z-index:2; }
   .callname-rowhead{ text-align:left !important; position:sticky; left:0; background:var(--surface-2); z-index:1; }
   .callname-colhead{ min-width:96px; }
-  .callname-self{ background:linear-gradient(to top left, transparent calc(50% - 1px), var(--line-strong) calc(50% - 1px), var(--line-strong) calc(50% + 1px), transparent calc(50% + 1px)); }
+  .callname-self{ background:linear-gradient(to top right, transparent calc(50% - 1px), var(--line-strong) calc(50% - 1px), var(--line-strong) calc(50% + 1px), transparent calc(50% + 1px)); }
   input.callname-input{ width:100%; padding:4px 2px; font-size:12.5px; text-align:center; background:transparent; box-shadow:none; }
   input.callname-input:focus{ box-shadow:0 0 0 2px rgba(91,82,214,.3); border-radius:4px; }
 
@@ -1173,6 +1173,31 @@ function buildNicknameTable(list){
   const proj = State.projects.find(p=>p.id===State.currentProjectId) || {};
   const callNames = proj.callNames || {};
   const wrap = el('div', {});
+
+  const entries = [];
+  list.forEach(rowChar=>{
+    list.forEach(colChar=>{
+      if (rowChar.id===colChar.id) return;
+      const val = callNames[`${rowChar.id}|${colChar.id}`];
+      if (val) entries.push({from:rowChar, to:colChar, val});
+    });
+  });
+  wrap.appendChild(el('h3', {style:'font-size:13px;color:var(--ink-soft);margin-bottom:8px;'}, ['あだ名一覧']));
+  if (entries.length){
+    const summaryList = el('div', {class:'row-list', style:'margin-bottom:24px;'});
+    entries.forEach(en=>{
+      const row = el('div', {class:'item-row'});
+      row.appendChild(el('div', {class:'ir-main'}, [
+        el('div', {class:'ir-title'}, [`${en.from.name||'?'} → ${en.to.name||'?'}`]),
+        el('div', {class:'ir-desc'}, [en.val])
+      ]));
+      summaryList.appendChild(row);
+    });
+    wrap.appendChild(summaryList);
+  } else {
+    wrap.appendChild(el('div', {class:'empty-state', style:'margin-bottom:24px;'}, ['下の表に入力すると、ここに一覧が表示されます。']));
+  }
+
   wrap.appendChild(el('div', {class:'hint', style:'margin-bottom:10px;'}, ['縦＝呼ぶ人、横＝呼ばれる人']));
   const tableWrap = el('div', {class:'nickname-table-wrap fade-in'});
   const table = el('table', {class:'nickname-table callname-grid'});
@@ -2041,6 +2066,7 @@ async function boot(){
         document.getElementById('cpName').textContent = p.name;
         document.getElementById('cpDot').style.background = p.color || '#6C4CF0';
         document.getElementById('mobileProjectName').textContent = p.name;
+        if (State.activeTab === 'characters' && charViewMode === 'nicknames') renderCharacters();
       } else {
         showGate();
       }
