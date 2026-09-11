@@ -5,31 +5,31 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
 <style>
   :root{
-    --bg:#FCFBF9;
-    --surface:#FCFBF9;
-    --surface-2:#F2F0EA;
-    --ink:#2E2B26;
-    --ink-soft:#726A5B;
-    --ink-faint:#9C9484;
-    --line:#F0EEE7;
-    --line-strong:#E2DED2;
-    --accent:#2B2822;
-    --accent-deep:#221F1A;
+    --bg:#F6FAFC;
+    --surface:#F6FAFC;
+    --surface-2:#E7EFF4;
+    --ink:#1F2C36;
+    --ink-soft:#5C7080;
+    --ink-faint:#93A7B4;
+    --line:#E6EDF1;
+    --line-strong:#CFDCE3;
+    --accent:#1C2B36;
+    --accent-deep:#131E27;
     --accent-ink:#FFFFFF;
     --teal:#0FA394;
     --yellow:#E0A63C;
     --purple:#7C5CFC;
     --red:#E24E6B;
     --green:#1FA070;
-    --gray:#ACA697;
+    --gray:#8FA3AF;
     --neu-light: rgba(255,255,255,.95);
-    --neu-dark: rgba(205,197,175,.28);
+    --neu-dark: rgba(163,187,201,.32);
     --shadow: 7px 7px 14px var(--neu-dark), -7px -7px 14px var(--neu-light);
     --shadow-sm: 4px 4px 9px var(--neu-dark), -4px -4px 9px var(--neu-light);
     --shadow-inset: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light);
     --shadow-inset-sm: inset 2px 2px 5px var(--neu-dark), inset -2px -2px 5px var(--neu-light);
-    --ring: 0 0 0 1.5px rgba(43,40,34,.16);
-    --ring-hover: 0 0 0 1.5px rgba(43,40,34,.32);
+    --ring: 0 0 0 1.5px rgba(28,43,54,.16);
+    --ring-hover: 0 0 0 1.5px rgba(28,43,54,.32);
     --radius-lg: 22px;
     --radius-md: 16px;
     --radius-sm: 10px;
@@ -88,7 +88,7 @@
     box-shadow:none;
   }
   input::placeholder,textarea::placeholder{ color:var(--ink-faint); font-weight:400; opacity:1; }
-  input:focus,textarea:focus,select:focus{ outline:none; box-shadow:0 0 0 3px rgba(43,40,34,.28); }
+  input:focus,textarea:focus,select:focus{ outline:none; box-shadow:0 0 0 3px rgba(28,43,54,.28); }
   textarea{ resize:vertical; min-height:70px; }
   label.field{ display:block; margin-bottom:12px; }
   label.field > span{ display:block; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin-bottom:5px; letter-spacing:.02em; }
@@ -103,7 +103,7 @@
   .swatch:hover{ transform:scale(1.15); }
   .swatch.active{ box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--ink); }
   input.hexcode-input{ width:84px; font-family:monospace; font-size:12px; color:var(--ink-soft); background:var(--surface-2); padding:6px 8px; border-radius:8px; box-shadow:none; text-transform:uppercase; }
-  input.hexcode-input:focus{ color:var(--ink); box-shadow:0 0 0 3px rgba(43,40,34,.28); }
+  input.hexcode-input:focus{ color:var(--ink); box-shadow:0 0 0 3px rgba(28,43,54,.28); }
   .image-field-row{ display:flex; align-items:center; gap:12px; }
   .image-preview{ width:72px; height:72px; border-radius:16px; overflow:hidden; background:var(--surface-2); box-shadow:var(--shadow-inset-sm); flex:none; display:flex; align-items:center; justify-content:center; }
   .image-preview img{ width:100%; height:100%; object-fit:cover; display:block; }
@@ -387,9 +387,11 @@
     background:var(--surface-2); box-shadow:var(--shadow-sm), var(--ring);
     z-index:40; pointer-events:auto; cursor:default; display:flex; align-items:center; justify-content:center; gap:9px;
   }
-  .mascot-eye{ width:13px; height:13px; position:relative; flex:none; }
-  .mascot-pupil{ width:7px; height:11px; border-radius:3.5px; background:var(--ink); position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); transition:transform .06s linear, width .15s ease, height .15s ease, border-radius .15s ease; }
-  .mini-mascot:hover .mascot-pupil{ width:9px; height:2.5px; border-radius:1.5px; }
+  .mascot-eye{ width:13px; height:15px; position:relative; flex:none; }
+  .mascot-pupil{ width:7px; height:13px; border-radius:3.5px; background:var(--ink); position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); transition:transform .06s linear, width .15s ease, height .15s ease, border-radius .15s ease; }
+  .mini-mascot:hover .mascot-pupil{ width:9px; height:4px; border-radius:2px; }
+  .mini-mascot-dark{ background:#141C22; }
+  .mini-mascot-dark .mascot-pupil{ background:#FFFFFF; }
 
   .particle-host{ position:fixed; left:50%; top:30%; width:0; height:0; z-index:500; pointer-events:none; }
   .particle{ position:absolute; left:0; top:0; animation:particleBurst .6s cubic-bezier(.15,.85,.3,1) forwards; }
@@ -522,6 +524,10 @@
 <div id="modalRoot"></div>
 <div class="toast-wrap" id="toastWrap"></div>
 <div class="mini-mascot" id="miniMascot" aria-hidden="true">
+  <div class="mascot-eye"><div class="mascot-pupil"></div></div>
+  <div class="mascot-eye"><div class="mascot-pupil"></div></div>
+</div>
+<div class="mini-mascot mini-mascot-dark" id="miniMascotDark" style="right:80px;" aria-hidden="true">
   <div class="mascot-eye"><div class="mascot-pupil"></div></div>
   <div class="mascot-eye"><div class="mascot-pupil"></div></div>
 </div>
@@ -2428,21 +2434,25 @@ async function boot(){
 }
 
 function initMascot(){
-  const mascot = document.getElementById('miniMascot');
-  if (!mascot) return;
-  const pupils = Array.from(mascot.querySelectorAll('.mascot-pupil'));
+  const mascots = Array.from(document.querySelectorAll('.mini-mascot'));
+  if (!mascots.length) return;
   const MAX_OFFSET = 3.2;
-  const CROSS_BIAS = 0.7; /* ほんのわずかに寄り目 */
+  const CROSS_BIAS = 1.8; /* 通常時は少し寄り目 */
+  const entries = [];
+  mascots.forEach(mascot=>{
+    Array.from(mascot.querySelectorAll('.mascot-pupil')).forEach((p,i)=> entries.push({p, bias: i===0 ? CROSS_BIAS : -CROSS_BIAS}));
+  });
   document.addEventListener('mousemove', (e)=>{
-    pupils.forEach((p, i)=>{
+    entries.forEach(({p, bias})=>{
       const eye = p.parentElement;
       const r = eye.getBoundingClientRect();
       const cx = r.left + r.width/2, cy = r.top + r.height/2;
       const dx = e.clientX - cx, dy = e.clientY - cy;
       const dist = Math.sqrt(dx*dx + dy*dy) || 1;
-      const ox = (dx/dist) * Math.min(MAX_OFFSET, dist/8);
+      let ox = (dx/dist) * Math.min(MAX_OFFSET, dist/8);
       const oy = (dy/dist) * Math.min(MAX_OFFSET, dist/8);
-      const bias = i === 0 ? CROSS_BIAS : -CROSS_BIAS;
+      /* カーソル追従でも、通常時の寄り目より内側には近づけない */
+      ox = bias > 0 ? Math.min(ox, 0) : Math.max(ox, 0);
       p.style.transform = `translate(calc(-50% + ${ox+bias}px), calc(-50% + ${oy}px))`;
     });
   });
