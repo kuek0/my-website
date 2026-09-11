@@ -2587,7 +2587,10 @@ const MASCOT_NEGATIVE_WORDS = [
   'ムカつく','むかつく','いや','嫌','憂鬱','ゆううつ','絶望','ぜつぼう','しんどい','だるい',
   '醜い','みにくい','気持ち悪い','きもちわるい','キモい','きもい','邪魔','じゃま',
   '退屈','たいくつ','イライラ','いらいら','寂しい','さびしい','面倒','めんどう','めんどくさい','面倒くさい',
-  'くだらない','最低','さいてい','ひどい','酷い','ダサい','ださい'
+  'くだらない','最低','さいてい','ひどい','酷い','ダサい','ださい',
+  'ブス','ぶす','デブ','でぶ','カス','かす','クズ','くず','ボケ','ぼけ','まぬけ','マヌケ',
+  'のろま','うるさい','ウルサイ','だまれ','ダマレ','くたばれ','クタバレ','役立たず','やくたたず',
+  'ブサイク','ぶさいく','消えうせろ','きえうせろ','しつこい','ウザ','キモ'
 ];
 const MASCOT_POSITIVE_WORDS = [
   'かわいい','可愛い','カワイイ','きれい','綺麗','美しい','うつくしい','好き','すき','スキ',
@@ -2612,8 +2615,9 @@ function initMascotFeeding(){
     document.body.appendChild(morsel);
     setTimeout(()=> morsel.remove(), 550);
 
-    const isDisliked = MASCOT_NEGATIVE_WORDS.includes(text);
-    const isLiked = MASCOT_POSITIVE_WORDS.includes(text);
+    const isCharacterName = (State.data.characters || []).some(c => (c.name && c.name === text) || charFullName(c) === text);
+    const isDisliked = !isCharacterName && MASCOT_NEGATIVE_WORDS.includes(text);
+    const isLiked = isCharacterName || MASCOT_POSITIVE_WORDS.includes(text);
     const chewCount = 2 + Math.floor(Math.random()*2); /* 2〜3回、ゆっくり */
     const chewDuration = chewCount * 500;
     const pattern = ['neutral', 'closed', 'neutral-then-closed'][Math.floor(Math.random()*3)];
