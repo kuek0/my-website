@@ -201,26 +201,23 @@
   }
 
   /* Character cards */
-  .card-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:16px; }
+  .card-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px; }
   .char-card{
-    background:var(--bg); border:none; border-radius:var(--radius-md); padding:16px 16px 16px 20px;
-    box-shadow:var(--shadow-sm), inset 6px 0 0 var(--cc,var(--accent)), var(--ring); display:flex; flex-direction:column; gap:8px;
+    background:var(--bg); border:none; border-radius:var(--radius-md); padding:12px 14px;
+    box-shadow:var(--shadow-sm), inset 5px 0 0 var(--cc,var(--accent)), var(--ring); display:flex; flex-direction:column; gap:5px;
     cursor:pointer; transition:box-shadow .15s ease, transform .12s ease;
-    height:262px; overflow:hidden;
+    height:76px; overflow:hidden; justify-content:center;
   }
-  .char-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow), inset 6px 0 0 var(--cc,var(--accent)), var(--ring-hover); }
+  .char-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow), inset 5px 0 0 var(--cc,var(--accent)), var(--ring-hover); }
   .char-card .ch-top{ display:flex; align-items:center; gap:10px; }
-  .ch-avatar{ width:38px; height:38px; border-radius:50%; background:var(--cc,var(--accent)); flex:none; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:15px; }
-  .ch-avatar-img{ width:38px; height:38px; border-radius:50%; object-fit:cover; flex:none; box-shadow:0 0 0 2px var(--cc,var(--accent)); }
+  .ch-avatar{ width:34px; height:34px; border-radius:50%; background:var(--cc,var(--accent)); flex:none; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:14px; }
+  .ch-avatar-img{ width:34px; height:34px; border-radius:50%; object-fit:cover; flex:none; box-shadow:0 0 0 2px var(--cc,var(--accent)); }
   .rel-avatar{ width:22px; height:22px; border-radius:50%; object-fit:cover; flex:none; vertical-align:middle; box-shadow:0 0 0 2px var(--cc, rgba(0,0,0,.08)); }
   .rel-avatar-fallback{ width:22px; height:22px; border-radius:50%; flex:none; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:10.5px; vertical-align:middle; box-shadow:0 0 0 2px var(--cc, rgba(0,0,0,.12)); }
   .rel-pair{ display:inline-flex; align-items:center; gap:6px; font-weight:800; font-size:14.5px; color:var(--ink); }
-  .ch-name{ font-weight:800; font-size:15.5px; }
-  .ch-reading{ font-size:11px; color:var(--ink-faint); }
-  .ch-role{ font-size:11.5px; color:var(--ink-soft); background:var(--surface-2); display:inline-block; padding:2px 9px; border-radius:999px; margin-top:2px; }
-  .ch-line{ font-size:12.5px; color:var(--ink-soft); }
-  .ch-line b{ color:var(--ink); font-weight:700; }
-  .ch-desc{ font-size:12.5px; color:var(--ink-soft); display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .ch-name{ font-weight:800; font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ch-reading{ font-size:10.5px; color:var(--ink-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ch-role{ font-size:10.5px; color:var(--ink-soft); background:var(--surface-2); display:inline-block; padding:1px 8px; border-radius:999px; align-self:flex-start; }
   .card-actions{ display:flex; justify-content:flex-end; gap:6px; margin-top:auto; padding-top:6px; }
   .updated-by{ font-size:10.5px; color:var(--ink-faint); margin-top:2px; }
 
@@ -1343,18 +1340,6 @@ function renderCharacters(){
       ]);
       card.appendChild(top);
       if (c.role) card.appendChild(el('div', {class:'ch-role'}, [c.role]));
-      if (c.affiliation) card.appendChild(el('div', {class:'ch-line'}, [el('b',{},['所属: ']), c.affiliation]));
-      const by = charBirthYear(c), dy = charDeathYear(c), ageVal = charAge(c);
-      if (by!=null || dy!=null){
-        const parts = [`生: ${by!=null?by:'?'}`, `没: ${dy!=null?dy:'存命'}`];
-        if (ageVal!=null) parts.push(`享年${ageVal}`);
-        card.appendChild(el('div', {class:'ch-line'}, [el('b',{},['生没: ']), parts.join(' / ')]));
-      }
-      if (c.personality) card.appendChild(el('div', {class:'ch-desc'}, [c.personality]));
-      if (c.updatedBy) card.appendChild(el('div', {class:'updated-by'}, [`最終更新: ${c.updatedBy}`]));
-      card.appendChild(el('div', {class:'card-actions'}, [
-        el('button', {class:'btn btn-sm', onclick:(e)=>{ e.stopPropagation(); openCharacterForm(c); }}, ['編集'])
-      ]));
       grid.appendChild(card);
     });
     listHost.appendChild(grid);
