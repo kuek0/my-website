@@ -5,31 +5,31 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
 <style>
   :root{
-    --bg:#F1F2F7;
-    --surface:#F1F2F7;
-    --surface-2:#E7E9F1;
-    --ink:#211B3D;
-    --ink-soft:#726D93;
-    --ink-faint:#A6A1C4;
-    --line:#E9E7F4;
-    --line-strong:#D3CFEA;
-    --accent:#3E586F;
-    --accent-deep:#3E586F;
+    --bg:#FAF8F2;
+    --surface:#FAF8F2;
+    --surface-2:#EFEAD9;
+    --ink:#2A2620;
+    --ink-soft:#8A8271;
+    --ink-faint:#B8B0A0;
+    --line:#EFEAD9;
+    --line-strong:#DCD3BC;
+    --accent:#2B2822;
+    --accent-deep:#221F1A;
     --accent-ink:#FFFFFF;
     --teal:#0FA394;
     --yellow:#E0A63C;
     --purple:#7C5CFC;
     --red:#E24E6B;
     --green:#1FA070;
-    --gray:#9C97AE;
-    --neu-light: rgba(255,255,255,.9);
-    --neu-dark: rgba(163,173,199,.55);
+    --gray:#A69C89;
+    --neu-light: rgba(255,255,255,.92);
+    --neu-dark: rgba(198,185,148,.4);
     --shadow: 7px 7px 14px var(--neu-dark), -7px -7px 14px var(--neu-light);
     --shadow-sm: 4px 4px 9px var(--neu-dark), -4px -4px 9px var(--neu-light);
     --shadow-inset: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light);
     --shadow-inset-sm: inset 2px 2px 5px var(--neu-dark), inset -2px -2px 5px var(--neu-light);
-    --ring: 0 0 0 1.5px rgba(62,88,111,.28);
-    --ring-hover: 0 0 0 1.5px rgba(62,88,111,.46);
+    --ring: 0 0 0 1.5px rgba(43,40,34,.16);
+    --ring-hover: 0 0 0 1.5px rgba(43,40,34,.32);
     --radius-lg: 22px;
     --radius-md: 16px;
     --radius-sm: 10px;
@@ -84,25 +84,25 @@
 
   input[type=text],input[type=number],input[type=date],textarea,select{
     width:100%; border:none; border-radius:var(--radius-sm);
-    padding:10px 12px; font-size:14px; font-family:var(--font-body); background:var(--bg); color:var(--ink);
-    box-shadow:var(--shadow-inset-sm), var(--ring);
+    padding:10px 12px; font-size:14px; font-family:var(--font-body); background:var(--surface-2); color:var(--ink);
+    box-shadow:var(--ring);
   }
-  input:focus,textarea:focus,select:focus{ outline:none; box-shadow:var(--shadow-inset-sm), 0 0 0 3px rgba(62,88,111,.36); }
+  input:focus,textarea:focus,select:focus{ outline:none; box-shadow:0 0 0 3px rgba(43,40,34,.28); }
   textarea{ resize:vertical; min-height:70px; }
   label.field{ display:block; margin-bottom:12px; }
   label.field > span{ display:block; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin-bottom:5px; letter-spacing:.02em; }
   .hint{ font-size:12px; color:var(--ink-faint); margin-top:4px; }
   .hint-warn{ color:#B8790C; font-weight:700; }
 
-  input[type=color]{ -webkit-appearance:none; width:38px; height:38px; border:none; border-radius:10px; padding:2px; background:var(--bg); box-shadow:var(--shadow-inset-sm), 0 0 0 2px var(--bg), 0 0 0 4px var(--ink); flex:none; }
+  input[type=color]{ -webkit-appearance:none; width:38px; height:38px; border:none; border-radius:10px; padding:2px; background:var(--surface-2); box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--ink); flex:none; }
   input[type=color]::-webkit-color-swatch{ border-radius:6px; border:none; }
   .color-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .swatches{ display:flex; gap:6px; flex-wrap:wrap; }
   .swatch{ width:24px; height:24px; border-radius:50%; border:2px solid rgba(0,0,0,.08); cursor:pointer; transition:transform .1s; }
   .swatch:hover{ transform:scale(1.15); }
   .swatch.active{ box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--ink); }
-  input.hexcode-input{ width:84px; font-family:monospace; font-size:12px; color:var(--ink-soft); background:var(--surface-2); padding:6px 8px; border-radius:8px; box-shadow:var(--shadow-inset-sm); text-transform:uppercase; }
-  input.hexcode-input:focus{ color:var(--ink); box-shadow:var(--shadow-inset-sm), 0 0 0 3px rgba(62,88,111,.36); }
+  input.hexcode-input{ width:84px; font-family:monospace; font-size:12px; color:var(--ink-soft); background:var(--surface-2); padding:6px 8px; border-radius:8px; box-shadow:var(--ring); text-transform:uppercase; }
+  input.hexcode-input:focus{ color:var(--ink); box-shadow:0 0 0 3px rgba(43,40,34,.28); }
   .image-field-row{ display:flex; align-items:center; gap:12px; }
   .image-preview{ width:72px; height:72px; border-radius:16px; overflow:hidden; background:var(--surface-2); box-shadow:var(--shadow-inset-sm); flex:none; display:flex; align-items:center; justify-content:center; }
   .image-preview img{ width:100%; height:100%; object-fit:cover; display:block; }
@@ -338,8 +338,13 @@
   .modal{
     background:var(--bg); border-radius:var(--radius-lg); padding:24px; width:100%; max-width:520px;
     max-height:90vh; overflow-y:auto;
-    box-shadow:0 20px 50px rgba(20,16,40,.28); animation:popIn .22s cubic-bezier(.2,.8,.25,1) both;
+    box-shadow:0 20px 50px rgba(20,16,40,.22); animation:popIn .22s cubic-bezier(.2,.8,.25,1) both;
+    scrollbar-width:thin; scrollbar-color:var(--line-strong) transparent;
   }
+  .modal::-webkit-scrollbar{ width:9px; }
+  .modal::-webkit-scrollbar-track{ background:transparent; }
+  .modal::-webkit-scrollbar-thumb{ background-color:var(--line-strong); border-radius:999px; border:2.5px solid var(--bg); background-clip:padding-box; }
+  .modal::-webkit-scrollbar-thumb:hover{ background-color:var(--ink-faint); }
   .modal.modal-wide{ max-width:820px; }
   .modal h3{ font-size:18px; font-weight:800; margin-bottom:16px; }
   .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0 20px; }
@@ -358,7 +363,7 @@
   .profile-label{ font-size:11.5px; font-weight:700; color:var(--ink-soft); letter-spacing:.02em; margin-bottom:4px; }
   .profile-value{ font-size:13.5px; color:var(--ink); white-space:pre-wrap; line-height:1.7; }
   .modal-foot{ display:flex; justify-content:flex-end; gap:8px; margin-top:18px; }
-  .multiselect-box{ display:flex; flex-wrap:wrap; gap:6px; border:none; border-radius:var(--radius-sm); padding:8px; max-height:130px; overflow-y:auto; background:var(--bg); box-shadow:var(--shadow-inset-sm); }
+  .multiselect-box{ display:flex; flex-wrap:wrap; gap:6px; border:none; border-radius:var(--radius-sm); padding:8px; max-height:130px; overflow-y:auto; background:var(--surface-2); box-shadow:var(--ring); }
   .ms-chip{ font-size:12px; padding:4px 10px; border-radius:999px; border:none; background:var(--bg); font-weight:700; color:var(--ink-soft); box-shadow:var(--shadow-inset-sm), var(--ring); cursor:pointer; }
   .ms-chip:hover{ box-shadow:var(--shadow-inset-sm), var(--ring-hover); }
   .ms-chip.on{ background:var(--accent-deep); color:#fff; box-shadow:var(--shadow-sm); }
@@ -368,6 +373,14 @@
 
   .toast-wrap{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:200; display:flex; flex-direction:column; gap:8px; align-items:center; }
 
+  .mini-mascot{
+    position:fixed; right:18px; bottom:18px; width:52px; height:52px; border-radius:50%;
+    background:var(--surface-2); box-shadow:var(--shadow-sm), var(--ring);
+    z-index:40; pointer-events:none; display:flex; align-items:center; justify-content:center; gap:9px;
+  }
+  .mascot-eye{ width:13px; height:13px; border-radius:50%; background:var(--bg); box-shadow:var(--shadow-inset-sm); position:relative; flex:none; }
+  .mascot-pupil{ width:6px; height:6px; border-radius:50%; background:var(--ink); position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); transition:transform .06s linear; }
+
   .particle-host{ position:fixed; left:50%; top:30%; width:0; height:0; z-index:500; pointer-events:none; }
   .particle{ position:absolute; left:0; top:0; animation:particleBurst .6s cubic-bezier(.15,.85,.3,1) forwards; }
   .particle-square{ border-radius:2px; }
@@ -376,6 +389,7 @@
   .toast{ background:var(--ink); color:#fff; padding:10px 20px; border-radius:999px; font-size:13px; font-weight:700; box-shadow:0 8px 20px rgba(0,0,0,.25); animation:popIn .2s ease both; }
 
   @media (max-width:860px){
+    .mini-mascot{ display:none; }
     .sidebar{ display:none; }
     .mobile-topbar{
       display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:20;
@@ -497,6 +511,10 @@
 
 <div id="modalRoot"></div>
 <div class="toast-wrap" id="toastWrap"></div>
+<div class="mini-mascot" id="miniMascot" aria-hidden="true">
+  <div class="mascot-eye"><div class="mascot-pupil"></div></div>
+  <div class="mascot-eye"><div class="mascot-pupil"></div></div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
@@ -2409,4 +2427,24 @@ async function boot(){
     }
   });
 }
+
+function initMascot(){
+  const mascot = document.getElementById('miniMascot');
+  if (!mascot) return;
+  const pupils = Array.from(mascot.querySelectorAll('.mascot-pupil'));
+  const MAX_OFFSET = 3.2;
+  document.addEventListener('mousemove', (e)=>{
+    pupils.forEach(p=>{
+      const eye = p.parentElement;
+      const r = eye.getBoundingClientRect();
+      const cx = r.left + r.width/2, cy = r.top + r.height/2;
+      const dx = e.clientX - cx, dy = e.clientY - cy;
+      const dist = Math.sqrt(dx*dx + dy*dy) || 1;
+      const ox = (dx/dist) * Math.min(MAX_OFFSET, dist/8);
+      const oy = (dy/dist) * Math.min(MAX_OFFSET, dist/8);
+      p.style.transform = `translate(calc(-50% + ${ox}px), calc(-50% + ${oy}px))`;
+    });
+  });
+}
+initMascot();
 </script>
