@@ -1465,9 +1465,10 @@ function openCharacterForm(existing){
       /* 漢字入力中の変換前ひらがなを捉えて、よみがな欄に自動入力する（手動で書き換えた後は上書きしない） */
       function attachKanaAutofill(kanjiInput, kanaInput){
         let lastKana = '';
-        kanjiInput.addEventListener('compositionupdate', (e)=>{
-          if (/^[぀-ゟー\s]*$/.test(e.data||'')) lastKana = e.data;
-        });
+        const isKanaOnly = (s)=> !!s && /^[぀-ゟー\s]+$/.test(s);
+        const capture = ()=>{ if (isKanaOnly(kanjiInput.value)) lastKana = kanjiInput.value; };
+        kanjiInput.addEventListener('compositionupdate', capture);
+        kanjiInput.addEventListener('input', (e)=>{ if (e.isComposing) capture(); });
         kanjiInput.addEventListener('compositionend', ()=>{
           if (lastKana && !kanaInput.value.trim()){
             kanaInput.value = lastKana;
