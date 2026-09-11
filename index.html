@@ -1409,10 +1409,12 @@ function openCharacterForm(existing){
       {key:'image', label:'画像（任意）', type:'image', hint:'アップロードすると自動で縮小されます。設定しない場合はイメージカラーで表示されます'},
       {section:'名前'},
       {key:'surname', label:'苗字', type:'text', placeholder:'例: 主人公'},
+      {key:'surnameReading', label:'苗字のよみがな', type:'text', placeholder:'例: しゅじんこう', hint:'苗字を漢字で入力すると自動で入力されます（手動で修正も可能）'},
       {key:'givenName', label:'名前', type:'text', placeholder:'例: 太郎'},
+      {key:'givenNameReading', label:'名前のよみがな', type:'text', placeholder:'例: たろう', hint:'名前を漢字で入力すると自動で入力されます（手動で修正も可能）'},
       {key:'middleName', label:'ミドルネーム（あれば）', type:'text', placeholder:'例: ジョン'},
       {key:'name', label:'表示名', type:'text', placeholder:'例: 主人公 太郎', hint:'キャラクター一覧・関係図など、他のタブでの表示に使われる名前です。空欄なら苗字・名前・ミドルネームから自動で作成されます', full:true},
-      {key:'reading', label:'よみがな', type:'text', placeholder:'例: しゅじんこう たろう'},
+      {key:'reading', label:'よみがな（表示名の読み）', type:'text', placeholder:'例: しゅじんこう たろう', hint:'苗字・名前のよみがなから自動で作成されます。直接編集することもできます', full:true},
       {section:'基本情報'},
       {key:'role', label:'役割', type:'combo', options:ROLE_OPTIONS, placeholder:'例: 主人公 / 語り部 など自由に入力できます', hint:'候補から選ぶか、自由に入力してください', full:true},
       {key:'affiliation', label:'所属', type:'text', placeholder:'例: 〇〇学園'},
@@ -1431,10 +1433,34 @@ function openCharacterForm(existing){
     ],
     onReady: (fieldRefs)=>{
       const surnameEl = fieldRefs.surname, givenEl = fieldRefs.givenName, middleEl = fieldRefs.middleName, nameEl = fieldRefs.name;
-      let autoSync = !nameEl.value;
-      const compose = ()=> [surnameEl.value.trim(), givenEl.value.trim(), middleEl.value.trim()].filter(Boolean).join(' ');
-      [surnameEl, givenEl, middleEl].forEach(inp=> inp.addEventListener('input', ()=>{ if (autoSync) nameEl.value = compose(); }));
-      nameEl.addEventListener('input', ()=>{ autoSync = !nameEl.value; });
+      const surnameKanaEl = fieldRefs.surnameReading, givenKanaEl = fieldRefs.givenNameReading, readingEl = fieldRefs.reading;
+
+      let autoSyncName = !nameEl.value;
+      const composeName = ()=> [surnameEl.value.trim(), givenEl.value.trim(), middleEl.value.trim()].filter(Boolean).join(' ');
+      [surnameEl, givenEl, middleEl].forEach(inp=> inp.addEventListener('input', ()=>{ if (autoSyncName) nameEl.value = composeName(); }));
+      nameEl.addEventListener('input', ()=>{ autoSyncName = !nameEl.value; });
+
+      let autoSyncReading = !readingEl.value;
+      const composeReading = ()=> [surnameKanaEl.value.trim(), givenKanaEl.value.trim()].filter(Boolean).join(' ');
+      [surnameKanaEl, givenKanaEl].forEach(inp=> inp.addEventListener('input', ()=>{ if (autoSyncReading) readingEl.value = composeReading(); }));
+      readingEl.addEventListener('input', ()=>{ autoSyncReading = !readingEl.value; });
+
+      /* 漢字入力中の変換前ひらがなを捉えて、よみがな欄に自動入力する（手動で書き換えた後は上書きしない） */
+      function attachKanaAutofill(kanjiInput, kanaInput){
+        let lastKana = '';
+        kanjiInput.addEventListener('compositionupdate', (e)=>{
+          if (/^[぀-ゟー\s]*$/.test(e.data||'')) lastKana = e.data;
+        });
+        kanjiInput.addEventListener('compositionend', ()=>{
+          if (lastKana && !kanaInput.value.trim()){
+            kanaInput.value = lastKana;
+            kanaInput.dispatchEvent(new Event('input'));
+          }
+          lastKana = '';
+        });
+      }
+      attachKanaAutofill(surnameEl, surnameKanaEl);
+      attachKanaAutofill(givenEl, givenKanaEl);
     },
     onDelete: existing ? async ()=>{
       await Store.softDeleteDoc(State.currentProjectId, 'characters', existing.id);
