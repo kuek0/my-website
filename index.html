@@ -865,7 +865,7 @@ function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, cele
   const modal = el('div', {class:'modal'+(wide?' modal-wide':'')});
   modal.appendChild(el('h3', {}, [title]));
   const fieldsHost = wide ? el('div', {class:'form-grid'}) : modal;
-  const FULL_WIDTH_TYPES = ['textarea','image','color','multiselect'];
+  const FULL_WIDTH_TYPES = ['textarea','image','color','multiselect','pair'];
 
   const fieldRefs = {};
   fields.forEach(f=>{
@@ -877,7 +877,19 @@ function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, cele
     const wrap = el('label', {class:'field'}, [el('span', {}, [f.label])]);
     if (wide && (FULL_WIDTH_TYPES.includes(f.type) || f.full)) wrap.style.gridColumn = '1 / -1';
     let input;
-    if (f.type==='textarea'){
+    if (f.type==='pair'){
+      const rowWrap = el('div', {style:'display:flex; gap:10px;'});
+      f.fields.forEach(sub=>{
+        const subInput = el('input', {type:'text', placeholder: sub.placeholder||'', style:'flex:1; min-width:0;'});
+        subInput.value = initial[sub.key] ?? '';
+        fieldRefs[sub.key] = subInput;
+        rowWrap.appendChild(subInput);
+      });
+      wrap.appendChild(rowWrap);
+      if (f.hint) wrap.appendChild(el('div', {class:'hint'}, [f.hint]));
+      fieldsHost.appendChild(wrap);
+      return;
+    } else if (f.type==='textarea'){
       input = el('textarea', {rows: f.rows||3, placeholder: f.placeholder||''});
       input.value = initial[f.key] || '';
     } else if (f.type==='select'){
@@ -1009,6 +1021,7 @@ function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, cele
     const out = {};
     fields.forEach(f=>{
       if (f.section) return;
+      if (f.type==='pair'){ f.fields.forEach(sub=>{ out[sub.key] = fieldRefs[sub.key].value; }); return; }
       const ref = fieldRefs[f.key];
       if (f.type==='checkbox') out[f.key] = !!ref.checked;
       else if (f.type==='number') out[f.key] = ref.value===''? null : Number(ref.value);
@@ -1408,10 +1421,14 @@ function openCharacterForm(existing){
     fields: [
       {key:'image', label:'画像（任意）', type:'image', hint:'アップロードすると自動で縮小されます。設定しない場合はイメージカラーで表示されます'},
       {section:'名前'},
-      {key:'surname', label:'苗字', type:'text', placeholder:'例: 主人公'},
-      {key:'surnameReading', label:'苗字のよみがな', type:'text', placeholder:'例: しゅじんこう', hint:'苗字を漢字で入力すると自動で入力されます（手動で修正も可能）'},
-      {key:'givenName', label:'名前', type:'text', placeholder:'例: 太郎'},
-      {key:'givenNameReading', label:'名前のよみがな', type:'text', placeholder:'例: たろう', hint:'名前を漢字で入力すると自動で入力されます（手動で修正も可能）'},
+      {type:'pair', label:'氏名', fields:[
+        {key:'surname', placeholder:'例: 山田'},
+        {key:'givenName', placeholder:'例: 花子'}
+      ]},
+      {type:'pair', label:'かな', fields:[
+        {key:'surnameReading', placeholder:'例: やまだ'},
+        {key:'givenNameReading', placeholder:'例: はなこ'}
+      ], hint:'氏名を漢字で入力すると自動で入力されます（手動で修正も可能）'},
       {key:'middleName', label:'ミドルネーム（あれば）', type:'text', placeholder:'例: ジョン'},
       {key:'name', label:'表示名', type:'text', placeholder:'例: 主人公 太郎', hint:'キャラクター一覧・関係図など、他のタブでの表示に使われる名前です。空欄なら苗字・名前・ミドルネームから自動で作成されます', full:true},
       {key:'reading', label:'よみがな（表示名の読み）', type:'text', placeholder:'例: しゅじんこう たろう', hint:'苗字・名前のよみがなから自動で作成されます。直接編集することもできます', full:true},
