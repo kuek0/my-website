@@ -5,31 +5,31 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
 <style>
   :root{
-    --bg:#F6FAFC;
-    --surface:#F6FAFC;
-    --surface-2:#E7EFF4;
-    --ink:#1F2C36;
-    --ink-soft:#5C7080;
-    --ink-faint:#93A7B4;
-    --line:#E6EDF1;
-    --line-strong:#CFDCE3;
-    --accent:#1C2B36;
-    --accent-deep:#131E27;
+    --bg:#FAF7F6;
+    --surface:#FAF7F6;
+    --surface-2:#F0E8E6;
+    --ink:#2B2321;
+    --ink-soft:#80706C;
+    --ink-faint:#B2A19C;
+    --line:#F0E8E6;
+    --line-strong:#DECFCA;
+    --accent:#2A211F;
+    --accent-deep:#1E1715;
     --accent-ink:#FFFFFF;
     --teal:#0FA394;
     --yellow:#E0A63C;
     --purple:#7C5CFC;
     --red:#E24E6B;
     --green:#1FA070;
-    --gray:#8FA3AF;
+    --gray:#A89490;
     --neu-light: rgba(255,255,255,.95);
-    --neu-dark: rgba(163,187,201,.32);
+    --neu-dark: rgba(210,187,180,.32);
     --shadow: 7px 7px 14px var(--neu-dark), -7px -7px 14px var(--neu-light);
     --shadow-sm: 4px 4px 9px var(--neu-dark), -4px -4px 9px var(--neu-light);
     --shadow-inset: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light);
     --shadow-inset-sm: inset 2px 2px 5px var(--neu-dark), inset -2px -2px 5px var(--neu-light);
-    --ring: 0 0 0 1.5px rgba(28,43,54,.16);
-    --ring-hover: 0 0 0 1.5px rgba(28,43,54,.32);
+    --ring: 0 0 0 1.5px rgba(42,33,31,.16);
+    --ring-hover: 0 0 0 1.5px rgba(42,33,31,.32);
     --radius-lg: 22px;
     --radius-md: 16px;
     --radius-sm: 10px;
@@ -88,7 +88,7 @@
     box-shadow:none;
   }
   input::placeholder,textarea::placeholder{ color:var(--ink-faint); font-weight:400; opacity:1; }
-  input:focus,textarea:focus,select:focus{ outline:none; box-shadow:0 0 0 3px rgba(28,43,54,.28); }
+  input:focus,textarea:focus,select:focus{ outline:none; box-shadow:0 0 0 3px rgba(42,33,31,.28); }
   textarea{ resize:vertical; min-height:70px; }
   label.field{ display:block; margin-bottom:12px; }
   label.field > span{ display:block; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin-bottom:5px; letter-spacing:.02em; }
@@ -103,7 +103,7 @@
   .swatch:hover{ transform:scale(1.15); }
   .swatch.active{ box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--ink); }
   input.hexcode-input{ width:84px; font-family:monospace; font-size:12px; color:var(--ink-soft); background:var(--surface-2); padding:6px 8px; border-radius:8px; box-shadow:none; text-transform:uppercase; }
-  input.hexcode-input:focus{ color:var(--ink); box-shadow:0 0 0 3px rgba(28,43,54,.28); }
+  input.hexcode-input:focus{ color:var(--ink); box-shadow:0 0 0 3px rgba(42,33,31,.28); }
   .image-field-row{ display:flex; align-items:center; gap:12px; }
   .image-preview{ width:72px; height:72px; border-radius:16px; overflow:hidden; background:var(--surface-2); box-shadow:var(--shadow-inset-sm); flex:none; display:flex; align-items:center; justify-content:center; }
   .image-preview img{ width:100%; height:100%; object-fit:cover; display:block; }
@@ -523,11 +523,7 @@
 
 <div id="modalRoot"></div>
 <div class="toast-wrap" id="toastWrap"></div>
-<div class="mini-mascot" id="miniMascot" aria-hidden="true">
-  <div class="mascot-eye"><div class="mascot-pupil"></div></div>
-  <div class="mascot-eye"><div class="mascot-pupil"></div></div>
-</div>
-<div class="mini-mascot mini-mascot-dark" id="miniMascotDark" style="right:80px;" aria-hidden="true">
+<div class="mini-mascot mini-mascot-dark" id="miniMascotDark" aria-hidden="true">
   <div class="mascot-eye"><div class="mascot-pupil"></div></div>
   <div class="mascot-eye"><div class="mascot-pupil"></div></div>
 </div>
