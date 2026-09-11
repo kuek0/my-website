@@ -405,6 +405,15 @@
     100%{ transform:translateY(0) scale(1,1); }
   }
   .mascot-bounce{ animation:mascotBounce .45s cubic-bezier(.34,1.56,.64,1); }
+  @keyframes mascotJump{
+    0%,100%{ transform:translateY(0); }
+    18%{ transform:translateY(-15px); }
+    36%{ transform:translateY(0); }
+    52%{ transform:translateY(-9px); }
+    68%{ transform:translateY(0); }
+    82%{ transform:translateY(-4px); }
+  }
+  .mascot-jump{ animation:mascotJump .9s cubic-bezier(.34,1.56,.64,1); }
   .mascot-hungry{ box-shadow:var(--shadow-sm), var(--ring), 0 0 0 4px rgba(255,255,255,.3); }
   .mascot-morsel{
     position:fixed; z-index:45; pointer-events:none; transform:translate(-50%,-50%);
@@ -2571,11 +2580,19 @@ const MASCOT_COLOR_MAP = {
   '金':'#D6A72E', '金色':'#D6A72E', '銀':'#C0C0C0', '銀色':'#C0C0C0'
 };
 const MASCOT_NEGATIVE_WORDS = [
-  '鹿蔵','ゴミ','ごみ','嫌い','きらい','死','死ね','しね','苦しい','くるしい','辛い','つらい',
+  '鹿蔵','ゴミ','ごみ','嫌い','きらい','キライ','死','死ね','しね','苦しい','くるしい','辛い','つらい',
   '最悪','さいあく','汚い','きたない','臭い','くさい','バカ','ばか','アホ','あほ','クソ','くそ',
   '消えろ','きえろ','うざい','ウザい','つまらない','疲れた','つかれた','無理','むり','ダメ','だめ',
   '失敗','しっぱい','不幸','ふこう','悲しい','かなしい','怖い','こわい','痛い','いたい',
-  'ムカつく','むかつく','いや','嫌','憂鬱','ゆううつ','絶望','ぜつぼう','しんどい','だるい'
+  'ムカつく','むかつく','いや','嫌','憂鬱','ゆううつ','絶望','ぜつぼう','しんどい','だるい',
+  '醜い','みにくい','気持ち悪い','きもちわるい','キモい','きもい','邪魔','じゃま',
+  '退屈','たいくつ','イライラ','いらいら','寂しい','さびしい','面倒','めんどう','めんどくさい','面倒くさい',
+  'くだらない','最低','さいてい','ひどい','酷い','ダサい','ださい'
+];
+const MASCOT_POSITIVE_WORDS = [
+  'かわいい','可愛い','カワイイ','きれい','綺麗','美しい','うつくしい','好き','すき','スキ',
+  '嬉しい','うれしい','楽しい','たのしい','最高','さいこう','素敵','すてき','幸せ','しあわせ',
+  'ありがとう','いいね','かっこいい','カッコいい','ナイス','ハッピー','ラブ','愛','あい','大好き','だいすき'
 ];
 function initMascotFeeding(){
   const mascot = document.getElementById('miniMascotDark');
@@ -2596,6 +2613,7 @@ function initMascotFeeding(){
     setTimeout(()=> morsel.remove(), 550);
 
     const isDisliked = MASCOT_NEGATIVE_WORDS.includes(text);
+    const isLiked = MASCOT_POSITIVE_WORDS.includes(text);
     const chewCount = 2 + Math.floor(Math.random()*2); /* 2〜3回、ゆっくり */
     const chewDuration = chewCount * 500;
     const pattern = ['neutral', 'closed', 'neutral-then-closed'][Math.floor(Math.random()*3)];
@@ -2620,20 +2638,25 @@ function initMascotFeeding(){
           toast(`「${short}」はあまり好きじゃないみたい…`);
           return;
         }
-        if (pattern === 'closed'){
+        if (isLiked){
+          mascot.classList.add('mascot-jump', 'mascot-happy-closed');
+          setTimeout(()=> mascot.classList.remove('mascot-jump'), 900);
+          setTimeout(()=> mascot.classList.remove('mascot-happy-closed'), 900);
+        } else if (pattern === 'closed'){
           setTimeout(()=> mascot.classList.remove('mascot-happy-closed'), 350);
         } else if (pattern === 'neutral-then-closed'){
           mascot.classList.add('mascot-happy-closed');
           setTimeout(()=> mascot.classList.remove('mascot-happy-closed'), 500);
         }
-        for (let i=0; i<2; i++){
+        const heartCount = isLiked ? 3 : 2;
+        for (let i=0; i<heartCount; i++){
           setTimeout(()=>{
             const heart = el('div', {class:'mascot-heart', style:`left:${cx + (Math.random()*18-9)}px; top:${r.top}px;`}, ['♥']);
             document.body.appendChild(heart);
             setTimeout(()=> heart.remove(), 1000);
           }, i*150);
         }
-        toast(`「${short}」を食べた`);
+        toast(isLiked ? `「${short}」大好き！` : `「${short}」を食べた`);
         const colorMatch = MASCOT_COLOR_MAP[text];
         if (colorMatch){
           const pupilColor = contrastColor(colorMatch);
