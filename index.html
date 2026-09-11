@@ -409,12 +409,27 @@
   .mascot-morsel{
     position:fixed; z-index:45; pointer-events:none; transform:translate(-50%,-50%);
     font-size:13px; font-weight:700; color:var(--ink); background:var(--surface-2); padding:4px 10px; border-radius:999px;
-    box-shadow:var(--shadow-sm); animation:mascotEat .4s ease forwards;
+    box-shadow:var(--shadow-sm); animation:mascotEat .5s ease forwards;
   }
   @keyframes mascotEat{
     0%{ transform:translate(-50%,-50%) scale(1); opacity:1; }
     100%{ transform:translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(.2); opacity:0; }
   }
+  @keyframes mascotChew{
+    0%,100%{ transform:scale(1,1); }
+    25%{ transform:scale(1.09,.89); }
+    50%{ transform:scale(.93,1.06); }
+    75%{ transform:scale(1.06,.94); }
+  }
+  .mascot-chewing{ animation:mascotChew .28s ease-in-out 3; transform-origin:50% 100%; }
+  .mini-mascot.mascot-happy-closed .mascot-pupil{ width:11px; height:5px; border-radius:2.5px; }
+  .mini-mascot.mascot-happy-wide .mascot-pupil{ width:12px; height:19px; border-radius:6px; }
+  @keyframes mascotHeart{
+    0%{ transform:translate(-50%,-50%) scale(.3) rotate(0deg); opacity:0; }
+    25%{ opacity:1; transform:translate(-50%,-110%) scale(1) rotate(-6deg); }
+    100%{ transform:translate(-50%,-190%) scale(.85) rotate(6deg); opacity:0; }
+  }
+  .mascot-heart{ position:fixed; z-index:46; pointer-events:none; font-size:17px; color:#E24E6B; animation:mascotHeart 1s ease-out forwards; }
   @keyframes mascotWiggle{
     0%{ transform:scale(1,1); }
     22%{ transform:scale(1.16,.8); }
@@ -2550,11 +2565,31 @@ function initMascotFeeding(){
     if (!text) return;
     const short = text.length > 10 ? text.slice(0,10)+'…' : text;
     const r = mascot.getBoundingClientRect();
-    const tx = (r.left + r.width/2) - e.clientX, ty = (r.top + r.height/2) - e.clientY;
+    const cx = r.left + r.width/2, cy = r.top + r.height/2;
+    const tx = cx - e.clientX, ty = cy - e.clientY;
     const morsel = el('div', {class:'mascot-morsel', style:`left:${e.clientX}px; top:${e.clientY}px; --tx:${tx}px; --ty:${ty}px;`}, [short.length>6 ? short.slice(0,6)+'…' : short]);
     document.body.appendChild(morsel);
-    setTimeout(()=> morsel.remove(), 420);
-    setTimeout(()=> toast(`「${short}」を食べた`), 320);
+    setTimeout(()=> morsel.remove(), 550);
+
+    setTimeout(()=>{
+      mascot.classList.add('mascot-chewing');
+      setTimeout(()=> mascot.classList.remove('mascot-chewing'), 860);
+    }, 480);
+
+    setTimeout(()=>{
+      const EXPR = ['mascot-happy-closed', 'mascot-happy-wide'];
+      const expr = EXPR[Math.floor(Math.random()*EXPR.length)];
+      mascot.classList.add(expr);
+      setTimeout(()=> mascot.classList.remove(expr), 700);
+      for (let i=0; i<2; i++){
+        setTimeout(()=>{
+          const heart = el('div', {class:'mascot-heart', style:`left:${cx + (Math.random()*18-9)}px; top:${r.top}px;`}, ['♡']);
+          document.body.appendChild(heart);
+          setTimeout(()=> heart.remove(), 1000);
+        }, i*150);
+      }
+      toast(`「${short}」を食べた`);
+    }, 1350);
   });
 }
 initMascotFeeding();
