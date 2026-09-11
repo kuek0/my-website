@@ -58,8 +58,6 @@
   .fade-in{ animation:fadeInUp .5s cubic-bezier(.2,.8,.25,1) both; }
   @keyframes fadeInUp{ from{ opacity:0; transform:translateY(10px) scale(.99);} to{ opacity:1; transform:translateY(0) scale(1);} }
   @keyframes popIn{ from{ opacity:0; transform:scale(.9);} to{ opacity:1; transform:scale(1);} }
-  @keyframes tabSlideIn{ from{ opacity:0; transform:translateX(18px);} to{ opacity:1; transform:translateX(0);} }
-  .tab-anim{ animation:tabSlideIn .3s cubic-bezier(.2,.8,.25,1) both; }
 
   button{ cursor:pointer; border:none; font-weight:700; }
   .btn{
@@ -224,9 +222,13 @@
   .card-actions{ display:flex; justify-content:flex-end; gap:6px; margin-top:auto; padding-top:6px; }
   .updated-by{ font-size:10.5px; color:var(--ink-faint); margin-top:2px; }
 
-  .char-view-toggle{ display:flex; gap:2px; background:var(--bg); border-radius:999px; padding:4px; flex:none; box-shadow:var(--shadow-inset-sm); }
-  .char-view-toggle button{ font-family:var(--font-body); font-size:12.5px; font-weight:700; padding:6px 14px; border-radius:999px; background:transparent; color:var(--ink-soft); }
-  .char-view-toggle button.active{ background:var(--bg); color:var(--accent-deep); box-shadow:var(--shadow-sm); }
+  .char-view-toggle{ position:relative; display:flex; gap:2px; background:var(--bg); border-radius:999px; padding:4px; flex:none; box-shadow:var(--shadow-inset-sm); }
+  .char-view-toggle .toggle-thumb{
+    position:absolute; top:4px; left:4px; bottom:4px; border-radius:999px; background:var(--bg);
+    box-shadow:var(--shadow-sm); transition:transform .28s cubic-bezier(.2,.8,.25,1), width .28s cubic-bezier(.2,.8,.25,1); z-index:0;
+  }
+  .char-view-toggle button{ position:relative; z-index:1; font-family:var(--font-body); font-size:12.5px; font-weight:700; padding:6px 14px; border-radius:999px; background:transparent; color:var(--ink-soft); transition:color .2s ease; }
+  .char-view-toggle button.active{ color:var(--accent-deep); }
 
   .nickname-table-wrap{ overflow-x:auto; border:1px solid var(--line-strong); border-radius:var(--radius-sm); }
   .nickname-table{ width:100%; border-collapse:collapse; font-size:13px; table-layout:fixed; }
@@ -332,12 +334,21 @@
   .all-clear{ text-align:center; padding:40px 20px; color:var(--teal); font-weight:700; }
 
   /* Modal */
-  .modal-back{ position:fixed; inset:0; background:rgba(24,24,30,.4); display:flex; align-items:flex-start; justify-content:center; padding:5vh 16px; overflow-y:auto; z-index:100; }
+  .modal-back{ position:fixed; inset:0; background:rgba(24,24,30,.4); display:flex; align-items:center; justify-content:center; padding:5vh 16px; overflow:hidden; z-index:100; }
   .modal{
     background:var(--bg); border-radius:var(--radius-lg); padding:24px; width:100%; max-width:520px;
+    max-height:90vh; overflow-y:auto;
     box-shadow:0 20px 50px rgba(20,16,40,.28); animation:popIn .22s cubic-bezier(.2,.8,.25,1) both;
   }
+  .modal.modal-wide{ max-width:820px; }
   .modal h3{ font-size:18px; font-weight:800; margin-bottom:16px; }
+  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0 20px; }
+  .form-grid label.field{ margin-bottom:12px; }
+  .form-section-title{
+    grid-column:1 / -1; font-size:12px; font-weight:800; color:var(--accent-deep); text-transform:uppercase;
+    letter-spacing:.05em; padding-bottom:6px; margin:14px 0 4px; border-bottom:1px solid var(--line);
+  }
+  .form-section-title:first-child{ margin-top:0; }
   .profile-head{ display:flex; align-items:center; gap:14px; margin-bottom:18px; }
   .profile-avatar{ width:56px; height:56px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:22px; }
   .profile-avatar-img{ width:56px; height:56px; border-radius:50%; object-fit:cover; flex:none; box-shadow:0 0 0 3px var(--cc,var(--accent)); }
@@ -731,6 +742,7 @@ function openImageCropper(file){
         const baseScale = Math.max(VP/naturalW, VP/naturalH);
         let zoom = 1, offX = 0, offY = 0;
 
+        lockBodyScroll();
         const back = el('div', {class:'modal-back', style:'z-index:160;'});
         const box = el('div', {class:'modal', style:'max-width:360px;'});
         box.appendChild(el('h3', {}, ['画像の切り取り範囲を選択']));
@@ -793,6 +805,7 @@ function openImageCropper(file){
           window.removeEventListener('touchmove', pointerMove);
           window.removeEventListener('touchend', pointerUp);
           back.remove();
+          unlockBodyScroll();
         }
         const foot = el('div', {class:'modal-foot'});
         foot.appendChild(el('button', {class:'btn', onclick:()=>{ cleanup(); resolve(null); }}, ['キャンセル']));
@@ -825,31 +838,44 @@ function openImageCropper(file){
 }
 
 /* ============================= MODAL / FORM BUILDER ============================= */
-function closeModal(){ document.getElementById('modalRoot').innerHTML=''; }
+let modalStackCount = 0;
+function lockBodyScroll(){ modalStackCount++; document.body.style.overflow = 'hidden'; }
+function unlockBodyScroll(){ modalStackCount = Math.max(0, modalStackCount-1); if (modalStackCount===0) document.body.style.overflow = ''; }
+function closeModal(){ document.getElementById('modalRoot').innerHTML=''; unlockBodyScroll(); }
 function confirmDialog(message){
   return new Promise((resolve)=>{
+    lockBodyScroll();
     const back = el('div', {class:'modal-back', style:'z-index:150;'});
     const box = el('div', {class:'modal', style:'max-width:360px;'});
     box.appendChild(el('div', {style:'font-size:14.5px; line-height:1.6; color:var(--ink);'}, [message]));
     const foot = el('div', {class:'modal-foot'});
-    foot.appendChild(el('button', {class:'btn', onclick:()=>{ back.remove(); resolve(false); }}, ['キャンセル']));
-    foot.appendChild(el('button', {class:'btn btn-danger', onclick:()=>{ back.remove(); resolve(true); }}, ['削除する']));
+    foot.appendChild(el('button', {class:'btn', onclick:()=>{ back.remove(); unlockBodyScroll(); resolve(false); }}, ['キャンセル']));
+    foot.appendChild(el('button', {class:'btn btn-danger', onclick:()=>{ back.remove(); unlockBodyScroll(); resolve(true); }}, ['削除する']));
     box.appendChild(foot);
     back.appendChild(box);
     document.body.appendChild(back);
   });
 }
-function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, celebrate, onReady}){
+function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, celebrate, onReady, wide}){
   initial = initial || {};
   const root = document.getElementById('modalRoot');
   root.innerHTML = '';
+  lockBodyScroll();
   const back = el('div', {class:'modal-back', onclick:(e)=>{ if(e.target===back) closeModal(); }});
-  const modal = el('div', {class:'modal'});
+  const modal = el('div', {class:'modal'+(wide?' modal-wide':'')});
   modal.appendChild(el('h3', {}, [title]));
+  const fieldsHost = wide ? el('div', {class:'form-grid'}) : modal;
+  const FULL_WIDTH_TYPES = ['textarea','image','color','multiselect'];
 
   const fieldRefs = {};
   fields.forEach(f=>{
+    if (f.section){
+      const heading = el('div', {class:'form-section-title'}, [f.section]);
+      fieldsHost.appendChild(heading);
+      return;
+    }
     const wrap = el('label', {class:'field'}, [el('span', {}, [f.label])]);
+    if (wide && (FULL_WIDTH_TYPES.includes(f.type) || f.full)) wrap.style.gridColumn = '1 / -1';
     let input;
     if (f.type==='textarea'){
       input = el('textarea', {rows: f.rows||3, placeholder: f.placeholder||''});
@@ -872,7 +898,7 @@ function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, cele
       wrap.appendChild(chipBox);
       if (f.hint) wrap.appendChild(el('div', {class:'hint'}, [f.hint]));
       fieldRefs[f.key] = input;
-      modal.appendChild(wrap);
+      fieldsHost.appendChild(wrap);
       return;
     } else if (f.type==='image'){
       let currentVal = initial[f.key] || '';
@@ -899,7 +925,7 @@ function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, cele
       wrap.appendChild(rowWrap);
       if (f.hint) wrap.appendChild(el('div', {class:'hint'}, [f.hint]));
       fieldRefs[f.key] = { get value(){ return currentVal; } };
-      modal.appendChild(wrap);
+      fieldsHost.appendChild(wrap);
       return;
     } else if (f.type==='color'){
       const rowWrap = el('div', {class:'color-row'});
@@ -931,7 +957,7 @@ function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, cele
       rowWrap.appendChild(swatches); rowWrap.appendChild(colorInput); rowWrap.appendChild(hexInput);
       wrap.appendChild(rowWrap);
       fieldRefs[f.key] = { get value(){ return colorInput.value; } };
-      modal.appendChild(wrap);
+      fieldsHost.appendChild(wrap);
       return;
     } else if (f.type==='checkbox'){
       const rowWrap = el('div', {style:'display:flex;align-items:center;gap:8px;'});
@@ -941,7 +967,7 @@ function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, cele
       rowWrap.appendChild(input);
       wrap.appendChild(rowWrap);
       fieldRefs[f.key] = input;
-      modal.appendChild(wrap);
+      fieldsHost.appendChild(wrap);
       return;
     } else if (f.type==='multiselect'){
       const box = el('div', {class:'multiselect-box'});
@@ -955,7 +981,7 @@ function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, cele
       });
       wrap.appendChild(box);
       fieldRefs[f.key] = { get value(){ return Array.from(selected); } };
-      modal.appendChild(wrap);
+      fieldsHost.appendChild(wrap);
       if (f.hint) wrap.appendChild(el('div', {class:'hint'}, [f.hint]));
       return;
     } else {
@@ -965,8 +991,9 @@ function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, cele
     wrap.appendChild(input);
     if (f.hint) wrap.appendChild(el('div', {class:'hint'}, [f.hint]));
     fieldRefs[f.key] = input;
-    modal.appendChild(wrap);
+    fieldsHost.appendChild(wrap);
   });
+  if (wide) modal.appendChild(fieldsHost);
 
   if (onReady) onReady(fieldRefs, modal);
 
@@ -981,6 +1008,7 @@ function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, cele
   const submitBtn = el('button', {class:'btn btn-primary', onclick:()=>{
     const out = {};
     fields.forEach(f=>{
+      if (f.section) return;
       const ref = fieldRefs[f.key];
       if (f.type==='checkbox') out[f.key] = !!ref.checked;
       else if (f.type==='number') out[f.key] = ref.value===''? null : Number(ref.value);
@@ -1122,18 +1150,41 @@ function subscribeSub(pid){
 }
 
 /* ============================= TABS ============================= */
-function animateView(viewEl){
-  if (!viewEl) return;
-  viewEl.classList.remove('tab-anim');
-  void viewEl.offsetWidth;
-  viewEl.classList.add('tab-anim');
+const toggleThumbCache = {};
+function buildViewToggle(id, options, activeValue, onChange){
+  const wrap = el('div', {class:'char-view-toggle'});
+  const thumb = el('div', {class:'toggle-thumb'});
+  const cached = toggleThumbCache[id];
+  if (cached){
+    thumb.style.transition = 'none';
+    thumb.style.width = cached.width+'px';
+    thumb.style.transform = `translateX(${cached.x}px)`;
+  }
+  wrap.appendChild(thumb);
+  const btns = [];
+  options.forEach(o=>{
+    const b = el('button', {type:'button', class: o.value===activeValue ? 'active' : '', onclick:()=> onChange(o.value)}, [o.label]);
+    wrap.appendChild(b);
+    btns.push(b);
+  });
+  function positionThumb(){
+    const idx = options.findIndex(o=>o.value===activeValue);
+    const activeBtn = btns[idx];
+    if (!activeBtn) return;
+    const width = activeBtn.offsetWidth, x = activeBtn.offsetLeft-4;
+    if (cached){ void thumb.offsetWidth; thumb.style.transition = ''; }
+    thumb.style.width = width+'px';
+    thumb.style.transform = `translateX(${x}px)`;
+    toggleThumbCache[id] = {width, x};
+  }
+  requestAnimationFrame(positionThumb);
+  return wrap;
 }
 function setTab(tab){
   State.activeTab = tab;
   document.querySelectorAll('.tab-btn').forEach(b=> b.classList.toggle('active', b.dataset.tab===tab));
   document.querySelectorAll('.view').forEach(v=> v.classList.toggle('hidden', v.id !== 'view-'+tab));
   renderActiveView();
-  animateView(document.getElementById('view-'+tab));
 }
 function renderActiveView(){
   if (!State.currentProjectId) return;
@@ -1176,12 +1227,10 @@ function filterCharacters(list){
 function renderCharacters(){
   const view = document.getElementById('view-characters');
   view.innerHTML = '';
-  function tabBtn(mode, label){
-    return el('button', {type:'button', class: charViewMode===mode ? 'active' : '', onclick:()=>{ charViewMode=mode; renderCharacters(); animateView(document.getElementById('view-characters')); }}, [label]);
-  }
-  const toggle = el('div', {class:'char-view-toggle'}, [
-    tabBtn('list','リスト'), tabBtn('gallery','ギャラリー'), tabBtn('nicknames','あだ名表'), tabBtn('nicknameList','あだ名一覧')
-  ]);
+  const toggle = buildViewToggle('characters', [
+    {value:'list', label:'リスト'}, {value:'gallery', label:'ギャラリー'},
+    {value:'nicknames', label:'あだ名表'}, {value:'nicknameList', label:'あだ名一覧'}
+  ], charViewMode, (mode)=>{ charViewMode=mode; renderCharacters(); });
   view.appendChild(el('div', {class:'content-head'}, [
     el('div', {}, [ el('h2', {}, ['キャラクター']), el('div', {class:'sub'}, [`${State.data.characters.length} 人 登録されています`]) ]),
     el('div', {style:'display:flex; align-items:center; gap:10px;'}, [
@@ -1355,21 +1404,26 @@ function openCharacterForm(existing){
     submitLabel: existing ? '保存する' : '追加する',
     celebrate: !existing,
     initial,
+    wide: true,
     fields: [
       {key:'image', label:'画像（任意）', type:'image', hint:'アップロードすると自動で縮小されます。設定しない場合はイメージカラーで表示されます'},
+      {section:'名前'},
       {key:'surname', label:'苗字', type:'text', placeholder:'例: 主人公'},
       {key:'givenName', label:'名前', type:'text', placeholder:'例: 太郎'},
       {key:'middleName', label:'ミドルネーム（あれば）', type:'text', placeholder:'例: ジョン'},
-      {key:'name', label:'表示名', type:'text', placeholder:'例: 主人公 太郎', hint:'キャラクター一覧・関係図など、他のタブでの表示に使われる名前です。空欄なら苗字・名前・ミドルネームから自動で作成されます'},
+      {key:'name', label:'表示名', type:'text', placeholder:'例: 主人公 太郎', hint:'キャラクター一覧・関係図など、他のタブでの表示に使われる名前です。空欄なら苗字・名前・ミドルネームから自動で作成されます', full:true},
       {key:'reading', label:'よみがな', type:'text', placeholder:'例: しゅじんこう たろう'},
-      {key:'role', label:'役割', type:'combo', options:ROLE_OPTIONS, placeholder:'例: 主人公 / 語り部 など自由に入力できます', hint:'候補から選ぶか、自由に入力してください'},
-      {key:'color', label:'イメージカラー', type:'color', default:'#6C4CF0'},
+      {section:'基本情報'},
+      {key:'role', label:'役割', type:'combo', options:ROLE_OPTIONS, placeholder:'例: 主人公 / 語り部 など自由に入力できます', hint:'候補から選ぶか、自由に入力してください', full:true},
       {key:'affiliation', label:'所属', type:'text', placeholder:'例: 〇〇学園'},
+      {key:'color', label:'イメージカラー', type:'color', default:'#6C4CF0'},
       {key:'birthYear', label:'生年', type:'number', placeholder:'例: 1005'},
       {key:'deathYear', label:'没年（存命なら空欄）', type:'number', placeholder:'例: 1023'},
       {key:'age', label:'年齢（任意）', type:'number', placeholder:'例: 18', hint:'生年・没年の両方が分かる場合は自動計算されるため、入力は不要です'},
+      {section:'特徴'},
       {key:'motif', label:'モチーフ（任意）', type:'text', placeholder:'例: 桜 / 狼 / 月 など'},
       {key:'battleStyle', label:'戦闘スタイル', type:'textarea', placeholder:'得意な武器・技、戦い方の特徴など', rows:2},
+      {section:'詳細'},
       {key:'appearance', label:'外見', type:'textarea', placeholder:'背格好、服装の特徴など', rows:2},
       {key:'personality', label:'性格', type:'textarea', placeholder:'性格や口癖など', rows:2},
       {key:'background', label:'背景・経歴', type:'textarea', placeholder:'生い立ちや設定の詳細', rows:3},
@@ -1401,6 +1455,7 @@ function openCharacterForm(existing){
 function openCharacterProfile(c){
   const root = document.getElementById('modalRoot');
   root.innerHTML = '';
+  lockBodyScroll();
   const back = el('div', {class:'modal-back', onclick:(e)=>{ if(e.target===back) closeModal(); }});
   const modal = el('div', {class:'modal profile-modal'});
 
@@ -1485,10 +1540,9 @@ let relViewMode = 'diagram';
 function renderRelationships(){
   const view = document.getElementById('view-relationships');
   view.innerHTML = '';
-  const relToggle = el('div', {class:'char-view-toggle'}, [
-    el('button', {type:'button', class: relViewMode==='diagram' ? 'active' : '', onclick:()=>{ relViewMode='diagram'; renderRelationships(); animateView(view); }}, ['図']),
-    el('button', {type:'button', class: relViewMode==='list' ? 'active' : '', onclick:()=>{ relViewMode='list'; renderRelationships(); animateView(view); }}, ['一覧'])
-  ]);
+  const relToggle = buildViewToggle('relationships', [
+    {value:'diagram', label:'図'}, {value:'list', label:'一覧'}
+  ], relViewMode, (mode)=>{ relViewMode=mode; renderRelationships(); });
   view.appendChild(el('div', {class:'content-head'}, [
     el('div', {}, [ el('h2', {}, ['関係性']), el('div', {class:'sub'}, [`${State.data.relationships.length} 件の関係`]) ]),
     el('div', {style:'display:flex; align-items:center; gap:10px;'}, [
