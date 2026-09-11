@@ -432,11 +432,15 @@
   .mascot-heart{ position:fixed; z-index:46; pointer-events:none; font-size:17px; color:#141414; animation:mascotHeart 1s ease-out forwards; }
   @keyframes mascotMoyamoya{
     0%{ transform:translate(-50%,-50%) scale(.5) rotate(0deg); opacity:0; }
-    25%{ opacity:.85; transform:translate(-50%,-100%) scale(1) rotate(8deg); }
-    60%{ transform:translate(-55%,-140%) scale(1.05) rotate(-8deg); }
-    100%{ transform:translate(-50%,-185%) scale(.9) rotate(6deg); opacity:0; }
+    20%{ opacity:.9; transform:translate(-50%,-90%) scale(1) rotate(160deg); }
+    60%{ opacity:.75; transform:translate(-50%,-140%) scale(1) rotate(420deg); }
+    100%{ transform:translate(-50%,-190%) scale(.8) rotate(680deg); opacity:0; }
   }
-  .mascot-moyamoya{ position:fixed; z-index:46; pointer-events:none; font-size:15px; font-weight:800; color:#8A8A8A; animation:mascotMoyamoya 1.1s ease-out forwards; }
+  .mascot-moyamoya{
+    position:fixed; z-index:46; pointer-events:none; width:14px; height:14px; border-radius:50%;
+    border:2.5px solid #8A8A8A; border-top-color:#D6D6D6; border-right-color:#D6D6D6;
+    animation:mascotMoyamoya 1.1s ease-out forwards;
+  }
   @keyframes mascotWiggle{
     0%{ transform:scale(1,1); }
     22%{ transform:scale(1.16,.8); }
@@ -2566,6 +2570,13 @@ const MASCOT_COLOR_MAP = {
   '茶':'#8B5A2B', '茶色':'#8B5A2B', '灰色':'#9C9A96', 'グレー':'#9C9A96', '水色':'#5BC0DE',
   '金':'#D6A72E', '金色':'#D6A72E', '銀':'#C0C0C0', '銀色':'#C0C0C0'
 };
+const MASCOT_NEGATIVE_WORDS = [
+  '鹿蔵','ゴミ','ごみ','嫌い','きらい','死','死ね','しね','苦しい','くるしい','辛い','つらい',
+  '最悪','さいあく','汚い','きたない','臭い','くさい','バカ','ばか','アホ','あほ','クソ','くそ',
+  '消えろ','きえろ','うざい','ウザい','つまらない','疲れた','つかれた','無理','むり','ダメ','だめ',
+  '失敗','しっぱい','不幸','ふこう','悲しい','かなしい','怖い','こわい','痛い','いたい',
+  'ムカつく','むかつく','いや','嫌','憂鬱','ゆううつ','絶望','ぜつぼう','しんどい','だるい'
+];
 function initMascotFeeding(){
   const mascot = document.getElementById('miniMascotDark');
   if (!mascot) return;
@@ -2584,7 +2595,7 @@ function initMascotFeeding(){
     document.body.appendChild(morsel);
     setTimeout(()=> morsel.remove(), 550);
 
-    const isDisliked = ['鹿蔵', 'ゴミ'].includes(text);
+    const isDisliked = MASCOT_NEGATIVE_WORDS.includes(text);
     const chewCount = 2 + Math.floor(Math.random()*2); /* 2〜3回、ゆっくり */
     const chewDuration = chewCount * 500;
     const pattern = ['neutral', 'closed', 'neutral-then-closed'][Math.floor(Math.random()*3)];
@@ -2601,7 +2612,7 @@ function initMascotFeeding(){
           setTimeout(()=> mascot.classList.remove('mascot-displeased'), 900);
           for (let i=0; i<2; i++){
             setTimeout(()=>{
-              const cloud = el('div', {class:'mascot-moyamoya', style:`left:${cx + (Math.random()*18-9)}px; top:${r.top}px;`}, ['〜']);
+              const cloud = el('div', {class:'mascot-moyamoya', style:`left:${cx + (Math.random()*18-9)}px; top:${r.top}px;`});
               document.body.appendChild(cloud);
               setTimeout(()=> cloud.remove(), 1100);
             }, i*180);
