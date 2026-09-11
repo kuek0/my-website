@@ -69,10 +69,10 @@
     display:inline-flex; align-items:center; gap:6px; justify-content:center;
     background:var(--bg); color:var(--ink); border:none;
     padding:9px 18px; border-radius:999px; font-size:14px; box-shadow:var(--shadow-sm), var(--ring);
-    transition:box-shadow .15s ease;
+    transition:box-shadow .15s ease, transform .1s ease;
   }
   .btn:hover{ box-shadow:var(--shadow), var(--ring-hover); }
-  .btn:active{ box-shadow:var(--shadow-inset-sm), var(--ring-hover); }
+  .btn:active{ box-shadow:var(--shadow-inset-sm), var(--ring-hover); transform:scale(.96); }
   .btn:focus-visible{ outline:3px solid var(--purple); outline-offset:2px; }
   .btn-primary{ background:var(--accent); color:var(--accent-ink); box-shadow:5px 5px 10px var(--neu-dark), -5px -5px 10px var(--neu-light); }
   .btn-primary:hover{ box-shadow:7px 7px 14px var(--neu-dark), -7px -7px 14px var(--neu-light); }
@@ -395,8 +395,16 @@
   .mascot-eye{ width:16px; height:19px; position:relative; flex:none; }
   .mascot-pupil{ width:9px; height:16px; border-radius:4.5px; background:var(--ink); position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); transition:transform .06s linear, width .15s ease, height .15s ease, border-radius .15s ease; }
   .mini-mascot:hover .mascot-pupil{ width:11px; height:5px; border-radius:2.5px; }
+  .mini-mascot.mascot-blink .mascot-pupil{ width:11px; height:5px; border-radius:2.5px; }
   .mini-mascot-dark{ background:#1A1A1A; }
   .mini-mascot-dark .mascot-pupil{ background:#FFFFFF; }
+  @keyframes mascotBounce{
+    0%{ transform:translateY(0) scale(1,1); }
+    30%{ transform:translateY(-7px) scale(1.06,.94); }
+    55%{ transform:translateY(1px) scale(.97,1.03); }
+    100%{ transform:translateY(0) scale(1,1); }
+  }
+  .mascot-bounce{ animation:mascotBounce .45s cubic-bezier(.34,1.56,.64,1); }
   @keyframes mascotWiggle{
     0%{ transform:scale(1,1); }
     22%{ transform:scale(1.16,.8); }
@@ -704,6 +712,15 @@ function toast(msg){
   const t = el('div', {class:'toast'}, [msg]);
   wrap.appendChild(t);
   setTimeout(()=>{ t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(), 300); }, 2200);
+  mascotReact();
+}
+function mascotReact(){
+  document.querySelectorAll('.mini-mascot').forEach(mascot=>{
+    mascot.classList.remove('mascot-bounce');
+    void mascot.offsetWidth;
+    mascot.classList.add('mascot-bounce');
+    setTimeout(()=> mascot.classList.remove('mascot-bounce'), 500);
+  });
 }
 const PARTICLE_COLORS = ['#6C4CF0','#E24E6B','#E8843F','#D6A72E','#4CAE50','#0FA394','#3F7FE0','#7C5CFC','#D6588C'];
 function spawnParticles(originEl){
@@ -2493,6 +2510,21 @@ function initMascotPetting(){
     lastX = e.clientX;
   });
   mascot.addEventListener('mouseleave', ()=>{ lastX = null; lastDir = 0; reversals = 0; });
+  mascot.addEventListener('click', mascotReact);
 }
 initMascotPetting();
+
+function initMascotBlink(){
+  document.querySelectorAll('.mini-mascot').forEach(mascot=>{
+    function scheduleBlink(){
+      setTimeout(()=>{
+        mascot.classList.add('mascot-blink');
+        setTimeout(()=> mascot.classList.remove('mascot-blink'), 160);
+        scheduleBlink();
+      }, 5000 + Math.random()*7000);
+    }
+    scheduleBlink();
+  });
+}
+initMascotBlink();
 </script>
