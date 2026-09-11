@@ -590,7 +590,7 @@
 
 <div id="modalRoot"></div>
 <div class="toast-wrap" id="toastWrap"></div>
-<div class="mini-mascot mini-mascot-dark" id="miniMascotDark" aria-hidden="true">
+<div class="mini-mascot mini-mascot-dark" id="miniMascotDark" title="タピ岡" aria-hidden="true">
   <div class="mascot-eye"><div class="mascot-pupil"></div></div>
   <div class="mascot-eye"><div class="mascot-pupil"></div></div>
 </div>
@@ -2639,7 +2639,7 @@ function initMascotFeeding(){
               setTimeout(()=> cloud.remove(), 1100);
             }, i*180);
           }
-          toast(`「${short}」はあまり好きじゃないみたい…`);
+          toast(`タピ岡は「${short}」があまり好きじゃないみたい…`);
           return;
         }
         if (isLiked){
@@ -2660,7 +2660,7 @@ function initMascotFeeding(){
             setTimeout(()=> heart.remove(), 1000);
           }, i*150);
         }
-        toast(isLiked ? `「${short}」大好き！` : `「${short}」を食べた`);
+        toast(isLiked ? `タピ岡は「${short}」が大好き！` : `タピ岡が「${short}」を食べた`);
         const colorMatch = MASCOT_COLOR_MAP[text];
         if (colorMatch){
           const pupilColor = contrastColor(colorMatch);
