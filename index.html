@@ -5,31 +5,31 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
 <style>
   :root{
-    --bg:#FAF7F6;
-    --surface:#FAF7F6;
-    --surface-2:#F0E8E6;
-    --ink:#2B2321;
-    --ink-soft:#80706C;
-    --ink-faint:#B2A19C;
-    --line:#F0E8E6;
-    --line-strong:#DECFCA;
-    --accent:#2A211F;
-    --accent-deep:#1E1715;
+    --bg:#F8F8F7;
+    --surface:#F8F8F7;
+    --surface-2:#EBEBEA;
+    --ink:#262625;
+    --ink-soft:#77756F;
+    --ink-faint:#AAA8A2;
+    --line:#EBEBEA;
+    --line-strong:#D6D5D2;
+    --accent:#242322;
+    --accent-deep:#191918;
     --accent-ink:#FFFFFF;
     --teal:#0FA394;
     --yellow:#E0A63C;
     --purple:#7C5CFC;
     --red:#E24E6B;
     --green:#1FA070;
-    --gray:#A89490;
+    --gray:#9C9A96;
     --neu-light: rgba(255,255,255,.95);
-    --neu-dark: rgba(210,187,180,.32);
+    --neu-dark: rgba(190,188,184,.35);
     --shadow: 7px 7px 14px var(--neu-dark), -7px -7px 14px var(--neu-light);
     --shadow-sm: 4px 4px 9px var(--neu-dark), -4px -4px 9px var(--neu-light);
     --shadow-inset: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light);
     --shadow-inset-sm: inset 2px 2px 5px var(--neu-dark), inset -2px -2px 5px var(--neu-light);
-    --ring: 0 0 0 1.5px rgba(42,33,31,.16);
-    --ring-hover: 0 0 0 1.5px rgba(42,33,31,.32);
+    --ring: 0 0 0 1.5px rgba(36,35,34,.16);
+    --ring-hover: 0 0 0 1.5px rgba(36,35,34,.32);
     --radius-lg: 22px;
     --radius-md: 16px;
     --radius-sm: 10px;
@@ -88,7 +88,7 @@
     box-shadow:none;
   }
   input::placeholder,textarea::placeholder{ color:var(--ink-faint); font-weight:400; opacity:1; }
-  input:focus,textarea:focus,select:focus{ outline:none; box-shadow:0 0 0 3px rgba(42,33,31,.28); }
+  input:focus,textarea:focus,select:focus{ outline:none; box-shadow:0 0 0 3px rgba(36,35,34,.28); }
   textarea{ resize:vertical; min-height:70px; }
   label.field{ display:block; margin-bottom:12px; }
   label.field > span{ display:block; font-size:12.5px; font-weight:700; color:var(--ink-soft); margin-bottom:5px; letter-spacing:.02em; }
@@ -103,7 +103,7 @@
   .swatch:hover{ transform:scale(1.15); }
   .swatch.active{ box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--ink); }
   input.hexcode-input{ width:84px; font-family:monospace; font-size:12px; color:var(--ink-soft); background:var(--surface-2); padding:6px 8px; border-radius:8px; box-shadow:none; text-transform:uppercase; }
-  input.hexcode-input:focus{ color:var(--ink); box-shadow:0 0 0 3px rgba(42,33,31,.28); }
+  input.hexcode-input:focus{ color:var(--ink); box-shadow:0 0 0 3px rgba(36,35,34,.28); }
   .image-field-row{ display:flex; align-items:center; gap:12px; }
   .image-preview{ width:72px; height:72px; border-radius:16px; overflow:hidden; background:var(--surface-2); box-shadow:var(--shadow-inset-sm); flex:none; display:flex; align-items:center; justify-content:center; }
   .image-preview img{ width:100%; height:100%; object-fit:cover; display:block; }
@@ -2433,23 +2433,19 @@ function initMascot(){
   const mascots = Array.from(document.querySelectorAll('.mini-mascot'));
   if (!mascots.length) return;
   const MAX_OFFSET = 3.2;
-  const CROSS_BIAS = 1.8; /* 通常時は少し寄り目 */
-  const entries = [];
-  mascots.forEach(mascot=>{
-    Array.from(mascot.querySelectorAll('.mascot-pupil')).forEach((p,i)=> entries.push({p, bias: i===0 ? CROSS_BIAS : -CROSS_BIAS}));
-  });
+  const CROSS_BIAS = 1.8; /* 通常時は少し寄り目。この間隔は追従中も一定に保つ */
   document.addEventListener('mousemove', (e)=>{
-    entries.forEach(({p, bias})=>{
-      const eye = p.parentElement;
-      const r = eye.getBoundingClientRect();
+    mascots.forEach(mascot=>{
+      const r = mascot.getBoundingClientRect();
       const cx = r.left + r.width/2, cy = r.top + r.height/2;
       const dx = e.clientX - cx, dy = e.clientY - cy;
       const dist = Math.sqrt(dx*dx + dy*dy) || 1;
-      let ox = (dx/dist) * Math.min(MAX_OFFSET, dist/8);
+      const ox = (dx/dist) * Math.min(MAX_OFFSET, dist/8);
       const oy = (dy/dist) * Math.min(MAX_OFFSET, dist/8);
-      /* カーソル追従でも、通常時の寄り目より内側には近づけない */
-      ox = bias > 0 ? Math.min(ox, 0) : Math.max(ox, 0);
-      p.style.transform = `translate(calc(-50% + ${ox+bias}px), calc(-50% + ${oy}px))`;
+      Array.from(mascot.querySelectorAll('.mascot-pupil')).forEach((p,i)=>{
+        const bias = i===0 ? CROSS_BIAS : -CROSS_BIAS;
+        p.style.transform = `translate(calc(-50% + ${ox+bias}px), calc(-50% + ${oy}px))`;
+      });
     });
   });
 }
