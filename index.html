@@ -405,6 +405,16 @@
     100%{ transform:translateY(0) scale(1,1); }
   }
   .mascot-bounce{ animation:mascotBounce .45s cubic-bezier(.34,1.56,.64,1); }
+  .mascot-hungry{ box-shadow:var(--shadow-sm), var(--ring), 0 0 0 4px rgba(255,255,255,.3); }
+  .mascot-morsel{
+    position:fixed; z-index:45; pointer-events:none; transform:translate(-50%,-50%);
+    font-size:13px; font-weight:700; color:var(--ink); background:var(--surface-2); padding:4px 10px; border-radius:999px;
+    box-shadow:var(--shadow-sm); animation:mascotEat .4s ease forwards;
+  }
+  @keyframes mascotEat{
+    0%{ transform:translate(-50%,-50%) scale(1); opacity:1; }
+    100%{ transform:translate(calc(-50% + var(--tx)), calc(-50% + var(--ty))) scale(.2); opacity:0; }
+  }
   @keyframes mascotWiggle{
     0%{ transform:scale(1,1); }
     22%{ transform:scale(1.16,.8); }
@@ -2527,4 +2537,25 @@ function initMascotBlink(){
   });
 }
 initMascotBlink();
+
+function initMascotFeeding(){
+  const mascot = document.getElementById('miniMascotDark');
+  if (!mascot) return;
+  mascot.addEventListener('dragover', (e)=>{ e.preventDefault(); mascot.classList.add('mascot-hungry'); });
+  mascot.addEventListener('dragleave', ()=>{ mascot.classList.remove('mascot-hungry'); });
+  mascot.addEventListener('drop', (e)=>{
+    e.preventDefault();
+    mascot.classList.remove('mascot-hungry');
+    const text = (e.dataTransfer.getData('text/plain') || '').trim();
+    if (!text) return;
+    const short = text.length > 10 ? text.slice(0,10)+'…' : text;
+    const r = mascot.getBoundingClientRect();
+    const tx = (r.left + r.width/2) - e.clientX, ty = (r.top + r.height/2) - e.clientY;
+    const morsel = el('div', {class:'mascot-morsel', style:`left:${e.clientX}px; top:${e.clientY}px; --tx:${tx}px; --ty:${ty}px;`}, [short.length>6 ? short.slice(0,6)+'…' : short]);
+    document.body.appendChild(morsel);
+    setTimeout(()=> morsel.remove(), 420);
+    setTimeout(()=> toast(`「${short}」を食べた`), 320);
+  });
+}
+initMascotFeeding();
 </script>
