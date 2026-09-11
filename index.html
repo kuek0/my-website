@@ -5,14 +5,14 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap">
 <style>
   :root{
-    --bg:#FAF8F2;
-    --surface:#FAF8F2;
-    --surface-2:#EFEAD9;
-    --ink:#2A2620;
-    --ink-soft:#8A8271;
-    --ink-faint:#B8B0A0;
-    --line:#EFEAD9;
-    --line-strong:#DCD3BC;
+    --bg:#FCFBF9;
+    --surface:#FCFBF9;
+    --surface-2:#F2F0EA;
+    --ink:#2E2B26;
+    --ink-soft:#948D80;
+    --ink-faint:#C4BEB2;
+    --line:#F0EEE7;
+    --line-strong:#E2DED2;
     --accent:#2B2822;
     --accent-deep:#221F1A;
     --accent-ink:#FFFFFF;
@@ -21,9 +21,9 @@
     --purple:#7C5CFC;
     --red:#E24E6B;
     --green:#1FA070;
-    --gray:#A69C89;
-    --neu-light: rgba(255,255,255,.92);
-    --neu-dark: rgba(198,185,148,.4);
+    --gray:#ACA697;
+    --neu-light: rgba(255,255,255,.95);
+    --neu-dark: rgba(205,197,175,.28);
     --shadow: 7px 7px 14px var(--neu-dark), -7px -7px 14px var(--neu-light);
     --shadow-sm: 4px 4px 9px var(--neu-dark), -4px -4px 9px var(--neu-light);
     --shadow-inset: inset 4px 4px 8px var(--neu-dark), inset -4px -4px 8px var(--neu-light);
@@ -85,7 +85,7 @@
   input[type=text],input[type=number],input[type=date],textarea,select{
     width:100%; border:none; border-radius:var(--radius-sm);
     padding:10px 12px; font-size:14px; font-family:var(--font-body); background:var(--surface-2); color:var(--ink);
-    box-shadow:var(--ring);
+    box-shadow:none;
   }
   input:focus,textarea:focus,select:focus{ outline:none; box-shadow:0 0 0 3px rgba(43,40,34,.28); }
   textarea{ resize:vertical; min-height:70px; }
@@ -101,7 +101,7 @@
   .swatch{ width:24px; height:24px; border-radius:50%; border:2px solid rgba(0,0,0,.08); cursor:pointer; transition:transform .1s; }
   .swatch:hover{ transform:scale(1.15); }
   .swatch.active{ box-shadow:0 0 0 2px var(--bg), 0 0 0 4px var(--ink); }
-  input.hexcode-input{ width:84px; font-family:monospace; font-size:12px; color:var(--ink-soft); background:var(--surface-2); padding:6px 8px; border-radius:8px; box-shadow:var(--ring); text-transform:uppercase; }
+  input.hexcode-input{ width:84px; font-family:monospace; font-size:12px; color:var(--ink-soft); background:var(--surface-2); padding:6px 8px; border-radius:8px; box-shadow:none; text-transform:uppercase; }
   input.hexcode-input:focus{ color:var(--ink); box-shadow:0 0 0 3px rgba(43,40,34,.28); }
   .image-field-row{ display:flex; align-items:center; gap:12px; }
   .image-preview{ width:72px; height:72px; border-radius:16px; overflow:hidden; background:var(--surface-2); box-shadow:var(--shadow-inset-sm); flex:none; display:flex; align-items:center; justify-content:center; }
@@ -336,16 +336,26 @@
   /* Modal */
   .modal-back{ position:fixed; inset:0; background:rgba(24,24,30,.4); display:flex; align-items:center; justify-content:center; padding:5vh 16px; overflow:hidden; z-index:100; }
   .modal{
-    background:var(--bg); border-radius:var(--radius-lg); padding:24px; width:100%; max-width:520px;
-    max-height:90vh; overflow-y:auto;
+    background:var(--bg); border-radius:var(--radius-lg); width:100%; max-width:520px;
+    max-height:90vh; overflow:hidden; display:flex; flex-direction:column;
     box-shadow:0 20px 50px rgba(20,16,40,.22); animation:popIn .22s cubic-bezier(.2,.8,.25,1) both;
+  }
+  .modal-scroll{
+    padding:24px; overflow-y:auto; min-height:0;
     scrollbar-width:thin; scrollbar-color:var(--line-strong) transparent;
   }
-  .modal::-webkit-scrollbar{ width:9px; }
-  .modal::-webkit-scrollbar-track{ background:transparent; }
-  .modal::-webkit-scrollbar-thumb{ background-color:var(--line-strong); border-radius:999px; border:2.5px solid var(--bg); background-clip:padding-box; }
-  .modal::-webkit-scrollbar-thumb:hover{ background-color:var(--ink-faint); }
+  .modal-scroll::-webkit-scrollbar{ width:8px; }
+  .modal-scroll::-webkit-scrollbar-track{ background:transparent; }
+  .modal-scroll::-webkit-scrollbar-thumb{ background-color:var(--line-strong); border-radius:999px; border:2px solid var(--bg); background-clip:padding-box; }
+  .modal-scroll::-webkit-scrollbar-thumb:hover{ background-color:var(--ink-faint); }
   .modal.modal-wide{ max-width:820px; }
+  .sidebar{
+    scrollbar-width:thin; scrollbar-color:var(--line-strong) transparent;
+  }
+  .sidebar::-webkit-scrollbar{ width:8px; }
+  .sidebar::-webkit-scrollbar-track{ background:transparent; }
+  .sidebar::-webkit-scrollbar-thumb{ background-color:var(--line-strong); border-radius:999px; border:2px solid var(--bg); background-clip:padding-box; }
+  .sidebar::-webkit-scrollbar-thumb:hover{ background-color:var(--ink-faint); }
   .modal h3{ font-size:18px; font-weight:800; margin-bottom:16px; }
   .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0 20px; }
   .form-grid label.field{ margin-bottom:12px; }
@@ -363,7 +373,7 @@
   .profile-label{ font-size:11.5px; font-weight:700; color:var(--ink-soft); letter-spacing:.02em; margin-bottom:4px; }
   .profile-value{ font-size:13.5px; color:var(--ink); white-space:pre-wrap; line-height:1.7; }
   .modal-foot{ display:flex; justify-content:flex-end; gap:8px; margin-top:18px; }
-  .multiselect-box{ display:flex; flex-wrap:wrap; gap:6px; border:none; border-radius:var(--radius-sm); padding:8px; max-height:130px; overflow-y:auto; background:var(--surface-2); box-shadow:var(--ring); }
+  .multiselect-box{ display:flex; flex-wrap:wrap; gap:6px; border:none; border-radius:var(--radius-sm); padding:8px; max-height:130px; overflow-y:auto; background:var(--surface-2); box-shadow:none; }
   .ms-chip{ font-size:12px; padding:4px 10px; border-radius:999px; border:none; background:var(--bg); font-weight:700; color:var(--ink-soft); box-shadow:var(--shadow-inset-sm), var(--ring); cursor:pointer; }
   .ms-chip:hover{ box-shadow:var(--shadow-inset-sm), var(--ring-hover); }
   .ms-chip.on{ background:var(--accent-deep); color:#fff; box-shadow:var(--shadow-sm); }
@@ -378,8 +388,8 @@
     background:var(--surface-2); box-shadow:var(--shadow-sm), var(--ring);
     z-index:40; pointer-events:none; display:flex; align-items:center; justify-content:center; gap:9px;
   }
-  .mascot-eye{ width:13px; height:13px; border-radius:50%; background:var(--bg); box-shadow:var(--shadow-inset-sm); position:relative; flex:none; }
-  .mascot-pupil{ width:6px; height:6px; border-radius:50%; background:var(--ink); position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); transition:transform .06s linear; }
+  .mascot-eye{ width:13px; height:13px; position:relative; flex:none; }
+  .mascot-pupil{ width:7px; height:7px; border-radius:50%; background:var(--ink); position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); transition:transform .06s linear; }
 
   .particle-host{ position:fixed; left:50%; top:30%; width:0; height:0; z-index:500; pointer-events:none; }
   .particle{ position:absolute; left:0; top:0; animation:particleBurst .6s cubic-bezier(.15,.85,.3,1) forwards; }
@@ -763,11 +773,12 @@ function openImageCropper(file){
         lockBodyScroll();
         const back = el('div', {class:'modal-back', style:'z-index:160;'});
         const box = el('div', {class:'modal', style:'max-width:360px;'});
-        box.appendChild(el('h3', {}, ['画像の切り取り範囲を選択']));
+        const scrollHost = el('div', {class:'modal-scroll'});
+        scrollHost.appendChild(el('h3', {}, ['画像の切り取り範囲を選択']));
         const viewport = el('div', {class:'crop-viewport', style:`width:${VP}px; height:${VP}px;`});
         const imgEl = el('img', {class:'crop-img', src: reader.result, draggable:false});
         viewport.appendChild(imgEl);
-        box.appendChild(el('div', {style:'display:flex; justify-content:center;'}, [viewport]));
+        scrollHost.appendChild(el('div', {style:'display:flex; justify-content:center;'}, [viewport]));
 
         function clampOffset(){
           const scale = baseScale*zoom;
@@ -814,8 +825,8 @@ function openImageCropper(file){
         zoomInput.value = '1';
         zoomInput.addEventListener('input', ()=>{ zoom = parseFloat(zoomInput.value); clampOffset(); applyTransform(); });
         zoomRow.appendChild(zoomInput);
-        box.appendChild(zoomRow);
-        box.appendChild(el('div', {class:'hint', style:'text-align:center; margin-top:4px;'}, ['ドラッグで位置調整、スライダーで拡大縮小できます']));
+        scrollHost.appendChild(zoomRow);
+        scrollHost.appendChild(el('div', {class:'hint', style:'text-align:center; margin-top:4px;'}, ['ドラッグで位置調整、スライダーで拡大縮小できます']));
 
         function cleanup(){
           window.removeEventListener('mousemove', pointerMove);
@@ -845,7 +856,8 @@ function openImageCropper(file){
           cleanup();
           resolve(dataUrl);
         }}, ['この範囲で決定']));
-        box.appendChild(foot);
+        scrollHost.appendChild(foot);
+        box.appendChild(scrollHost);
         back.appendChild(box);
         document.body.appendChild(back);
       };
@@ -865,11 +877,13 @@ function confirmDialog(message){
     lockBodyScroll();
     const back = el('div', {class:'modal-back', style:'z-index:150;'});
     const box = el('div', {class:'modal', style:'max-width:360px;'});
-    box.appendChild(el('div', {style:'font-size:14.5px; line-height:1.6; color:var(--ink);'}, [message]));
+    const scrollHost = el('div', {class:'modal-scroll'});
+    scrollHost.appendChild(el('div', {style:'font-size:14.5px; line-height:1.6; color:var(--ink);'}, [message]));
     const foot = el('div', {class:'modal-foot'});
     foot.appendChild(el('button', {class:'btn', onclick:()=>{ back.remove(); unlockBodyScroll(); resolve(false); }}, ['キャンセル']));
     foot.appendChild(el('button', {class:'btn btn-danger', onclick:()=>{ back.remove(); unlockBodyScroll(); resolve(true); }}, ['削除する']));
-    box.appendChild(foot);
+    scrollHost.appendChild(foot);
+    box.appendChild(scrollHost);
     back.appendChild(box);
     document.body.appendChild(back);
   });
@@ -881,8 +895,9 @@ function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, cele
   lockBodyScroll();
   const back = el('div', {class:'modal-back', onclick:(e)=>{ if(e.target===back) closeModal(); }});
   const modal = el('div', {class:'modal'+(wide?' modal-wide':'')});
-  modal.appendChild(el('h3', {}, [title]));
-  const fieldsHost = wide ? el('div', {class:'form-grid'}) : modal;
+  const scrollHost = el('div', {class:'modal-scroll'});
+  scrollHost.appendChild(el('h3', {}, [title]));
+  const fieldsHost = wide ? el('div', {class:'form-grid'}) : scrollHost;
   const FULL_WIDTH_TYPES = ['textarea','image','color','multiselect','pair'];
 
   const fieldRefs = {};
@@ -1023,7 +1038,7 @@ function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, cele
     fieldRefs[f.key] = input;
     fieldsHost.appendChild(wrap);
   });
-  if (wide) modal.appendChild(fieldsHost);
+  if (wide) scrollHost.appendChild(fieldsHost);
 
   if (onReady) onReady(fieldRefs, modal);
 
@@ -1053,7 +1068,8 @@ function openForm({title, fields, initial, submitLabel, onSubmit, onDelete, cele
     closeModal();
   }}, [submitLabel || '保存']);
   foot.appendChild(submitBtn);
-  modal.appendChild(foot);
+  scrollHost.appendChild(foot);
+  modal.appendChild(scrollHost);
   modal.addEventListener('keydown', (e)=>{
     if (e.key !== 'Enter' || e.defaultPrevented) return;
     const tag = e.target.tagName;
@@ -1228,7 +1244,7 @@ function renderActiveView(){
 const ROLE_OPTIONS = [
   {value:'主人公'}, {value:'ヒロイン'}, {value:'仲間'}, {value:'敵役'}, {value:'脇役'}, {value:'その他'}
 ];
-const CHARACTER_SORTS = [['created','登録順（追加した順）'], ['name','名前順（あいうえお順）'], ['role','役割順'], ['custom','カスタム（ドラッグで並び替え）']];
+const CHARACTER_SORTS = [['created','登録順（追加した順）'], ['name','名前順（あいうえお順）'], ['role','役割順'], ['custom','カスタム']];
 function charById(id){ return State.data.characters.find(c=>c.id===id); }
 function charBirthYear(c){ return c.birthYear!=null ? c.birthYear : extractYear(c.birth); }
 function charDeathYear(c){ return c.deathYear!=null ? c.deathYear : extractYear(c.death); }
@@ -1520,6 +1536,7 @@ function openCharacterProfile(c){
   lockBodyScroll();
   const back = el('div', {class:'modal-back', onclick:(e)=>{ if(e.target===back) closeModal(); }});
   const modal = el('div', {class:'modal profile-modal'});
+  const scrollHost = el('div', {class:'modal-scroll'});
 
   const color = c.color || '#6C4CF0';
   const head = el('div', {class:'profile-head'});
@@ -1531,7 +1548,7 @@ function openCharacterProfile(c){
     c.role ? el('div', {class:'ch-role', style:'margin-top:6px;'}, [c.role]) : null
   ]);
   head.appendChild(headText);
-  modal.appendChild(head);
+  scrollHost.appendChild(head);
 
   const rows = el('div', {class:'profile-rows'});
   function row(label, value){
@@ -1557,13 +1574,14 @@ function openCharacterProfile(c){
   row('性格', c.personality);
   row('背景・経歴', c.background);
   row('メモ', c.notes);
-  modal.appendChild(rows);
-  if (c.updatedBy) modal.appendChild(el('div', {class:'updated-by', style:'margin-top:12px;'}, [`最終更新: ${c.updatedBy}`]));
+  scrollHost.appendChild(rows);
+  if (c.updatedBy) scrollHost.appendChild(el('div', {class:'updated-by', style:'margin-top:12px;'}, [`最終更新: ${c.updatedBy}`]));
 
   const foot = el('div', {class:'modal-foot'});
   foot.appendChild(el('button', {class:'btn', onclick: closeModal}, ['閉じる']));
   foot.appendChild(el('button', {class:'btn btn-primary', onclick:()=>{ closeModal(); openCharacterForm(c); }}, ['編集する']));
-  modal.appendChild(foot);
+  scrollHost.appendChild(foot);
+  modal.appendChild(scrollHost);
 
   back.appendChild(modal);
   root.appendChild(back);
@@ -1577,7 +1595,7 @@ const FAVOR_OPTIONS = [
 const FAVOR_COLOR = { positive:'#1FA070', negative:'#E24E6B', complex:'#7C5CFC', neutral:'#9C97AE' };
 const FAVOR_LABEL = { positive:'好意的', negative:'敵対的', complex:'複雑', neutral:'中立' };
 const FAVOR_ORDER = { positive:0, complex:1, neutral:2, negative:3 };
-const RELATIONSHIP_SORTS = [['created','登録順（追加した順）'], ['nameA','キャラクターA名順（あいうえお順）'], ['favor','感情の方向順（好意的→複雑→中立→敵対的）'], ['custom','カスタム（ドラッグで並び替え）']];
+const RELATIONSHIP_SORTS = [['created','登録順（追加した順）'], ['nameA','キャラクターA名順（あいうえお順）'], ['favor','感情の方向順（好意的→複雑→中立→敵対的）'], ['custom','カスタム']];
 let relSortKey = 'custom';
 function sortRelationships(list){
   const out = [...list];
