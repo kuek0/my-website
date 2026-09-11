@@ -206,7 +206,7 @@
     background:var(--bg); border:none; border-radius:var(--radius-md); padding:12px 14px;
     box-shadow:var(--shadow-sm), inset 5px 0 0 var(--cc,var(--accent)), var(--ring); display:flex; flex-direction:column; gap:6px;
     cursor:pointer; transition:box-shadow .15s ease, transform .12s ease;
-    height:112px; overflow:hidden;
+    min-height:112px;
   }
   .char-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow), inset 5px 0 0 var(--cc,var(--accent)), var(--ring-hover); }
   .char-card .ch-top{ display:flex; align-items:center; gap:10px; }
@@ -256,7 +256,6 @@
   .gallery-tile .gt-noimg{ width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:34px; font-weight:800; }
   .gallery-tile .gt-label{ position:absolute; left:0; right:0; bottom:0; padding:9px 10px 8px; background:linear-gradient(transparent, rgba(15,10,35,.72)); color:#fff; }
   .gallery-tile .gt-label .gt-name{ font-size:12.5px; font-weight:800; }
-  .gallery-tile .gt-label .gt-role{ font-size:10px; opacity:.85; font-weight:500; margin-top:1px; }
 
   /* Generic list rows (world / relationships) */
   .row-list{ display:flex; flex-direction:column; gap:12px; }
@@ -1356,8 +1355,7 @@ function buildCharacterGallery(list){
     if (c.image) tile.appendChild(el('img', {src:c.image}));
     else tile.appendChild(el('div', {class:'gt-noimg', style:`background:${color}; color:${contrastColor(color)}`}, [(c.name||'?').charAt(0)]));
     tile.appendChild(el('div', {class:'gt-label'}, [
-      el('div', {class:'gt-name'}, [c.name || '(名前未設定)']),
-      c.role ? el('div', {class:'gt-role'}, [c.role]) : null
+      el('div', {class:'gt-name'}, [c.name || '(名前未設定)'])
     ]));
     grid.appendChild(tile);
   });
