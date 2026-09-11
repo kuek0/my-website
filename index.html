@@ -2578,7 +2578,7 @@ function initMascotFeeding(){
     document.body.appendChild(morsel);
     setTimeout(()=> morsel.remove(), 550);
 
-    const isDisliked = text === '鹿蔵';
+    const isDisliked = ['鹿蔵', 'ゴミ'].includes(text);
     const chewCount = 2 + Math.floor(Math.random()*2); /* 2〜3回、ゆっくり */
     const chewDuration = chewCount * 500;
     const pattern = ['neutral', 'closed', 'neutral-then-closed'][Math.floor(Math.random()*3)];
