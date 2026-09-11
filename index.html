@@ -38,6 +38,11 @@
   }
   *,*::before,*::after{ box-sizing:border-box; }
   html,body{ margin:0; padding:0; }
+  html{ scrollbar-width:thin; scrollbar-color:var(--line-strong) transparent; }
+  html::-webkit-scrollbar{ width:10px; }
+  html::-webkit-scrollbar-track{ background:transparent; margin-block:10px; }
+  html::-webkit-scrollbar-thumb{ background-color:var(--line-strong); border-radius:999px; border:2.5px solid var(--bg); background-clip:padding-box; }
+  html::-webkit-scrollbar-thumb:hover{ background-color:var(--ink-faint); }
   body{
     background:var(--bg);
     color:var(--ink);
@@ -383,23 +388,24 @@
   .toast-wrap{ position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:200; display:flex; flex-direction:column; gap:8px; align-items:center; }
 
   .mini-mascot{
-    position:fixed; right:18px; bottom:18px; width:52px; height:52px; border-radius:50%;
+    position:fixed; right:20px; bottom:20px; width:66px; height:66px; border-radius:50%;
     background:var(--surface-2); box-shadow:var(--shadow-sm), var(--ring);
-    z-index:40; pointer-events:auto; cursor:default; display:flex; align-items:center; justify-content:center; gap:9px;
+    z-index:40; pointer-events:auto; cursor:default; display:flex; align-items:center; justify-content:center; gap:11px;
   }
-  .mascot-eye{ width:13px; height:15px; position:relative; flex:none; }
-  .mascot-pupil{ width:7px; height:13px; border-radius:3.5px; background:var(--ink); position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); transition:transform .06s linear, width .15s ease, height .15s ease, border-radius .15s ease; }
-  .mini-mascot:hover .mascot-pupil{ width:9px; height:4px; border-radius:2px; }
+  .mascot-eye{ width:16px; height:19px; position:relative; flex:none; }
+  .mascot-pupil{ width:9px; height:16px; border-radius:4.5px; background:var(--ink); position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); transition:transform .06s linear, width .15s ease, height .15s ease, border-radius .15s ease; }
+  .mini-mascot:hover .mascot-pupil{ width:11px; height:5px; border-radius:2.5px; }
   .mini-mascot-dark{ background:#1A1A1A; }
   .mini-mascot-dark .mascot-pupil{ background:#FFFFFF; }
   @keyframes mascotWiggle{
-    0%,100%{ transform:scale(1) rotate(0); }
-    20%{ transform:scale(1.12,.9) rotate(-8deg); }
-    40%{ transform:scale(.92,1.1) rotate(7deg); }
-    60%{ transform:scale(1.08,.94) rotate(-5deg); }
-    80%{ transform:scale(.97,1.04) rotate(3deg); }
+    0%{ transform:scale(1,1); }
+    22%{ transform:scale(1.16,.8); }
+    44%{ transform:scale(.86,1.18); }
+    64%{ transform:scale(1.08,.92); }
+    82%{ transform:scale(.96,1.04); }
+    100%{ transform:scale(1,1); }
   }
-  .mascot-wiggle{ animation:mascotWiggle .6s ease; }
+  .mascot-wiggle{ animation:mascotWiggle .7s cubic-bezier(.34,1.56,.64,1); transform-origin:50% 100%; }
 
   .particle-host{ position:fixed; left:50%; top:30%; width:0; height:0; z-index:500; pointer-events:none; }
   .particle{ position:absolute; left:0; top:0; animation:particleBurst .6s cubic-bezier(.15,.85,.3,1) forwards; }
@@ -2440,8 +2446,8 @@ async function boot(){
 function initMascot(){
   const mascots = Array.from(document.querySelectorAll('.mini-mascot'));
   if (!mascots.length) return;
-  const MAX_OFFSET = 3.2;
-  const CROSS_BIAS = 1.8; /* 通常時は少し寄り目。この間隔は追従中も一定に保つ */
+  const MAX_OFFSET = 3.8;
+  const CROSS_BIAS = 2.2; /* 通常時は少し寄り目。この間隔は追従中も一定に保つ */
   document.addEventListener('mousemove', (e)=>{
     mascots.forEach(mascot=>{
       const r = mascot.getBoundingClientRect();
@@ -2478,8 +2484,7 @@ function initMascotPetting(){
             mascot.classList.remove('mascot-wiggle');
             void mascot.offsetWidth;
             mascot.classList.add('mascot-wiggle');
-            spawnParticles(mascot);
-            setTimeout(()=> mascot.classList.remove('mascot-wiggle'), 650);
+            setTimeout(()=> mascot.classList.remove('mascot-wiggle'), 750);
           }
         }
         lastDir = dir;
