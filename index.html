@@ -203,12 +203,15 @@
   /* Character cards */
   .card-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px; }
   .char-card{
+    position:relative;
     background:var(--bg); border:none; border-radius:var(--radius-md); padding:12px 14px;
     box-shadow:var(--shadow-sm), inset 5px 0 0 var(--cc,var(--accent)), var(--ring); display:flex; flex-direction:column; gap:5px;
     cursor:pointer; transition:box-shadow .15s ease, transform .12s ease;
     height:76px; overflow:hidden; justify-content:center;
   }
   .char-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow), inset 5px 0 0 var(--cc,var(--accent)), var(--ring-hover); }
+  .card-actions-corner{ position:absolute; top:8px; right:8px; margin:0; padding:0; opacity:0; transition:opacity .15s ease; }
+  .char-card:hover .card-actions-corner, .char-card:focus-within .card-actions-corner{ opacity:1; }
   .char-card .ch-top{ display:flex; align-items:center; gap:10px; }
   .ch-avatar{ width:34px; height:34px; border-radius:50%; background:var(--cc,var(--accent)); flex:none; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:14px; }
   .ch-avatar-img{ width:34px; height:34px; border-radius:50%; object-fit:cover; flex:none; box-shadow:0 0 0 2px var(--cc,var(--accent)); }
@@ -1340,6 +1343,9 @@ function renderCharacters(){
       ]);
       card.appendChild(top);
       if (c.role) card.appendChild(el('div', {class:'ch-role'}, [c.role]));
+      card.appendChild(el('div', {class:'card-actions card-actions-corner'}, [
+        el('button', {class:'btn btn-sm', onclick:(e)=>{ e.stopPropagation(); openCharacterForm(c); }}, ['編集'])
+      ]));
       grid.appendChild(card);
     });
     listHost.appendChild(grid);
