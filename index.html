@@ -2560,6 +2560,12 @@ function initMascotBlink(){
 }
 initMascotBlink();
 
+const MASCOT_COLOR_MAP = {
+  '赤':'#E24E6B', '青':'#3F7FE0', '緑':'#1FA070', '黄':'#E0A63C', '黄色':'#E0A63C',
+  '紫':'#7C5CFC', 'オレンジ':'#E8843F', 'ピンク':'#D6588C', '白':'#FFFFFF', '黒':'#1A1A1A',
+  '茶':'#8B5A2B', '茶色':'#8B5A2B', '灰色':'#9C9A96', 'グレー':'#9C9A96', '水色':'#5BC0DE',
+  '金':'#D6A72E', '金色':'#D6A72E', '銀':'#C0C0C0', '銀色':'#C0C0C0'
+};
 function initMascotFeeding(){
   const mascot = document.getElementById('miniMascotDark');
   if (!mascot) return;
@@ -2617,6 +2623,16 @@ function initMascotFeeding(){
           }, i*150);
         }
         toast(`「${short}」を食べた`);
+        const colorMatch = MASCOT_COLOR_MAP[text];
+        if (colorMatch){
+          const pupilColor = contrastColor(colorMatch);
+          mascot.style.background = colorMatch;
+          mascot.querySelectorAll('.mascot-pupil').forEach(p=> p.style.background = pupilColor);
+          setTimeout(()=>{
+            mascot.style.background = '';
+            mascot.querySelectorAll('.mascot-pupil').forEach(p=> p.style.background = '');
+          }, 4000);
+        }
       }, chewDuration);
     }, 480);
   });
