@@ -390,8 +390,16 @@
   .mascot-eye{ width:13px; height:15px; position:relative; flex:none; }
   .mascot-pupil{ width:7px; height:13px; border-radius:3.5px; background:var(--ink); position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); transition:transform .06s linear, width .15s ease, height .15s ease, border-radius .15s ease; }
   .mini-mascot:hover .mascot-pupil{ width:9px; height:4px; border-radius:2px; }
-  .mini-mascot-dark{ background:#141C22; }
+  .mini-mascot-dark{ background:#1A1A1A; }
   .mini-mascot-dark .mascot-pupil{ background:#FFFFFF; }
+  @keyframes mascotWiggle{
+    0%,100%{ transform:scale(1) rotate(0); }
+    20%{ transform:scale(1.12,.9) rotate(-8deg); }
+    40%{ transform:scale(.92,1.1) rotate(7deg); }
+    60%{ transform:scale(1.08,.94) rotate(-5deg); }
+    80%{ transform:scale(.97,1.04) rotate(3deg); }
+  }
+  .mascot-wiggle{ animation:mascotWiggle .6s ease; }
 
   .particle-host{ position:fixed; left:50%; top:30%; width:0; height:0; z-index:500; pointer-events:none; }
   .particle{ position:absolute; left:0; top:0; animation:particleBurst .6s cubic-bezier(.15,.85,.3,1) forwards; }
@@ -2450,4 +2458,36 @@ function initMascot(){
   });
 }
 initMascot();
+
+function initMascotPetting(){
+  const mascot = document.getElementById('miniMascotDark');
+  if (!mascot) return;
+  let lastX = null, lastDir = 0, reversals = 0, lastReversalTime = 0, cooldownUntil = 0;
+  mascot.addEventListener('mousemove', (e)=>{
+    const now = Date.now();
+    if (lastX !== null && now >= cooldownUntil){
+      const dx = e.clientX - lastX;
+      if (Math.abs(dx) > 1.5){
+        const dir = dx > 0 ? 1 : -1;
+        if (lastDir && dir !== lastDir){
+          reversals = (now - lastReversalTime < 900) ? reversals + 1 : 1;
+          lastReversalTime = now;
+          if (reversals >= 4){
+            reversals = 0;
+            cooldownUntil = now + 1500;
+            mascot.classList.remove('mascot-wiggle');
+            void mascot.offsetWidth;
+            mascot.classList.add('mascot-wiggle');
+            spawnParticles(mascot);
+            setTimeout(()=> mascot.classList.remove('mascot-wiggle'), 650);
+          }
+        }
+        lastDir = dir;
+      }
+    }
+    lastX = e.clientX;
+  });
+  mascot.addEventListener('mouseleave', ()=>{ lastX = null; lastDir = 0; reversals = 0; });
+}
+initMascotPetting();
 </script>
