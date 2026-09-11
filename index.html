@@ -204,9 +204,9 @@
   .card-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px; }
   .char-card{
     background:var(--bg); border:none; border-radius:var(--radius-md); padding:12px 14px;
-    box-shadow:var(--shadow-sm), inset 5px 0 0 var(--cc,var(--accent)), var(--ring); display:flex; flex-direction:column; gap:5px;
+    box-shadow:var(--shadow-sm), inset 5px 0 0 var(--cc,var(--accent)), var(--ring); display:flex; flex-direction:column; gap:6px;
     cursor:pointer; transition:box-shadow .15s ease, transform .12s ease;
-    height:106px; overflow:hidden;
+    height:112px; overflow:hidden;
   }
   .char-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow), inset 5px 0 0 var(--cc,var(--accent)), var(--ring-hover); }
   .char-card .ch-top{ display:flex; align-items:center; gap:10px; }
@@ -215,9 +215,10 @@
   .rel-avatar{ width:22px; height:22px; border-radius:50%; object-fit:cover; flex:none; vertical-align:middle; box-shadow:0 0 0 2px var(--cc, rgba(0,0,0,.08)); }
   .rel-avatar-fallback{ width:22px; height:22px; border-radius:50%; flex:none; display:inline-flex; align-items:center; justify-content:center; color:#fff; font-weight:800; font-size:10.5px; vertical-align:middle; box-shadow:0 0 0 2px var(--cc, rgba(0,0,0,.12)); }
   .rel-pair{ display:inline-flex; align-items:center; gap:6px; font-weight:800; font-size:14.5px; color:var(--ink); }
-  .ch-name{ font-weight:800; font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .char-card .ch-name{ font-weight:800; font-size:14.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex:1; min-width:0; }
   .ch-reading{ font-size:10.5px; color:var(--ink-faint); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .ch-role{ font-size:10.5px; color:var(--ink-soft); background:var(--surface-2); display:inline-block; padding:1px 8px; border-radius:999px; align-self:flex-start; }
+  .ch-affiliation{ font-size:11.5px; color:var(--ink-soft); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .card-actions{ display:flex; justify-content:flex-end; gap:6px; margin-top:auto; padding-top:6px; }
   .updated-by{ font-size:10.5px; color:var(--ink-faint); margin-top:2px; }
 
@@ -1333,13 +1334,10 @@ function renderCharacters(){
         : el('div', {class:'ch-avatar', style:`color:${contrastColor(c.color||'#6C4CF0')}`}, [(c.name||'?').charAt(0)]);
       const top = el('div', {class:'ch-top'}, [
         avatar,
-        el('div', {}, [
-          el('div', {class:'ch-name'}, [c.name || '(名前未設定)']),
-          charReading(c) ? el('div', {class:'ch-reading'}, [charReading(c)]) : null
-        ])
+        el('div', {class:'ch-name'}, [c.name || '(名前未設定)'])
       ]);
       card.appendChild(top);
-      if (c.role) card.appendChild(el('div', {class:'ch-role'}, [c.role]));
+      card.appendChild(el('div', {class:'ch-affiliation'}, [c.affiliation || '—']));
       card.appendChild(el('div', {class:'card-actions'}, [
         el('button', {class:'btn btn-sm', onclick:(e)=>{ e.stopPropagation(); openCharacterForm(c); }}, ['編集'])
       ]));
