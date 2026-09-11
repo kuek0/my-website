@@ -2516,10 +2516,14 @@ initMascotPetting();
 
 function initMascotBlink(){
   document.querySelectorAll('.mini-mascot').forEach(mascot=>{
-    setInterval(()=>{
-      mascot.classList.add('mascot-blink');
-      setTimeout(()=> mascot.classList.remove('mascot-blink'), 160);
-    }, 4000);
+    function scheduleBlink(){
+      setTimeout(()=>{
+        mascot.classList.add('mascot-blink');
+        setTimeout(()=> mascot.classList.remove('mascot-blink'), 160);
+        scheduleBlink();
+      }, 2500 + Math.random()*6000);
+    }
+    scheduleBlink();
   });
 }
 initMascotBlink();
