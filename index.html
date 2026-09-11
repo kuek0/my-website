@@ -423,12 +423,20 @@
   }
   .mascot-chewing{ animation:mascotChew .5s ease-in-out var(--chew-count, 3); transform-origin:50% 100%; }
   .mini-mascot.mascot-happy-closed .mascot-pupil{ width:11px; height:5px; border-radius:2.5px; }
+  .mini-mascot.mascot-displeased .mascot-pupil{ width:12px; height:3px; border-radius:1px; background:#8A8A8A; }
   @keyframes mascotHeart{
     0%{ transform:translate(-50%,-50%) scale(.3) rotate(0deg); opacity:0; }
     25%{ opacity:1; transform:translate(-50%,-110%) scale(1) rotate(-6deg); }
     100%{ transform:translate(-50%,-190%) scale(.85) rotate(6deg); opacity:0; }
   }
   .mascot-heart{ position:fixed; z-index:46; pointer-events:none; font-size:17px; color:#141414; animation:mascotHeart 1s ease-out forwards; }
+  @keyframes mascotMoyamoya{
+    0%{ transform:translate(-50%,-50%) scale(.5) rotate(0deg); opacity:0; }
+    25%{ opacity:.85; transform:translate(-50%,-100%) scale(1) rotate(8deg); }
+    60%{ transform:translate(-55%,-140%) scale(1.05) rotate(-8deg); }
+    100%{ transform:translate(-50%,-185%) scale(.9) rotate(6deg); opacity:0; }
+  }
+  .mascot-moyamoya{ position:fixed; z-index:46; pointer-events:none; font-size:15px; font-weight:800; color:#8A8A8A; animation:mascotMoyamoya 1.1s ease-out forwards; }
   @keyframes mascotWiggle{
     0%{ transform:scale(1,1); }
     22%{ transform:scale(1.16,.8); }
@@ -2570,6 +2578,7 @@ function initMascotFeeding(){
     document.body.appendChild(morsel);
     setTimeout(()=> morsel.remove(), 550);
 
+    const isDisliked = text === '鹿蔵';
     const chewCount = 2 + Math.floor(Math.random()*2); /* 2〜3回、ゆっくり */
     const chewDuration = chewCount * 500;
     const pattern = ['neutral', 'closed', 'neutral-then-closed'][Math.floor(Math.random()*3)];
@@ -2577,10 +2586,23 @@ function initMascotFeeding(){
     setTimeout(()=>{
       mascot.style.setProperty('--chew-count', chewCount);
       mascot.classList.add('mascot-chewing');
-      if (pattern === 'closed') mascot.classList.add('mascot-happy-closed');
+      if (!isDisliked && pattern === 'closed') mascot.classList.add('mascot-happy-closed');
 
       setTimeout(()=>{
         mascot.classList.remove('mascot-chewing');
+        if (isDisliked){
+          mascot.classList.add('mascot-displeased');
+          setTimeout(()=> mascot.classList.remove('mascot-displeased'), 900);
+          for (let i=0; i<2; i++){
+            setTimeout(()=>{
+              const cloud = el('div', {class:'mascot-moyamoya', style:`left:${cx + (Math.random()*18-9)}px; top:${r.top}px;`}, ['〜']);
+              document.body.appendChild(cloud);
+              setTimeout(()=> cloud.remove(), 1100);
+            }, i*180);
+          }
+          toast(`「${short}」はあまり好きじゃないみたい…`);
+          return;
+        }
         if (pattern === 'closed'){
           setTimeout(()=> mascot.classList.remove('mascot-happy-closed'), 350);
         } else if (pattern === 'neutral-then-closed'){
