@@ -54,7 +54,7 @@
   h1,h2,h3,h4{ margin:0; text-wrap:balance; color:var(--ink); }
   p{ margin:0; }
   a{ color:var(--accent-deep); }
-  ::selection{ background:var(--yellow); color:var(--ink); }
+  ::selection{ background:var(--line-strong); color:var(--ink); }
 
   @media (prefers-reduced-motion: reduce){
     *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
@@ -396,6 +396,16 @@
   .mascot-pupil{ width:9px; height:16px; border-radius:4.5px; background:var(--ink); position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); transition:transform .06s linear, width .15s ease, height .15s ease, border-radius .15s ease; }
   .mini-mascot:hover .mascot-pupil{ width:11px; height:5px; border-radius:2.5px; }
   .mini-mascot.mascot-blink .mascot-pupil{ width:11px; height:5px; border-radius:2.5px; }
+  .mini-mascot.mascot-sleep .mascot-pupil{ width:11px; height:5px; border-radius:2.5px; }
+  @keyframes mascotZzzFloat{
+    0%{ transform:translate(0,0) scale(.6); opacity:0; }
+    20%{ opacity:.9; transform:translate(4px,-16px) scale(1); }
+    100%{ transform:translate(11px,-48px) scale(1.15); opacity:0; }
+  }
+  .mascot-zzz{
+    position:fixed; z-index:46; pointer-events:none; font-size:13px; font-weight:800; color:var(--ink-faint);
+    animation:mascotZzzFloat 1.8s ease-out forwards;
+  }
   .mini-mascot-dark{ background:#1A1A1A; }
   .mini-mascot-dark .mascot-pupil{ background:#FFFFFF; }
   @keyframes mascotRainbowSpin{ from{ filter:hue-rotate(0deg); } to{ filter:hue-rotate(360deg); } }
@@ -2723,4 +2733,41 @@ function initMascotFeeding(){
   });
 }
 initMascotFeeding();
+
+function initMascotSleep(){
+  const mascots = Array.from(document.querySelectorAll('.mini-mascot'));
+  if (!mascots.length) return;
+  const IDLE_MS = 20000;
+  let lastActivity = Date.now();
+  let asleep = false;
+  let zzzInterval = null;
+
+  function spawnZzz(){
+    mascots.forEach(mascot=>{
+      const r = mascot.getBoundingClientRect();
+      const z = el('div', {class:'mascot-zzz', style:`left:${r.left + r.width*0.7}px; top:${r.top}px;`}, ['Zzz']);
+      document.body.appendChild(z);
+      setTimeout(()=> z.remove(), 1800);
+    });
+  }
+  function wake(){
+    lastActivity = Date.now();
+    if (asleep){
+      asleep = false;
+      mascots.forEach(m=> m.classList.remove('mascot-sleep'));
+      if (zzzInterval){ clearInterval(zzzInterval); zzzInterval = null; }
+    }
+  }
+  ['mousemove','dragover','mousedown'].forEach(evt=> document.addEventListener(evt, wake));
+
+  setInterval(()=>{
+    if (!asleep && Date.now() - lastActivity > IDLE_MS){
+      asleep = true;
+      mascots.forEach(m=> m.classList.add('mascot-sleep'));
+      spawnZzz();
+      zzzInterval = setInterval(spawnZzz, 1800);
+    }
+  }, 1000);
+}
+initMascotSleep();
 </script>
