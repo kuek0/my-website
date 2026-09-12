@@ -398,6 +398,26 @@
   .mini-mascot.mascot-blink .mascot-pupil{ width:11px; height:5px; border-radius:2.5px; }
   .mini-mascot-dark{ background:#1A1A1A; }
   .mini-mascot-dark .mascot-pupil{ background:#FFFFFF; }
+  @keyframes mascotRainbowSpin{ from{ filter:hue-rotate(0deg); } to{ filter:hue-rotate(360deg); } }
+  .mascot-rainbow{ animation:mascotRainbowSpin 1.2s linear infinite; }
+  .mascot-ears-cat::before, .mascot-ears-cat::after{
+    content:''; position:absolute; top:-13px; width:0; height:0;
+    border-left:9px solid transparent; border-right:9px solid transparent; border-bottom:17px solid #1A1A1A;
+  }
+  .mascot-ears-cat::before{ left:8px; transform:rotate(-14deg); }
+  .mascot-ears-cat::after{ right:8px; transform:rotate(14deg); }
+  .mascot-ears-dog::before, .mascot-ears-dog::after{
+    content:''; position:absolute; top:0px; width:13px; height:25px;
+    border-radius:50% 50% 50% 50% / 65% 65% 35% 35%; background:#1A1A1A;
+  }
+  .mascot-ears-dog::before{ left:-9px; transform:rotate(-25deg); }
+  .mascot-ears-dog::after{ right:-9px; transform:rotate(25deg); }
+  .mascot-ears-rabbit::before, .mascot-ears-rabbit::after{
+    content:''; position:absolute; top:-27px; width:8px; height:29px; border-radius:50%;
+    background:#1A1A1A;
+  }
+  .mascot-ears-rabbit::before{ left:15px; transform:rotate(-7deg); }
+  .mascot-ears-rabbit::after{ right:15px; transform:rotate(7deg); }
   @keyframes mascotBounce{
     0%{ transform:translateY(0) scale(1,1); }
     30%{ transform:translateY(-7px) scale(1.06,.94); }
@@ -2510,11 +2530,11 @@ function initMascot(){
   if (!mascots.length) return;
   const MAX_OFFSET = 3.8;
   const CROSS_BIAS = 2.2; /* 通常時は少し寄り目。この間隔は追従中も一定に保つ */
-  document.addEventListener('mousemove', (e)=>{
+  function trackTo(clientX, clientY){
     mascots.forEach(mascot=>{
       const r = mascot.getBoundingClientRect();
       const cx = r.left + r.width/2, cy = r.top + r.height/2;
-      const dx = e.clientX - cx, dy = e.clientY - cy;
+      const dx = clientX - cx, dy = clientY - cy;
       const dist = Math.sqrt(dx*dx + dy*dy) || 1;
       const ox = (dx/dist) * Math.min(MAX_OFFSET, dist/8);
       const oy = (dy/dist) * Math.min(MAX_OFFSET, dist/8);
@@ -2523,7 +2543,10 @@ function initMascot(){
         p.style.transform = `translate(calc(-50% + ${ox+bias}px), calc(-50% + ${oy}px))`;
       });
     });
-  });
+  }
+  document.addEventListener('mousemove', (e)=> trackTo(e.clientX, e.clientY));
+  /* ネイティブのドラッグ操作中はmousemoveが発火しないため、dragoverでも追従させる */
+  document.addEventListener('dragover', (e)=> trackTo(e.clientX, e.clientY));
 }
 initMascot();
 
@@ -2597,6 +2620,12 @@ const MASCOT_POSITIVE_WORDS = [
   '嬉しい','うれしい','楽しい','たのしい','最高','さいこう','素敵','すてき','幸せ','しあわせ',
   'ありがとう','いいね','かっこいい','カッコいい','ナイス','ハッピー','ラブ','愛','あい','大好き','だいすき'
 ];
+const MASCOT_RAINBOW_WORDS = ['虹','にじ','ニジ','レインボー','rainbow'];
+const MASCOT_ANIMAL_EARS = {
+  '犬':'dog', 'いぬ':'dog', 'イヌ':'dog', 'わんこ':'dog', 'ワンコ':'dog',
+  '猫':'cat', 'ねこ':'cat', 'ネコ':'cat', 'にゃんこ':'cat', 'ニャンコ':'cat',
+  'ウサギ':'rabbit', 'うさぎ':'rabbit', '兎':'rabbit', 'ラビット':'rabbit'
+};
 function initMascotFeeding(){
   const mascot = document.getElementById('miniMascotDark');
   if (!mascot) return;
@@ -2661,15 +2690,33 @@ function initMascotFeeding(){
           }, i*150);
         }
         toast(isLiked ? `タピ岡は「${short}」が大好き！` : `タピ岡が「${short}」を食べた`);
-        const colorMatch = MASCOT_COLOR_MAP[text];
-        if (colorMatch){
-          const pupilColor = contrastColor(colorMatch);
-          mascot.style.background = colorMatch;
-          mascot.querySelectorAll('.mascot-pupil').forEach(p=> p.style.background = pupilColor);
+
+        if (MASCOT_RAINBOW_WORDS.includes(text)){
+          mascot.style.background = '#E24E6B';
+          mascot.classList.add('mascot-rainbow');
+          mascot.querySelectorAll('.mascot-pupil').forEach(p=> p.style.background = '#FFFFFF');
           setTimeout(()=>{
+            mascot.classList.remove('mascot-rainbow');
             mascot.style.background = '';
             mascot.querySelectorAll('.mascot-pupil').forEach(p=> p.style.background = '');
           }, 4000);
+        } else {
+          const colorMatch = MASCOT_COLOR_MAP[text];
+          if (colorMatch){
+            const pupilColor = contrastColor(colorMatch);
+            mascot.style.background = colorMatch;
+            mascot.querySelectorAll('.mascot-pupil').forEach(p=> p.style.background = pupilColor);
+            setTimeout(()=>{
+              mascot.style.background = '';
+              mascot.querySelectorAll('.mascot-pupil').forEach(p=> p.style.background = '');
+            }, 4000);
+          }
+        }
+
+        const earType = MASCOT_ANIMAL_EARS[text];
+        if (earType){
+          mascot.classList.add('mascot-ears-'+earType);
+          setTimeout(()=> mascot.classList.remove('mascot-ears-'+earType), 4000);
         }
       }, chewDuration);
     }, 480);
