@@ -411,25 +411,25 @@
   @keyframes mascotRainbowSpin{ from{ filter:hue-rotate(0deg); } to{ filter:hue-rotate(360deg); } }
   .mascot-rainbow{ animation:mascotRainbowSpin 1.2s linear infinite; }
   .mascot-ears-cat::before, .mascot-ears-cat::after{
-    content:''; position:absolute; top:-6px; width:0; height:0;
-    border-left:8px solid transparent; border-right:8px solid transparent; border-bottom:15px solid #1A1A1A;
+    content:''; position:absolute; top:-8px; width:0; height:0;
+    border-left:10px solid transparent; border-right:10px solid transparent; border-bottom:18px solid #1A1A1A;
     transform-origin:50% 100%;
   }
-  .mascot-ears-cat::before{ left:12px; transform:rotate(-10deg); }
-  .mascot-ears-cat::after{ right:12px; transform:rotate(10deg); }
+  .mascot-ears-cat::before{ left:11px; transform:rotate(-10deg); }
+  .mascot-ears-cat::after{ right:11px; transform:rotate(10deg); }
   .mascot-ears-dog::before, .mascot-ears-dog::after{
     content:''; position:absolute; top:6px; width:13px; height:40px;
     border-radius:50% 50% 45% 45% / 55% 55% 45% 45%; background:#1A1A1A;
     transform-origin:50% 0%;
   }
-  .mascot-ears-dog::before{ left:-4px; transform:rotate(-12deg); }
-  .mascot-ears-dog::after{ right:-4px; transform:rotate(12deg); }
+  .mascot-ears-dog::before{ left:-4px; transform:rotate(30deg); }
+  .mascot-ears-dog::after{ right:-4px; transform:rotate(-30deg); }
   .mascot-ears-rabbit::before, .mascot-ears-rabbit::after{
-    content:''; position:absolute; top:-19px; width:9px; height:26px; border-radius:5px;
+    content:''; position:absolute; top:-19px; width:12px; height:26px; border-radius:5px;
     background:#1A1A1A; transform-origin:50% 100%;
   }
-  .mascot-ears-rabbit::before{ left:13px; transform:rotate(-6deg); }
-  .mascot-ears-rabbit::after{ right:13px; transform:rotate(6deg); }
+  .mascot-ears-rabbit::before{ left:15px; transform:rotate(-6deg); }
+  .mascot-ears-rabbit::after{ right:15px; transform:rotate(6deg); }
   @keyframes mascotBounce{
     0%{ transform:translateY(0) scale(1,1); }
     30%{ transform:translateY(-7px) scale(1.06,.94); }
@@ -2632,7 +2632,7 @@ const MASCOT_POSITIVE_WORDS = [
   '嬉しい','うれしい','楽しい','たのしい','最高','さいこう','素敵','すてき','幸せ','しあわせ',
   'ありがとう','いいね','かっこいい','カッコいい','ナイス','ハッピー','ラブ','愛','あい','大好き','だいすき'
 ];
-const MASCOT_RAINBOW_WORDS = ['虹','にじ','ニジ','レインボー','rainbow'];
+const MASCOT_RAINBOW_WORDS = ['虹','にじ','ニジ','虹色','にじいろ','レインボー','rainbow'];
 const MASCOT_ANIMAL_EARS = {
   '犬':'dog', 'いぬ':'dog', 'イヌ':'dog', 'わんこ':'dog', 'ワンコ':'dog',
   '猫':'cat', 'ねこ':'cat', 'ネコ':'cat', 'にゃんこ':'cat', 'ニャンコ':'cat',
@@ -2739,7 +2739,7 @@ initMascotFeeding();
 function initMascotSleep(){
   const mascots = Array.from(document.querySelectorAll('.mini-mascot'));
   if (!mascots.length) return;
-  const IDLE_MS = 20000;
+  const IDLE_MS = 5 * 60 * 1000;
   let lastActivity = Date.now();
   let asleep = false;
   let zzzInterval = null;
