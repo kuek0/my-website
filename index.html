@@ -789,7 +789,6 @@ function toast(msg){
   const t = el('div', {class:'toast'}, [msg]);
   wrap.appendChild(t);
   setTimeout(()=>{ t.style.transition='opacity .3s'; t.style.opacity='0'; setTimeout(()=>t.remove(), 300); }, 2200);
-  mascotReact();
 }
 function mascotReact(){
   document.querySelectorAll('.mini-mascot').forEach(mascot=>{
