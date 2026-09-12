@@ -1383,7 +1383,7 @@ function renderCharacters(){
   view.innerHTML = '';
   const toggle = buildViewToggle('characters', [
     {value:'list', label:'リスト'}, {value:'gallery', label:'ギャラリー'},
-    {value:'nicknames', label:'あだ名表'}, {value:'nicknameList', label:'あだ名一覧'}
+    {value:'nicknames', label:'呼び名表'}, {value:'nicknameList', label:'呼び名一覧'}
   ], charViewMode, (mode)=>{ charViewMode=mode; renderCharacters(); });
   view.appendChild(el('div', {class:'content-head'}, [
     el('div', {}, [ el('h2', {}, ['キャラクター']), el('div', {class:'sub'}, [`${State.data.characters.length} 人 登録されています`]) ]),
@@ -1496,7 +1496,7 @@ function buildNicknameSummaryList(list){
     row.appendChild(main);
     wrap.appendChild(row);
   });
-  outer.appendChild(any ? wrap : el('div', {class:'empty-state'}, ['あだ名表に入力すると、ここに一覧が表示されます。']));
+  outer.appendChild(any ? wrap : el('div', {class:'empty-state'}, ['呼び名表に入力すると、ここに一覧が表示されます。']));
   return outer;
 }
 function buildNicknameTable(list){
