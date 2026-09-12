@@ -60,8 +60,6 @@
     *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
   }
 
-  .fade-in{ animation:fadeInUp .5s cubic-bezier(.2,.8,.25,1) both; }
-  @keyframes fadeInUp{ from{ opacity:0; transform:translateY(10px) scale(.99);} to{ opacity:1; transform:translateY(0) scale(1);} }
   @keyframes popIn{ from{ opacity:0; transform:scale(.9);} to{ opacity:1; transform:scale(1);} }
 
   button{ cursor:pointer; border:none; font-weight:700; }
@@ -391,7 +389,9 @@
     position:fixed; right:20px; bottom:20px; width:66px; height:66px; border-radius:50%;
     background:var(--surface-2); box-shadow:var(--shadow-sm), var(--ring);
     z-index:40; pointer-events:auto; cursor:default; display:flex; align-items:center; justify-content:center; gap:11px;
+    transition:transform .5s cubic-bezier(.34,1.1,.64,1);
   }
+  .mascot-big{ transform:scale(1.45); }
   .mascot-eye{ width:16px; height:19px; position:relative; flex:none; }
   .mascot-pupil{ width:9px; height:16px; border-radius:4.5px; background:var(--ink); position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); transition:transform .06s linear, width .15s ease, height .15s ease, border-radius .15s ease; }
   .mini-mascot:hover .mascot-pupil{ width:11px; height:5px; border-radius:2.5px; }
@@ -2637,9 +2637,14 @@ const MASCOT_ANIMAL_EARS = {
   '猫':'cat', 'ねこ':'cat', 'ネコ':'cat', 'にゃんこ':'cat', 'ニャンコ':'cat',
   'ウサギ':'rabbit', 'うさぎ':'rabbit', '兎':'rabbit', 'ラビット':'rabbit'
 };
+const FEED_WINDOW_MS = 12000;
+const FEED_OVERFEED_COUNT = 5;
+const FEED_BIG_DURATION_MS = 10000;
 function initMascotFeeding(){
   const mascot = document.getElementById('miniMascotDark');
   if (!mascot) return;
+  let feedTimestamps = [];
+  let mascotBigTimer = null;
   mascot.addEventListener('dragover', (e)=>{ e.preventDefault(); mascot.classList.add('mascot-hungry'); });
   mascot.addEventListener('dragleave', ()=>{ mascot.classList.remove('mascot-hungry'); });
   mascot.addEventListener('drop', (e)=>{
@@ -2648,6 +2653,21 @@ function initMascotFeeding(){
     const text = (e.dataTransfer.getData('text/plain') || '').trim();
     if (!text) return;
     const short = text.length > 10 ? text.slice(0,10)+'…' : text;
+
+    const now = Date.now();
+    feedTimestamps.push(now);
+    feedTimestamps = feedTimestamps.filter(t => now - t < FEED_WINDOW_MS);
+    if (feedTimestamps.length >= FEED_OVERFEED_COUNT){
+      if (!mascot.classList.contains('mascot-big')){
+        mascot.classList.add('mascot-big');
+        toast('タピ岡、食べすぎてぱんぱんに…！');
+      }
+      clearTimeout(mascotBigTimer);
+      mascotBigTimer = setTimeout(()=>{
+        mascot.classList.remove('mascot-big');
+        feedTimestamps = [];
+      }, FEED_BIG_DURATION_MS);
+    }
     const r = mascot.getBoundingClientRect();
     const cx = r.left + r.width/2, cy = r.top + r.height/2;
     const tx = cx - e.clientX, ty = cy - e.clientY;
